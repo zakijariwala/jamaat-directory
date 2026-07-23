@@ -130,6 +130,8 @@ wrangler pages secret put TURNSTILE_SECRET  # Cloudflare Turnstile server key
 
 ## Deploy
 
+**Full step-by-step (with costs): [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).**
+
 Provision once (needs your Cloudflare account), then deploy:
 
 ```bash
