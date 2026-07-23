@@ -117,8 +117,8 @@ Build order is from Packet 2. **Stages 1–2 are done, verified, and pushed.**
 - [x] **1 — Scaffold, Wrangler config, D1 schema/migrations, seed script**
 - [x] **2 — Snapshot generator + `/directory.json` + no-phone-numbers test**
 - [x] **+ restaurants** added as a facility kind alongside hotels (your request)
-- [ ] **3 — Frontend: home, search, city page, all states** — ⏸️ **BLOCKED on the design** (see §10)
-- [ ] 4 — `/api/reveal` with rate limiting + Turnstile
+- [x] **3 — Frontend: home, search, city pages, all states** — built from the design (Astro + Tailwind v4, inline SVG icons)
+- [~] **4 — `/api/reveal`** — basic one-number endpoint done; rate limiting + Turnstile still to add
 - [ ] 5 — `/api/ingest` + Apps Script trigger (shared HMAC secret)
 - [ ] 6 — `/api/flag` + removal flow
 - [ ] 7 — Nightly R2 backup (scheduled Worker)

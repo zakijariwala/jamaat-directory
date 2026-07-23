@@ -8,9 +8,11 @@ city, and gets a local contact, the masjid, and somewhere to stay.
 Built entirely on Cloudflare (Pages + Workers + D1 + R2 + Turnstile), with a
 Google Form / Sheet as the non-technical intake and moderation surface.
 
-> **Status:** backend foundations complete (build order steps 1–2). The frontend
-> (step 3) is built from the design deliverable; later steps wire the reveal API,
-> ingest pipeline, flags, backups, and deploy. See **Build status** below.
+> **Status:** working prototype (build order steps 1–3). Backend snapshot +
+> phone-safe `directory.json`, and the full frontend (home, search, city pages,
+> all states) built from the design deliverable, with a one-number-at-a-time
+> reveal endpoint. Later steps harden the reveal API and wire the ingest
+> pipeline, flags, backups, and deploy. See **Build status** below.
 
 ---
 
@@ -132,9 +134,12 @@ npm run deploy               # astro build + wrangler pages deploy ./dist
 
 - [x] **1 — Scaffold, Wrangler config, D1 schema/migrations, seed script**
 - [x] **2 — Snapshot generator + `/directory.json` + no-phone-numbers test**
-- [ ] 3 — Frontend: home, search, city page, all states *(from the design)*
-- [ ] 4 — `/api/reveal` with rate limiting + Turnstile
+- [x] **3 — Frontend: home, search, city pages, all states** *(from the design)*
+- [~] **4 — `/api/reveal`** — basic one-number endpoint done; **rate limiting + Turnstile still to add**
 - [ ] 5 — `/api/ingest` + Apps Script trigger
 - [ ] 6 — `/api/flag` + removal flow
 - [ ] 7 — Nightly R2 backup (scheduled Worker)
 - [ ] 8 — Analytics, `noindex` flag wiring, custom domain, deploy
+
+**Prototype (steps 1–3) is ready to demo.** Run `npm run preview` and open a city
+page; "Show number" reveals one number at a time via `/api/reveal`.
