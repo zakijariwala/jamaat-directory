@@ -13,6 +13,10 @@ Google Form / Sheet as the non-technical intake and moderation surface.
 > all states) built from the design deliverable, with a one-number-at-a-time
 > reveal endpoint. Later steps harden the reveal API and wire the ingest
 > pipeline, flags, backups, and deploy. See **Build status** below.
+>
+> **Architecture explainer:** open `docs/how-it-works.html` in a browser for
+> rendered diagrams of the data flow, the page-building model, adding full vs.
+> partial cities, and de-duplication.
 
 ---
 

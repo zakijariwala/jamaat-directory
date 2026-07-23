@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>Jamaat Directory — How It Works</title>
+<style>
+  :root {
+    --ground: #fcf9f8;
+    --panel: #ffffff;
+    --ink: #14202c;
+    --muted: #4c5a68;
+    --faint: #6b7883;
+    --rule: #d8ddda;
+    --rule-strong: #14202c;
+    --navy: #001e40;
+    --navy-2: #003366;
+    --red: #b7102a;
+    --red-tint: #fbecee;
+    --accent: #001e40;
+    --link: #003366;
+    /* fixed schematic-paper plate — same in both themes so navy nodes read */
+    --plate: #f3f1ea;
+    --plate-border: #14202c;
+    --plate-ink: #14202c;
+    --chip: #e9edf2;
+    --chip-ink: #14202c;
+    --warn-bar: var(--red);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0f1720;
+      --panel: #141d28;
+      --ink: #eaf0f3;
+      --muted: #a3b3c1;
+      --faint: #7f909e;
+      --rule: #26323d;
+      --rule-strong: #cdd7de;
+      --navy: #a7c8ff;
+      --navy-2: #799dd6;
+      --red: #ff8088;
+      --red-tint: #2a1417;
+      --accent: #a7c8ff;
+      --link: #a7c8ff;
+      --chip: #1d2a38;
+      --chip-ink: #cfe0f2;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #fcf9f8; --panel: #ffffff; --ink: #14202c; --muted: #4c5a68;
+    --faint: #6b7883; --rule: #d8ddda; --rule-strong: #14202c; --navy: #001e40;
+    --navy-2: #003366; --red: #b7102a; --red-tint: #fbecee; --accent: #001e40;
+    --link: #003366; --chip: #e9edf2; --chip-ink: #14202c;
+  }
+  :root[data-theme="dark"] {
+    --ground: #0f1720; --panel: #141d28; --ink: #eaf0f3; --muted: #a3b3c1;
+    --faint: #7f909e; --rule: #26323d; --rule-strong: #cdd7de; --navy: #a7c8ff;
+    --navy-2: #799dd6; --red: #ff8088; --red-tint: #2a1417; --accent: #a7c8ff;
+    --link: #a7c8ff; --chip: #1d2a38; --chip-ink: #cfe0f2;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 96px; }
+
+  /* Masthead */
+  header.masthead {
+    border-bottom: 2px solid var(--rule-strong);
+    padding: 56px 0 22px;
+    margin-bottom: 8px;
+  }
+  .kicker {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--red); margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(32px, 6vw, 46px);
+    line-height: 1.04; letter-spacing: -0.02em; font-weight: 800;
+    margin: 0; text-wrap: balance; text-transform: uppercase;
+  }
+  .lede { color: var(--muted); font-size: 18px; margin: 16px 0 22px; max-width: 62ch; }
+  .specline {
+    display: flex; flex-wrap: wrap; gap: 6px 14px;
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px; letter-spacing: 0.04em; color: var(--faint);
+    text-transform: uppercase;
+  }
+  .specline span::before { content: "· "; color: var(--rule-strong); }
+  .specline span:first-child::before { content: ""; }
+
+  section { padding-top: 40px; }
+  .eyebrow {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::after { content: ""; flex: 1; height: 2px; background: var(--rule); }
+  h2 {
+    font-size: 25px; line-height: 1.15; letter-spacing: -0.01em; font-weight: 800;
+    margin: 0 0 12px; text-wrap: balance;
+  }
+  h3 {
+    font-size: 15px; text-transform: uppercase; letter-spacing: 0.04em;
+    margin: 26px 0 8px; color: var(--ink);
+  }
+  p { margin: 0 0 14px; }
+  a { color: var(--link); text-underline-offset: 2px; }
+  strong { font-weight: 700; }
+  code {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86em; background: var(--chip); color: var(--chip-ink);
+    padding: 1px 6px; border: 1px solid var(--rule); border-radius: 3px;
+  }
+
+  /* Diagram plate — fixed pale ground, both themes */
+  .plate {
+    background: var(--plate);
+    border: 2px solid var(--plate-border);
+    padding: 18px 16px 10px;
+    margin: 8px 0 6px;
+    overflow-x: auto;
+  }
+  .plate .mermaid { min-width: 520px; }
+  figure { margin: 0 0 22px; }
+  figcaption {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--faint); padding-top: 8px;
+  }
+  figcaption b { color: var(--muted); font-weight: 700; }
+
+  /* Table */
+  .tablewrap { overflow-x: auto; margin: 4px 0 20px; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 520px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); background: var(--chip);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.mono, th.mono { font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+  .tag { display: inline-block; font-family: ui-monospace, monospace; font-size: 11.5px;
+    letter-spacing: 0.04em; padding: 2px 7px; border: 1px solid var(--rule-strong); }
+  .tag.live { color: var(--panel); background: var(--navy); border-color: var(--navy); }
+  @media (prefers-color-scheme: dark) { .tag.live { color: #0f1720; } }
+  :root[data-theme="dark"] .tag.live { color: #0f1720; }
+  .yes { color: var(--navy); font-weight: 700; }
+  .no { color: var(--red); font-weight: 700; }
+
+  /* Callout */
+  .note {
+    border-left: 3px solid var(--warn-bar);
+    background: var(--red-tint);
+    padding: 12px 16px; margin: 6px 0 18px; font-size: 15.5px;
+  }
+  .note .lbl {
+    font-family: ui-monospace, monospace; font-size: 11.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--red); font-weight: 700; margin-right: 8px;
+  }
+  .rulecard {
+    border: 1px solid var(--rule); border-left: 3px solid var(--navy);
+    padding: 12px 16px; margin: 0 0 12px; background: var(--panel);
+  }
+  .rulecard h4 {
+    margin: 0 0 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.03em;
+    font-family: ui-monospace, monospace;
+  }
+  .rulecard p { margin: 0; font-size: 15px; color: var(--muted); }
+  .rulecard p strong { color: var(--ink); }
+
+  ul.clean { margin: 0 0 16px; padding-left: 20px; }
+  ul.clean li { margin-bottom: 7px; }
+
+  footer {
+    margin-top: 52px; padding-top: 18px; border-top: 2px solid var(--rule-strong);
+    font-family: ui-monospace, monospace; font-size: 12.5px; color: var(--faint);
+    display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: space-between;
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="kicker">Technical Overview · v1 Prototype</p>
+    <h1>Jamaat Directory —<br>How It Works</h1>
+    <p class="lede">The data flow from a form submission to a live page, how pages
+      are built, what happens when a city arrives with full versus partial detail,
+      and how duplicate cities and masjids are resolved.</p>
+    <div class="specline mono">
+      <span>Cloudflare Pages</span><span>D1</span><span>Pages Functions</span>
+      <span>KV · R2</span><span>Google Form + Apps Script</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="eyebrow">Data flow</p>
+    <h2>One pipeline, two exits for a phone number</h2>
+    <p>Intake and moderation stay in Google, where non-technical moderators work.
+      An approved row is signed and pushed to the site; nothing is polled.
+      Phone numbers live only in D1 and leave it <strong>one at a time</strong>
+      through <code>/api/reveal</code> — they never appear in the public
+      <code>directory.json</code>.</p>
+
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e7edf3','primaryTextColor':'#14202c','primaryBorderColor':'#001e40','lineColor':'#5a6b7a','clusterBkg':'#eceae2','clusterBorder':'#14202c'}}}%%
+flowchart TD
+  FORM["Google Form"] --> SHEET["Google Sheet<br/>moderator: status=live, consent"]
+  SHEET --> AS["Apps Script<br/>onFormSubmit / onEdit"]
+  AS -->|"POST /api/ingest<br/>HMAC-signed"| INGEST["/api/ingest"]
+  INGEST -->|"verify → INSERT OR REPLACE"| D1[("D1<br/>cities · contacts<br/>facilities · flags<br/>(holds phones)")]
+  D1 --> DJ["/directory.json<br/>buildSnapshot() — NO phones"]
+  DJ -->|"edge cache ~5 min"| EDGE[("Edge cache")]
+  EDGE --> UI["Static frontend (Astro)"]
+  D1 -. "one number" .-> RV["/api/reveal<br/>rate-limited + Turnstile"]
+  RV -->|"tel: / wa.me"| UI
+  D1 --> BK["Nightly backup → R2"]
+  UI --> USER(["Traveller"])
+</pre>
+      </div>
+      <figcaption><b>Write path:</b> Form → Sheet → Apps Script → ingest → D1. &nbsp; <b>Read path:</b> D1 → snapshot → edge → frontend.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <p class="eyebrow">Page building</p>
+    <h2>Two builds run at different times, from different sources</h2>
+    <p>This is the crux. The <em>data</em> is always live from D1; the <em>HTML pages</em>
+      are generated at deploy time from the seed file. A city added through the
+      Form lands in D1 and shows in <code>directory.json</code> immediately — but
+      its rendered page waits for a build.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>What</th><th>Source</th><th>Rebuilt</th><th>New city appears?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/directory.json</code><br><span class="mono" style="font-size:12px;color:var(--faint)">the data API</span></td>
+            <td class="mono">D1, live</td>
+            <td>every request<br>(5-min cache)</td>
+            <td><span class="yes">Yes — at once</span></td>
+          </tr>
+          <tr>
+            <td>Home index +<br><code>/city/[id]</code> pages<br><span class="mono" style="font-size:12px;color:var(--faint)">the HTML</span></td>
+            <td class="mono">seed.ts, at<br>build time</td>
+            <td>only on<br><code>astro build</code></td>
+            <td><span class="no">No — needs a rebuild</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Today’s prototype renders pages from <code>src/data/seed.ts</code> because
+      <code>astro build</code> can’t read D1 (a runtime binding). That’s what makes
+      it fast and JS-optional — and it’s the one production decision left:</p>
+
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e7edf3','primaryTextColor':'#14202c','primaryBorderColor':'#001e40','lineColor':'#5a6b7a'}}}%%
+flowchart LR
+  ING["New city in D1<br/>via /api/ingest"] --> Q{"Frontend strategy"}
+  Q -->|"A · rebuild on write"| HOOK["Deploy hook → astro build<br/>reads live /directory.json<br/>→ new static page"]
+  Q -->|"B · client-render"| CR["Home + one /city route<br/>fetch /directory.json,<br/>render by slug"]
+  HOOK --> LA["Live in ~1–2 min<br/>works with JS off"]
+  CR --> LB["Live within 5-min cache<br/>city pages need JS"]
+</pre>
+      </div>
+      <figcaption><b>A</b> keeps the no-JS / perf wins with a short rebuild delay. &nbsp; <b>B</b> is instant but city pages then require JS.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <p class="eyebrow">Adding a city</p>
+    <h2>Thane in full, Mumbra in part</h2>
+    <p>Both travel the same pipeline. Partial data needs no special case — the
+      city page renders a section only when it has rows, and the status chips grey
+      out what’s missing.</p>
+
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e7edf3','primaryTextColor':'#14202c','primaryBorderColor':'#001e40','lineColor':'#5a6b7a','actorBkg':'#e7edf3','actorBorder':'#001e40','actorTextColor':'#14202c','signalColor':'#5a6b7a','signalTextColor':'#14202c','noteBkgColor':'#eceae2','noteTextColor':'#14202c','noteBorderColor':'#14202c'}}}%%
+sequenceDiagram
+    participant M as Sheet
+    participant A as Apps Script
+    participant I as /api/ingest
+    participant D as D1
+    participant J as directory.json
+    M->>A: Thane row (contact, masjid, musafir, hotel, food)
+    M->>A: Mumbra row (masjid only)
+    A->>I: POST signed payload
+    I->>D: INSERT OR REPLACE (keyed on id)
+    Note over D: thane → full children<br/>mumbra → city + masjid
+    J->>D: SELECT live → buildSnapshot()
+    Note over J: thane.has = all true<br/>mumbra.has = masjid only
+</pre>
+      </div>
+      <figcaption><b>Result:</b> Thane page shows every section; Mumbra shows only Masjid, chips greyed.</figcaption>
+    </figure>
+
+    <h3>What each page renders</h3>
+    <ul class="clean">
+      <li><strong>Thane</strong> <span class="tag live">all 5 chips</span> — Contacts, Masjid, Musafir khana, Dining, Hotels.</li>
+      <li><strong>Mumbra</strong> <span class="tag">masjid only</span> — just the Masjid section; Contact / Stay / Hotels / Food chips render greyed. No empty headings, no blank cards.</li>
+      <li>In the <strong>home index</strong> both sit under <em>Maharashtra</em> (alphabetical: Mumbra, then Thane); Mumbra’s icon row shows the mosque lit and the rest muted — “honestly marked.”</li>
+    </ul>
+    <p style="font-size:15px;color:var(--muted)">The <code>/api/ingest</code> endpoint already accepts facilities; the sample
+      Apps Script currently maps city + one contact, so submitting Thane’s
+      masjid/musafir/hotel via the Form means extending that column map — planned
+      after the Cloudflare prototype is deployed and tested.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">De-duplication</p>
+    <h2>Identity is the primary key</h2>
+    <p>Every row upserts with <code>INSERT OR REPLACE</code> keyed on its
+      <code>id</code>. So de-duplication is entirely about how ids are assigned.</p>
+
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e7edf3','primaryTextColor':'#14202c','primaryBorderColor':'#001e40','lineColor':'#5a6b7a'}}}%%
+flowchart TD
+  ROW["Incoming row"] --> CID{"City id = slug"}
+  CID -->|"same slug 'thane'"| MERGE["REPLACE cities<br/>latest wins — no duplicate"]
+  CID -->|"'thana' vs 'thane'"| SPLIT["Two cities<br/>moderator sets canonical slug;<br/>spellings go in aliases[]"]
+  ROW --> FID{"Contact / facility id"}
+  FID -->|"same Sheet row edited"| IDEM["Same id → idempotent update"]
+  FID -->|"two rows, same masjid"| DUP["Two masjid entries<br/>no name-based auto-merge"]
+</pre>
+      </div>
+      <figcaption>Slug is a city’s identity; the row-derived id is a facility’s. Merge vs. duplicate follows from that.</figcaption>
+    </figure>
+
+    <div class="rulecard">
+      <h4>City</h4>
+      <p>Identity is the <strong>slug</strong> (<code>cities.id</code>, e.g. <code>thane</code>).
+        Re-submitting Thane overwrites the same row — <strong>no duplicate city</strong>.
+        Alternate spellings (Thana / Thane, Mumbra / Mumbrah) are <strong>not</strong>
+        new cities; they go in <code>aliases[]</code> so <em>search</em> resolves them
+        while the slug stays the one identity. The moderator assigns the canonical
+        slug in the Sheet — that’s what prevents split cities.</p>
+    </div>
+    <div class="rulecard">
+      <h4>Contact / Masjid / Facility</h4>
+      <p>Identity is its <strong>id</strong>. Editing the same Sheet row re-sends the
+        same id → idempotent. But two <em>different</em> submissions of the same masjid
+        get two ids → <strong>two entries</strong>. There is no automatic
+        “same name = same masjid” merge.</p>
+    </div>
+    <div class="rulecard">
+      <h4>Removal</h4>
+      <p>A removal request sets <code>status = 'removed'</code>; the entry simply drops
+        out of the next <code>buildSnapshot()</code>.</p>
+    </div>
+
+    <div class="note">
+      <span class="lbl">By design</span> Name-based de-duplication is the
+      <strong>moderator’s job</strong> in the Sheet — which is exactly why the Sheet
+      stays the moderation surface. Want re-submissions of the same masjid to
+      <em>auto-merge</em>? Give facilities a deterministic id like
+      <code>f-thane-masjid-&lt;slug-of-name&gt;</code> instead of a row-derived one;
+      then a second “Thane Jame Masjid” upserts onto the same row. Today’s scheme
+      favours moderator control over automatic merging — a deliberate, changeable
+      trade-off.
+    </div>
+  </section>
+
+  <footer>
+    <span>Jamaat Directory · technical overview</span>
+    <span>Prototype: static-from-seed · production frontend = Stage-8 decision</span>
+  </footer>
+</div>
+<script type="module">
+  // Standalone rendering of the diagrams (the claude.ai artifact renders these
+  // natively; here we load mermaid so the file works opened directly / on a host).
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+</script>
+</body>
+</html>
