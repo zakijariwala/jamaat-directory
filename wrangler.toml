@@ -21,6 +21,14 @@ migrations_dir = "migrations"
 binding = "BACKUPS"
 bucket_name = "jamaat-directory-backups"
 
+# --- KV: per-IP rate limiting for /api/reveal ------------------------------
+# Create with:  wrangler kv namespace create RATE_LIMIT
+# then paste the returned id below. If unbound, reveal still works but is
+# unthrottled (fine for the prototype).
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_ID_FROM_wrangler_kv_namespace_create"
+
 # --- Public, non-secret vars ----------------------------------------------
 # Access posture is an open committee decision; ship with noindex ON.
 # Flip to "false" to allow search-engine indexing (fully public posture).
