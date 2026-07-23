@@ -1,21 +1,317 @@
 ---
-// PLACEHOLDER — replaced in Stage 3 by the real home screen, built from the
-// Claude Design token sheet + component HTML/CSS. This exists only so the Astro
-// build succeeds while the backend (Stages 1–2) is verified.
-const noindex = (import.meta.env.NOINDEX ?? 'true') !== 'false';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { buildSnapshot } from '../lib/snapshot';
+import { normalize } from '../lib/search';
+import { relativeDays } from '../lib/format';
+import { addContactUrl, FORM_URL } from '../lib/config';
+import { cities, contacts, facilities } from '../data/seed';
+import type { PublicCity } from '../lib/types';
+
+// Build-time snapshot from seed. Server-rendered so the index works with JS
+// disabled (a11y floor) and paints instantly; client search enhances it.
+const snap = buildSnapshot(cities, contacts, facilities);
+
+// Group by state; states alphabetical; cities already alphabetical within.
+const byState = new Map<string, PublicCity[]>();
+for (const c of snap.cities) {
+  const st = c.state ?? 'Other';
+  if (!byState.has(st)) byState.set(st, []);
+  byState.get(st)!.push(c);
+}
+const states = [...byState.keys()].sort((a, b) => a.localeCompare(b));
+const stateId = (st: string) => `state-${normalize(st).replace(/\s+/g, '-')}`;
+
+// A–Z rail maps each present state initial to its section.
+const initials = new Map<string, string>();
+for (const st of states) {
+  const letter = st[0]!.toUpperCase();
+  if (!initials.has(letter)) initials.set(letter, stateId(st));
+}
+const alphabet = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+
+const coverage = relativeDays(snap.updated_at);
+
+// The normalized haystack a row is matched against, mirroring lib/search.
+const searchAttr = (c: PublicCity) =>
+  normalize([c.name, c.jamaat_name, c.state ?? '', ...c.aliases].join(' '));
+
+const isUnavailable = (c: PublicCity) =>
+  !c.has.contact && !c.has.masjid && !c.has.stay && !c.has.hotel && !c.has.restaurant;
+
+// The four index chips (hotels appear only on the city page, per the design).
+const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }> = [
+  { name: 'call', label: 'Contact', key: 'contact' },
+  { name: 'mosque', label: 'Masjid', key: 'masjid' },
+  { name: 'bed', label: 'Stay', key: 'stay' },
+  { name: 'restaurant', label: 'Food', key: 'restaurant' },
+];
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <title>Jamaat Directory</title>
-  </head>
-  <body>
-    <main>
-      <h1>Jamaat Directory</h1>
-      <p>Backend scaffold in place. The home screen is built in Stage 3 from the design.</p>
-    </main>
-  </body>
-</html>
+<Base title="Community Directory">
+  <!-- TopAppBar -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
+  >
+    <div class="flex items-center gap-4 w-full max-w-7xl mx-auto">
+      <Icon name="menu_book" />
+      <h1 class="text-headline-md font-headline-md tracking-tight uppercase flex-grow text-center md:text-left">
+        Community Directory
+      </h1>
+      <div class="w-6"></div>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[56px] w-full max-w-7xl mx-auto flex">
+    <div class="flex-grow flex flex-col relative w-full min-w-0">
+      <!-- Sticky search + coverage -->
+      <section
+        class="sticky top-[56px] z-40 bg-surface border-b-[2px] border-on-background px-margin-mobile md:px-margin-desktop py-stack-regular flex flex-col gap-stack-compact"
+      >
+        <div class="relative w-full">
+          <Icon
+            name="search"
+            class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+          />
+          <input
+            id="q"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="Search a city"
+            placeholder="Search a city — Sangli, Chennai, Delhi"
+            class="w-full h-[56px] pl-12 pr-12 bg-surface border-[2px] border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+          />
+          <button
+            id="q-clear"
+            type="button"
+            hidden
+            aria-label="Clear search"
+            class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center bg-surface-container hover:bg-surface-variant text-on-surface-variant hover:text-on-background p-1 border-[1px] border-outline-variant transition-colors"
+          >
+            <Icon name="close" size={20} />
+          </button>
+        </div>
+        <div
+          class="flex items-center justify-between text-data-mono font-data-mono text-on-surface-variant pt-2 uppercase"
+        >
+          <span>{snap.counts.cities} Cities · {snap.counts.contacts} Contacts</span>
+          <span id="cov-updated" class="hidden md:inline">Updated {coverage}</span>
+          <span id="cov-updated-m" class="md:hidden">{coverage}</span>
+          <span id="cov-matches" hidden></span>
+        </div>
+      </section>
+
+      <!-- Directory list -->
+      <div class="px-margin-mobile md:px-margin-desktop pr-12 md:pr-16 relative">
+        {
+          states.map((st) => (
+            <section data-state-group class="mb-8">
+              <h2
+                id={stateId(st)}
+                class="sticky top-[132px] z-30 bg-background py-stack-compact text-headline-md font-headline-md border-b-[2px] border-on-background mt-4 uppercase scroll-mt-[140px]"
+              >
+                {st}
+              </h2>
+              <div class="flex flex-col">
+                {byState.get(st)!.map((c) =>
+                  isUnavailable(c) ? (
+                    <div
+                      data-city-row
+                      data-search={searchAttr(c)}
+                      class="py-stack-regular border-b-[1px] border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-dim"
+                    >
+                      <div class="flex flex-col">
+                        <span class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-surface-variant uppercase line-through decoration-[2px]">
+                          {c.name}
+                        </span>
+                        <span class="text-data-mono font-data-mono text-error uppercase">
+                          Currently unavailable
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-4 text-on-surface-variant opacity-40">
+                        {chips.map((ch) => (
+                          <Icon name={ch.name} label={`${ch.label} unavailable`} />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <a
+                      href={`/city/${c.id}`}
+                      data-city-row
+                      data-search={searchAttr(c)}
+                      class="py-stack-regular border-b-[1px] border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-surface-container-low transition-colors group focus:outline-none focus-visible:bg-surface-container-low"
+                    >
+                      <div class="flex flex-col">
+                        <span class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary uppercase">
+                          {c.name}
+                        </span>
+                        <span class="text-data-mono font-data-mono text-on-surface-variant">
+                          {c.jamaat_name}
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-4 shrink-0">
+                        {chips.map((ch) =>
+                          c.has[ch.key] ? (
+                            <Icon name={ch.name} fill class="text-primary" label={`${ch.label} available`} />
+                          ) : (
+                            <Icon
+                              name={ch.name}
+                              class="text-on-surface-variant opacity-40"
+                              label={`${ch.label} unavailable`}
+                            />
+                          ),
+                        )}
+                      </div>
+                    </a>
+                  ),
+                )}
+              </div>
+            </section>
+          ))
+        }
+
+        <!-- Empty state (shown by search when nothing matches) -->
+        <div
+          id="empty-state"
+          hidden
+          class="flex flex-col items-center justify-center text-center py-16 px-margin-mobile"
+        >
+          <div class="relative mb-stack-regular">
+            <div class="absolute inset-0 bg-primary/10 translate-x-2 translate-y-2 border-[1px] border-primary"></div>
+            <div class="relative bg-surface border-[2px] border-on-background p-6">
+              <Icon name="travel_explore" size={64} class="text-on-background" />
+            </div>
+          </div>
+          <h2 class="text-headline-lg-mobile font-headline-lg-mobile uppercase tracking-tight mb-stack-compact">
+            Nothing for <span id="empty-query"></span> yet.
+          </h2>
+          <p class="text-body-lg font-body-lg text-on-surface-variant max-w-sm mb-margin-desktop">
+            No verified listings for this city yet. Be the first to add one.
+          </p>
+          <a
+            id="empty-add"
+            href={FORM_URL}
+            target="_blank"
+            rel="noopener"
+            class="group relative inline-flex w-full sm:w-auto"
+          >
+            <span class="absolute inset-0 bg-on-background translate-x-1 translate-y-1 transition-transform group-hover:translate-x-0 group-hover:translate-y-0"></span>
+            <span
+              class="relative w-full flex items-center justify-center gap-2 bg-primary border-[2px] border-on-background px-6 py-4 text-on-primary text-label-caps font-label-caps uppercase tracking-wider"
+            >
+              <Icon name="add_box" size={18} />
+              Add the first contact for <span id="empty-query-2"></span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- A–Z quick jump -->
+    <nav
+      aria-label="Jump to state"
+      class="w-8 md:w-12 fixed right-0 top-[132px] bottom-0 flex flex-col items-center pt-4 pb-24 border-l-[1px] border-outline-variant bg-surface-container-lowest z-30 hide-scrollbar overflow-y-auto"
+    >
+      <ul class="flex flex-col items-center gap-[2px] text-label-caps font-label-caps w-full">
+        {
+          alphabet.map((letter) =>
+            initials.has(letter) ? (
+              <li class="w-full">
+                <a
+                  href={`#${initials.get(letter)}`}
+                  class="block w-full text-center py-1 hover:bg-primary hover:text-on-primary text-on-surface-variant transition-colors"
+                >
+                  {letter}
+                </a>
+              </li>
+            ) : (
+              <li
+                aria-hidden="true"
+                class="w-full text-center py-1 text-outline opacity-50 select-none"
+              >
+                {letter}
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </nav>
+
+    <!-- Persistent Add Contact -->
+    <a
+      href={addContactUrl()}
+      target="_blank"
+      rel="noopener"
+      class="fixed bottom-6 right-12 md:right-16 z-50 bg-secondary text-on-secondary border-[2px] border-on-background px-4 py-3 flex items-center gap-2 hover:bg-secondary-container transition-transform active:scale-95 shadow-[4px_4px_0px_rgba(28,27,27,1)] hover:shadow-[2px_2px_0px_rgba(28,27,27,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
+    >
+      <Icon name="add" />
+      <span class="text-label-caps font-label-caps tracking-widest uppercase">Add Contact</span>
+    </a>
+  </main>
+</Base>
+
+<script>
+  import { normalize } from '../lib/search';
+
+  const q = document.getElementById('q') as HTMLInputElement | null;
+  const clearBtn = document.getElementById('q-clear');
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-city-row]'));
+  const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-state-group]'));
+  const emptyState = document.getElementById('empty-state');
+  const emptyQuery = document.getElementById('empty-query');
+  const emptyQuery2 = document.getElementById('empty-query-2');
+  const emptyAdd = document.getElementById('empty-add') as HTMLAnchorElement | null;
+  const covUpdated = document.getElementById('cov-updated');
+  const covUpdatedM = document.getElementById('cov-updated-m');
+  const covMatches = document.getElementById('cov-matches');
+
+  const FORM_URL = (emptyAdd?.getAttribute('href')) ?? '#';
+
+  function apply(raw: string) {
+    const query = normalize(raw);
+    const searching = query.length > 0;
+    if (clearBtn) clearBtn.hidden = !searching;
+
+    let visible = 0;
+    for (const row of rows) {
+      const match = !searching || (row.dataset.search ?? '').includes(query);
+      row.hidden = !match;
+      if (match) visible++;
+    }
+    // Hide a state group whose rows are all filtered out.
+    for (const group of groups) {
+      const anyVisible = group.querySelector('[data-city-row]:not([hidden])');
+      group.hidden = searching && !anyVisible;
+    }
+
+    // Coverage line: matches count while searching, freshness otherwise.
+    if (covMatches) {
+      covMatches.hidden = !searching;
+      covMatches.textContent = `${visible} ${visible === 1 ? 'Match' : 'Matches'}`;
+    }
+    if (covUpdated) covUpdated.hidden = searching;
+    if (covUpdatedM) covUpdatedM.hidden = searching;
+
+    // Empty state.
+    if (emptyState) emptyState.hidden = !(searching && visible === 0);
+    if (searching && visible === 0) {
+      const label = raw.trim();
+      if (emptyQuery) emptyQuery.textContent = label;
+      if (emptyQuery2) emptyQuery2.textContent = label;
+      if (emptyAdd) {
+        const sep = FORM_URL.includes('?') ? '&' : '?';
+        emptyAdd.href = `${FORM_URL}${sep}city=${encodeURIComponent(label)}`;
+      }
+    }
+  }
+
+  q?.addEventListener('input', () => apply(q.value));
+  clearBtn?.addEventListener('click', () => {
+    if (!q) return;
+    q.value = '';
+    apply('');
+    q.focus();
+  });
+</script>

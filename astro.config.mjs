@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import tailwindcss from '@tailwindcss/vite';
 
 // Static output — deployed to Cloudflare Pages. The /api/* routes and
 // /directory.json are served by Cloudflare Pages Functions (see functions/),
@@ -9,5 +10,8 @@ export default defineConfig({
   build: {
     // Inline small stylesheets/scripts to cut request count on 3G.
     inlineStylesheets: 'auto',
+  },
+  vite: {
+    plugins: [tailwindcss()],
   },
 });

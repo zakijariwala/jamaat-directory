@@ -1,31 +1,36 @@
 // Cloudflare Pages Function: GET /directory.json
 //
-// The full public snapshot, generated live from D1. Contains NO phone numbers
-// (buildSnapshot enforces this). Long edge cache; the ingest handler purges it
-// on write. Only status = 'live' rows are queried; buildSnapshot additionally
-// drops any live-but-unconsented contact.
+// The full public snapshot. Contains NO phone numbers (buildSnapshot enforces
+// this). Long edge cache; the ingest handler purges it on write. Only
+// status = 'live' rows are queried; buildSnapshot additionally drops any
+// live-but-unconsented contact.
+//
+// PROTOTYPE FALLBACK: until D1 is provisioned, there is no DB binding, so this
+// serves the seed-derived snapshot instead. Remove the fallback once D1 is live.
 
 import { buildSnapshot } from '../src/lib/snapshot';
+import { cities as seedCities, contacts as seedContacts, facilities as seedFacilities } from '../src/data/seed';
 import type { CityRow, ContactRow, FacilityRow } from '../src/lib/types';
 
 interface Env {
-  DB: D1Database;
+  DB?: D1Database;
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
-  const { DB } = context.env;
+  const db = context.env.DB;
 
-  const [cities, contacts, facilities] = await Promise.all([
-    DB.prepare('SELECT * FROM cities').all<CityRow>(),
-    DB.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
-    DB.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
-  ]);
-
-  const snapshot = buildSnapshot(
-    cities.results,
-    contacts.results,
-    facilities.results,
-  );
+  let snapshot;
+  if (db) {
+    const [cities, contacts, facilities] = await Promise.all([
+      db.prepare('SELECT * FROM cities').all<CityRow>(),
+      db.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
+      db.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
+    ]);
+    snapshot = buildSnapshot(cities.results, contacts.results, facilities.results);
+  } else {
+    // No D1 bound yet (prototype): derive from seed.
+    snapshot = buildSnapshot(seedCities, seedContacts, seedFacilities);
+  }
 
   return new Response(JSON.stringify(snapshot), {
     headers: {

@@ -8,8 +8,11 @@ dist/
 # cloudflare / wrangler local state
 .wrangler/
 
-# generated seed SQL (regenerated from scripts/gen-seed-sql.mjs)
+# generated seed SQL (regenerated from scripts/gen-seed-sql.ts)
 seed.sql
+
+# generated public snapshot (regenerated from scripts/gen-snapshot.ts)
+public/directory.json
 
 # local secrets — NEVER commit
 .dev.vars

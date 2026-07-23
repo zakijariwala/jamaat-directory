@@ -1,0 +1,75 @@
+---
+// Inline SVG icons — no icon web-font. Robust in in-app browsers (WhatsApp /
+// Instagram WebViews), offline-safe, and tiny. Stroke-based 24x24 set; state
+// (available / muted) is conveyed by colour + opacity per the design.
+//
+// Decorative by default (aria-hidden). Pass `label` to expose to screen readers.
+interface Props {
+  name: string;
+  size?: number; // px; default 24
+  class?: string;
+  label?: string;
+  fill?: boolean; // accepted for call-site compatibility; visuals use colour
+}
+const { name, size = 24, class: cls = '', label } = Astro.props;
+
+// Raw inner SVG per icon. viewBox is 0 0 24 24.
+const ICONS: Record<string, string> = {
+  menu_book:
+    '<path d="M2 5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15a3 3 0 0 0-3-3H2z"/><path d="M22 5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v15a3 3 0 0 1 3-3h7z"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  add: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  add_box: '<rect x="3" y="3" width="18" height="18"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+  call:
+    '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.09 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.94.36 1.85.7 2.7a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.34 1.76.57 2.7.7A2 2 0 0 1 22 16.92z"/>',
+  phone_forwarded:
+    '<path d="m18 2 4 4-4 4"/><path d="M14 6h8"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.09 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.94.36 1.85.7 2.7a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.34 1.76.57 2.7.7A2 2 0 0 1 22 16.92z"/>',
+  forum:
+    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  mosque:
+    '<path d="M3 21h18"/><path d="M5 21v-8a7 7 0 0 1 14 0v8"/><path d="M12 2c-1.4 1.2-1.4 2.8 0 4 1.4-1.2 1.4-2.8 0-4z"/><path d="M9.5 21v-3a2.5 2.5 0 0 1 5 0v3"/>',
+  bed: '<path d="M2 18V8a1 1 0 0 1 1-1h10a5 5 0 0 1 5 5v6"/><path d="M2 13h16"/><path d="M6 10h3"/><path d="M2 21v-3"/><path d="M22 21v-3"/>',
+  restaurant:
+    '<path d="M4 3v6a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3"/><path d="M6 11v10"/><path d="M17 3c-1.7 0-3 2-3 5s1 4 3 4"/><path d="M17 12v9"/>',
+  hotel:
+    '<path d="M4 22V3h13v19"/><path d="M17 8h3a1 1 0 0 1 1 1v13"/><path d="M2 22h20"/><path d="M8 7h.01M12 7h.01M8 11h.01M12 11h.01"/><path d="M9 22v-4h4v4"/>',
+  train:
+    '<rect x="5" y="3" width="14" height="13" rx="2"/><path d="M5 10h14"/><path d="M8 19l-2 3"/><path d="M16 19l2 3"/><path d="M8.5 13h.01M15.5 13h.01"/>',
+  flight_takeoff:
+    '<path d="M2 22h20"/><path d="M4 15.5 20 11a1.5 1.5 0 0 0-1-2.8l-4 .9-5-5-2 .5 3 5-4 .9-2-2-1.5.4z"/>',
+  person: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  family_restroom:
+    '<circle cx="8" cy="6" r="2.5"/><circle cx="17" cy="7" r="2"/><path d="M4 21v-6a4 4 0 0 1 8 0v6"/><path d="M14 21v-5a3 3 0 0 1 6 0v5"/>',
+  water_drop: '<path d="M12 3s6 5.6 6 10.5A6 6 0 0 1 6 13.5C6 8.6 12 3 12 3z"/>',
+  local_parking:
+    '<rect x="3" y="3" width="18" height="18"/><path d="M9 17V7h3.5a3 3 0 0 1 0 6H9"/>',
+  map: '<path d="m9 4-6 3v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/>',
+  content_copy:
+    '<rect x="9" y="9" width="12" height="12" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  verified:
+    '<path d="M12 2 4 5v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V5z"/><path d="m9 12 2 2 4-4"/>',
+  travel_explore:
+    '<circle cx="11" cy="11" r="8"/><path d="M3 11h16"/><path d="M11 3c2.5 2.2 2.5 13.8 0 16"/><path d="M11 3c-2.5 2.2-2.5 13.8 0 16"/><path d="m21 21-3.5-3.5"/>',
+};
+
+const inner = ICONS[name] ?? '';
+const a11y = label
+  ? { role: 'img', 'aria-label': label }
+  : { 'aria-hidden': 'true', focusable: 'false' };
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={cls}
+  {...a11y}
+  set:html={inner}
+></svg>
