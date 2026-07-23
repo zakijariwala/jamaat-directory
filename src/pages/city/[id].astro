@@ -1,0 +1,484 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { buildSnapshot } from '../../lib/snapshot';
+import { formatVerified } from '../../lib/format';
+import { FORM_URL } from '../../lib/config';
+import { cities, contacts, facilities } from '../../data/seed';
+import type { PublicCity, PublicFacility } from '../../lib/types';
+
+export function getStaticPaths() {
+  const snap = buildSnapshot(cities, contacts, facilities);
+  return snap.cities.map((city) => ({ params: { id: city.id }, props: { city } }));
+}
+
+interface Props {
+  city: PublicCity;
+}
+const { city } = Astro.props;
+
+const masjids = city.facilities.filter((f) => f.kind === 'masjid');
+const musafirs = city.facilities.filter((f) => f.kind === 'musafir_khana');
+const restaurants = city.facilities.filter((f) => f.kind === 'restaurant');
+const hotels = city.facilities.filter((f) => f.kind === 'hotel');
+
+const chips: Array<{ name: string; label: string; on: boolean }> = [
+  { name: 'call', label: 'Contact', on: city.has.contact },
+  { name: 'mosque', label: 'Masjid', on: city.has.masjid },
+  { name: 'bed', label: 'Stay', on: city.has.stay },
+  { name: 'restaurant', label: 'Restaurant', on: city.has.restaurant },
+  { name: 'hotel', label: 'Hotels', on: city.has.hotel },
+];
+
+function facilityChipIcon(chip: string): string {
+  const c = chip.toLowerCase();
+  if (c.includes('wuzu')) return 'water_drop';
+  if (c.includes('ladies')) return 'family_restroom';
+  if (c.includes('parking')) return 'local_parking';
+  if (c.includes('ziyarat')) return 'location_on';
+  return 'check';
+}
+
+const chargesLabel: Record<string, string> = {
+  free: 'FREE',
+  donation: 'DONATION',
+  paid: 'PAID',
+};
+
+// Section header + card wrappers reused below via classes.
+const sectionHeader =
+  'sticky top-[96px] md:top-[120px] z-30 bg-background border-b-[2px] border-on-background pt-6 pb-2 mb-4 text-label-caps font-label-caps uppercase';
+const cardBorder = 'border-b-[1px] border-outline-variant';
+
+const revealBtn =
+  'reveal-btn w-full bg-primary text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 hover:bg-primary-container transition-colors';
+const secondaryBtn =
+  'w-full bg-surface-container text-on-background text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors';
+
+const revealActionBtn =
+  'w-full text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 transition-colors';
+---
+
+<Base title={`${city.name} — Community Directory`}>
+  <!-- Travel strip -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 bg-primary border-b-[2px] border-on-background flex flex-col justify-end min-h-[96px] md:min-h-[120px] px-margin-mobile md:px-margin-desktop py-stack-regular"
+  >
+    <div class="flex items-end gap-3 w-full max-w-7xl mx-auto">
+      <a
+        href="/"
+        aria-label="Back to directory"
+        class="text-on-primary p-1 -ml-1 mb-1 hover:bg-primary-container transition-colors shrink-0"
+      >
+        <Icon name="arrow_back" />
+      </a>
+      <div
+        class="flex-grow flex flex-col md:flex-row md:items-end justify-between gap-stack-regular min-w-0"
+      >
+        <div class="min-w-0">
+          <h1
+            class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-primary uppercase truncate"
+          >
+            {city.name}
+          </h1>
+          <p class="font-data-mono text-data-mono text-on-primary-container mt-stack-compact truncate">
+            {city.jamaat_name}
+          </p>
+        </div>
+        <div
+          class="font-data-mono text-data-mono text-on-primary flex flex-col gap-1 border-t-[1px] md:border-t-0 border-on-primary-container pt-2 md:pt-0 shrink-0 uppercase"
+        >
+          {city.state && (
+            <span class="text-on-primary-container">State: {city.state}</span>
+          )}
+          {city.nearest_rail && (
+            <span class="flex items-center gap-2">
+              <Icon name="train" size={16} class="text-on-primary-container" />
+              {city.nearest_rail}
+            </span>
+          )}
+          {city.nearest_air && (
+            <span class="flex items-center gap-2">
+              <Icon name="flight_takeoff" size={16} class="text-on-primary-container" />
+              {city.nearest_air}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[104px] md:pt-[132px] pb-24 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+    <!-- Status chips -->
+    <div
+      class="flex overflow-x-auto hide-scrollbar gap-2 py-4 mb-4 border-b-[1px] border-outline-variant"
+      aria-label="What this city has"
+    >
+      {
+        chips.map((c) => (
+          <div
+            class={`shrink-0 flex items-center gap-2 px-3 py-2 border-[1px] text-label-caps font-label-caps uppercase ${
+              c.on
+                ? 'bg-primary text-on-primary border-on-background'
+                : 'bg-surface-variant text-on-surface-variant border-outline-variant opacity-70'
+            }`}
+          >
+            <Icon name={c.name} size={16} label={`${c.label} ${c.on ? 'available' : 'unavailable'}`} />
+            {c.label}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-x-gutter gap-y-10">
+      <!-- Left column: contacts, masjid, musafir khana -->
+      <div class="lg:col-span-8 flex flex-col">
+        {
+          city.contacts.length > 0 && (
+            <>
+              <h2 class={sectionHeader}>Section 1: Contacts</h2>
+              {city.contacts.map((c) => (
+                <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
+                  <div class="md:col-span-4 flex flex-col">
+                    <h3 class="text-headline-md font-headline-md text-primary">{c.name}</h3>
+                    {c.role && (
+                      <span class="font-data-mono text-data-mono text-on-surface-variant mt-1 uppercase">
+                        Role: {c.role}
+                      </span>
+                    )}
+                    {c.helps_with && (
+                      <p class="text-body-sm font-body-sm mt-2">{c.helps_with}</p>
+                    )}
+                  </div>
+
+                  <div class="md:col-span-4 flex flex-col gap-1">
+                    {c.languages && (
+                      <>
+                        <span class="text-label-caps font-label-caps uppercase text-on-surface-variant">
+                          Languages
+                        </span>
+                        <span class="text-body-sm font-body-sm">{c.languages}</span>
+                      </>
+                    )}
+                    <span
+                      class={`font-data-mono text-data-mono mt-2 flex items-center gap-1 uppercase ${
+                        c.stale ? 'text-secondary' : 'text-outline'
+                      }`}
+                    >
+                      <Icon name={c.stale ? 'flag' : 'verified'} size={14} />
+                      {c.stale
+                        ? 'Needs verification'
+                        : `Verified ${formatVerified(c.verified_at)}`}
+                    </span>
+                  </div>
+
+                  <div class="md:col-span-4 flex flex-col gap-2">
+                    <div
+                      class="reveal flex flex-col gap-2"
+                      data-id={c.id}
+                      data-type="contact"
+                      data-wa={c.whatsapp ? '1' : '0'}
+                    >
+                      <button type="button" class={revealBtn}>
+                        <Icon name="call" size={18} />
+                        Show number
+                      </button>
+                      <div class="reveal-actions hidden flex-col gap-2">
+                        <div class="reveal-number font-data-mono text-data-mono text-center py-2 border-[1px] border-outline-variant bg-surface-container select-all" />
+                        <a class="reveal-call bg-primary hover:bg-primary-container" class:list={[revealActionBtn]} href="#">
+                          <Icon name="call" size={18} />
+                          Call
+                        </a>
+                        <a
+                          class="reveal-wa bg-primary hover:bg-primary-container hidden"
+                          class:list={[revealActionBtn]}
+                          href="#"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <Icon name="forum" size={18} />
+                          WhatsApp
+                        </a>
+                      </div>
+                      <p class="reveal-error hidden text-secondary font-data-mono text-data-mono" role="alert" />
+                    </div>
+                    {c.best_time && (
+                      <p class="font-data-mono text-data-mono text-on-surface-variant">
+                        Best time: {c.best_time}
+                      </p>
+                    )}
+                    <p class="font-data-mono text-data-mono text-outline uppercase">
+                      <a href={FORM_URL} target="_blank" rel="noopener" class="hover:text-secondary underline">
+                        Report a problem
+                      </a>
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </>
+          )
+        }
+
+        {
+          masjids.length > 0 && (
+            <>
+              <h2 class={`${sectionHeader} mt-6`}>Section 2: Masjid / Imambargah</h2>
+              {masjids.map((f) => (
+                <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
+                  <div class="md:col-span-5 flex flex-col gap-2">
+                    <h3 class="text-headline-md font-headline-md leading-tight">{f.name}</h3>
+                    {f.address && (
+                      <p class="font-data-mono text-data-mono text-on-surface-variant">{f.address}</p>
+                    )}
+                    {f.timings && (
+                      <p class="mt-1 bg-surface-container p-2 border-[1px] border-outline-variant font-data-mono text-data-mono">
+                        {f.timings}
+                      </p>
+                    )}
+                    <p class="font-data-mono text-data-mono text-secondary">
+                      Timings change — confirm before travelling.
+                    </p>
+                  </div>
+                  <div class="md:col-span-4 flex flex-col gap-2">
+                    {f.facilities.length > 0 && (
+                      <>
+                        <span class="text-label-caps font-label-caps uppercase text-on-surface-variant">
+                          Facilities
+                        </span>
+                        <ul class="text-body-sm font-body-sm flex flex-col gap-2">
+                          {f.facilities.map((chip) => (
+                            <li class="flex items-center gap-2">
+                              <Icon name={facilityChipIcon(chip)} size={16} class="text-primary" />
+                              <span class="capitalize">{chip}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                  <div class="md:col-span-3 flex flex-col gap-2">
+                    {f.maps_url && (
+                      <a href={f.maps_url} target="_blank" rel="noopener" class={secondaryBtn}>
+                        <Icon name="map" size={18} />
+                        Open Maps
+                      </a>
+                    )}
+                    {f.address && (
+                      <button type="button" class={`copy-addr ${secondaryBtn}`} data-addr={f.address}>
+                        <Icon name="content_copy" size={18} />
+                        Copy Addr
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </>
+          )
+        }
+
+        {
+          musafirs.length > 0 && (
+            <>
+              <h2 class={`${sectionHeader} mt-6`}>Section 3: Musafir Khana</h2>
+              {musafirs.map((f) => (
+                <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 bg-surface-container-low p-4 ${cardBorder}`}>
+                  <div class="md:col-span-8 flex flex-col gap-2">
+                    <div class="flex items-start justify-between gap-3">
+                      <h3 class="text-headline-md font-headline-md">{f.name}</h3>
+                      {f.charges_band && (
+                        <span class="shrink-0 px-2 py-1 border-[1px] border-on-background font-data-mono text-data-mono bg-background uppercase">
+                          {chargesLabel[f.charges_band] ?? f.charges_band}
+                        </span>
+                      )}
+                    </div>
+                    {f.address && (
+                      <p class="font-data-mono text-data-mono text-on-surface-variant">{f.address}</p>
+                    )}
+                    {f.booking_note && (
+                      <p class="text-body-sm font-body-sm mt-1">
+                        <strong>Booking:</strong> {f.booking_note}
+                      </p>
+                    )}
+                  </div>
+                  <div class="md:col-span-4 flex flex-col justify-end gap-2">
+                    {f.maps_url && (
+                      <a href={f.maps_url} target="_blank" rel="noopener" class={secondaryBtn}>
+                        <Icon name="map" size={18} />
+                        Open Maps
+                      </a>
+                    )}
+                    <div class="reveal flex flex-col gap-2" data-id={f.id} data-type="facility" data-wa="0">
+                      <button type="button" class={revealBtn}>
+                        <Icon name="phone_forwarded" size={18} />
+                        Call to book
+                      </button>
+                      <div class="reveal-actions hidden flex-col gap-2">
+                        <div class="reveal-number font-data-mono text-data-mono text-center py-2 border-[1px] border-outline-variant bg-surface-container select-all" />
+                        <a class="reveal-call bg-primary hover:bg-primary-container" class:list={[revealActionBtn]} href="#">
+                          <Icon name="call" size={18} />
+                          Call
+                        </a>
+                        <a class="reveal-wa bg-primary hover:bg-primary-container hidden" class:list={[revealActionBtn]} href="#" target="_blank" rel="noopener">
+                          <Icon name="forum" size={18} />
+                          WhatsApp
+                        </a>
+                      </div>
+                      <p class="reveal-error hidden text-secondary font-data-mono text-data-mono" role="alert" />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </>
+          )
+        }
+      </div>
+
+      <!-- Right column: dining, hotels, notes -->
+      <div class="lg:col-span-4 flex flex-col">
+        {
+          restaurants.length > 0 && (
+            <>
+              <h2 class={sectionHeader}>Section 4: Dining</h2>
+              {restaurants.map((f) => (
+                <article class={`flex flex-col gap-2 py-3 ${cardBorder}`}>
+                  <h4 class="text-body-lg font-body-lg font-bold">{f.name}</h4>
+                  {f.facilities.length > 0 && (
+                    <p class="font-data-mono text-data-mono text-on-surface-variant capitalize">
+                      {f.facilities.join(' · ')}
+                    </p>
+                  )}
+                  {f.maps_url && (
+                    <a href={f.maps_url} target="_blank" rel="noopener" class="text-label-caps font-label-caps uppercase text-primary hover:underline flex items-center gap-1 w-max">
+                      <Icon name="map" size={16} />
+                      Open in Maps
+                    </a>
+                  )}
+                </article>
+              ))}
+            </>
+          )
+        }
+
+        {
+          hotels.length > 0 && (
+            <>
+              <h2 class={`${sectionHeader} mt-6`}>Section 5: Hotels</h2>
+              <ul class="font-data-mono text-data-mono">
+                {hotels.map((f) => (
+                  <li class={`py-3 flex flex-col gap-1 ${cardBorder}`}>
+                    <span class="font-bold">{f.name}</span>
+                    {f.maps_url && (
+                      <a href={f.maps_url} target="_blank" rel="noopener" class="text-primary hover:underline flex items-center gap-1 w-max uppercase text-label-caps font-label-caps">
+                        <Icon name="map" size={16} />
+                        Open in Maps
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+
+        {
+          city.notes && (
+            <div class="mt-8 bg-surface-container border-[1px] border-on-background p-4 relative">
+              <div class="absolute -top-3 left-4 bg-background px-2 text-label-caps font-label-caps uppercase border-[1px] border-on-background">
+                Field Notes
+              </div>
+              <p class="text-body-sm font-body-sm mt-2">{city.notes}</p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Page footer: report / remove -->
+    <footer class="mt-12 pt-6 border-t-[2px] border-on-background flex flex-col gap-2">
+      <p class="text-label-caps font-label-caps uppercase text-on-surface-variant">
+        Something wrong or missing?
+      </p>
+      <div class="flex flex-wrap gap-4 font-data-mono text-data-mono">
+        <a href={FORM_URL} target="_blank" rel="noopener" class="text-primary hover:text-secondary underline flex items-center gap-1">
+          <Icon name="flag" size={16} /> Report a problem
+        </a>
+        <a href={FORM_URL} target="_blank" rel="noopener" class="text-primary hover:text-secondary underline flex items-center gap-1">
+          <Icon name="close" size={16} /> Remove my details
+        </a>
+      </div>
+    </footer>
+  </main>
+</Base>
+
+<script>
+  // Reveal one phone number at a time (phones are never in directory.json).
+  document.querySelectorAll<HTMLElement>('.reveal').forEach((block) => {
+    const btn = block.querySelector<HTMLButtonElement>('.reveal-btn');
+    const actions = block.querySelector<HTMLElement>('.reveal-actions');
+    const numberEl = block.querySelector<HTMLElement>('.reveal-number');
+    const callEl = block.querySelector<HTMLAnchorElement>('.reveal-call');
+    const waEl = block.querySelector<HTMLAnchorElement>('.reveal-wa');
+    const errEl = block.querySelector<HTMLElement>('.reveal-error');
+
+    const showError = (msg: string) => {
+      if (!errEl) return;
+      errEl.textContent = msg;
+      errEl.classList.remove('hidden');
+    };
+
+    btn?.addEventListener('click', async () => {
+      errEl?.classList.add('hidden');
+      btn.disabled = true;
+      try {
+        const id = block.dataset.id ?? '';
+        const type = block.dataset.type ?? 'contact';
+        const res = await fetch(`/api/reveal?type=${type}&id=${encodeURIComponent(id)}`);
+        if (res.status === 429) {
+          showError('Too many number reveals — please wait a while and try again.');
+          return;
+        }
+        if (!res.ok) {
+          showError('Could not load the number. Please try again.');
+          return;
+        }
+        const data = (await res.json()) as { phone?: string };
+        const phone = data.phone;
+        if (!phone) {
+          showError('Number not available.');
+          return;
+        }
+        const digits = phone.replace(/[^0-9]/g, '');
+        if (numberEl) numberEl.textContent = phone;
+        if (callEl) callEl.href = `tel:${phone}`;
+        if (waEl && block.dataset.wa === '1') {
+          waEl.href = `https://wa.me/${digits}`;
+          waEl.classList.remove('hidden');
+        }
+        actions?.classList.remove('hidden');
+        actions?.classList.add('flex');
+        btn.hidden = true;
+      } catch {
+        showError('Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Copy an address to the clipboard.
+  document.querySelectorAll<HTMLButtonElement>('.copy-addr').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const addr = btn.dataset.addr ?? '';
+      try {
+        await navigator.clipboard.writeText(addr);
+        const original = btn.innerHTML;
+        btn.textContent = 'Copied';
+        setTimeout(() => {
+          btn.innerHTML = original;
+        }, 1500);
+      } catch {
+        /* clipboard unavailable — no-op */
+      }
+    });
+  });
+</script>
