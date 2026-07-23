@@ -35,8 +35,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   return new Response(JSON.stringify(snapshot), {
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      // Served from the edge; purged on write via cache purge in /api/ingest.
-      'cache-control': 'public, max-age=60, s-maxage=86400',
+      // Short edge cache so an approved edit is live within ~5 min (success
+      // criterion) without needing an explicit purge. browser: 60s.
+      'cache-control': 'public, max-age=60, s-maxage=300',
     },
   });
 };
