@@ -1,0 +1,29 @@
+{
+  "name": "jamaat-directory",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "A public web directory of community contacts and facilities in jamaats across India.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "npm run build && wrangler pages dev ./dist",
+    "deploy": "npm run build && wrangler pages deploy ./dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "gen:seed-sql": "node scripts/gen-seed-sql.ts",
+    "db:migrate:local": "wrangler d1 migrations apply jamaat_directory --local",
+    "db:migrate": "wrangler d1 migrations apply jamaat_directory --remote",
+    "db:seed:local": "npm run gen:seed-sql && wrangler d1 execute jamaat_directory --local --file=./seed.sql",
+    "db:seed": "npm run gen:seed-sql && wrangler d1 execute jamaat_directory --remote --file=./seed.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260723.1",
+    "@types/node": "^26.1.1",
+    "astro": "^7.1.3",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.113.0"
+  }
+}

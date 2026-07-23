@@ -1,0 +1,8 @@
+# Copy to `.dev.vars` (gitignored) for local `wrangler pages dev`.
+# These are NOT the production secrets — set those with `wrangler pages secret put`.
+
+# Shared HMAC secret for /api/ingest (must match the Apps Script constant).
+INGEST_SECRET="dev-only-change-me"
+
+# Cloudflare Turnstile secret key (server side) for /api/reveal and /api/flag.
+TURNSTILE_SECRET="1x0000000000000000000000000000000AA"

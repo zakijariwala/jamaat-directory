@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# cloudflare / wrangler local state
+.wrangler/
+
+# generated seed SQL (regenerated from scripts/gen-seed-sql.mjs)
+seed.sql
+
+# local secrets — NEVER commit
+.dev.vars
+.env
+.env.*
+
+# misc
+*.log
+.DS_Store
+coverage/

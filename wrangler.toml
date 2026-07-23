@@ -1,0 +1,34 @@
+# Cloudflare Pages project config for the Jamaat Directory.
+# The static frontend is built by Astro into ./dist; the /api/* routes and
+# /directory.json live in ./functions as Pages Functions bound to D1 and R2.
+
+name = "jamaat-directory"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-07-01"
+
+# --- D1: source of truth for the site -------------------------------------
+# Create with:  wrangler d1 create jamaat_directory
+# then paste the returned database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "jamaat_directory"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+migrations_dir = "migrations"
+
+# --- R2: nightly JSON backups only ----------------------------------------
+# Create with:  wrangler r2 bucket create jamaat-directory-backups
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "jamaat-directory-backups"
+
+# --- Public, non-secret vars ----------------------------------------------
+# Access posture is an open committee decision; ship with noindex ON.
+# Flip to "false" to allow search-engine indexing (fully public posture).
+[vars]
+NOINDEX = "true"
+
+# --- Secrets (NEVER put real values here) ---------------------------------
+# Set with:
+#   wrangler pages secret put INGEST_SECRET
+#   wrangler pages secret put TURNSTILE_SECRET
+# For local dev, put them in .dev.vars (gitignored) — see .dev.vars.example.

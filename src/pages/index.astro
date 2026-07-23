@@ -1,0 +1,21 @@
+---
+// PLACEHOLDER — replaced in Stage 3 by the real home screen, built from the
+// Claude Design token sheet + component HTML/CSS. This exists only so the Astro
+// build succeeds while the backend (Stages 1–2) is verified.
+const noindex = (import.meta.env.NOINDEX ?? 'true') !== 'false';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <title>Jamaat Directory</title>
+  </head>
+  <body>
+    <main>
+      <h1>Jamaat Directory</h1>
+      <p>Backend scaffold in place. The home screen is built in Stage 3 from the design.</p>
+    </main>
+  </body>
+</html>
