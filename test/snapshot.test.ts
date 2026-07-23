@@ -95,14 +95,21 @@ describe('city presence and status chips', () => {
     expect(bhavnagar?.contacts).toHaveLength(0);
   });
 
-  it('derives all four chips from published children', () => {
+  it('derives all chips from published children', () => {
     const pune = snap.cities.find((c) => c.id === 'pune');
     expect(pune?.has).toEqual({
       contact: true,
       masjid: true,
       stay: true,
       hotel: true,
+      restaurant: true,
     });
+  });
+
+  it('greys the restaurant chip for a city without one', () => {
+    const sangli = snap.cities.find((c) => c.id === 'sangli');
+    expect(sangli?.has.restaurant).toBe(false);
+    expect(snap.cities.find((c) => c.id === 'pune')?.has.restaurant).toBe(true);
   });
 
   it('lists cities alphabetically', () => {

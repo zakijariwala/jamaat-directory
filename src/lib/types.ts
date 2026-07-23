@@ -9,7 +9,7 @@
 
 export type Region = 'north' | 'south' | 'east' | 'west' | 'central';
 export type RowStatus = 'pending' | 'live' | 'flagged' | 'removed';
-export type FacilityKind = 'masjid' | 'musafir_khana' | 'hotel';
+export type FacilityKind = 'masjid' | 'musafir_khana' | 'hotel' | 'restaurant';
 export type ChargesBand = 'free' | 'donation' | 'paid';
 
 // ---------------------------------------------------------------------------
@@ -93,12 +93,13 @@ export interface PublicFacility {
   stale: boolean;
 }
 
-/** The four status chips a traveller reads at a glance. */
+/** The status chips a traveller reads at a glance (contact + facility kinds). */
 export interface CityHas {
   contact: boolean;
   masjid: boolean;
   stay: boolean; // musafir khana
   hotel: boolean;
+  restaurant: boolean;
 }
 
 export interface PublicCity {

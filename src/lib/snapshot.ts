@@ -122,6 +122,7 @@ export function buildSnapshot(
         masjid: cityFacilities.some((f) => f.kind === 'masjid'),
         stay: cityFacilities.some((f) => f.kind === 'musafir_khana'),
         hotel: cityFacilities.some((f) => f.kind === 'hotel'),
+        restaurant: cityFacilities.some((f) => f.kind === 'restaurant'),
       },
     };
   });

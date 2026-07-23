@@ -35,7 +35,7 @@ CREATE TABLE contacts (
 CREATE TABLE facilities (
   id            TEXT PRIMARY KEY,
   city_id       TEXT NOT NULL REFERENCES cities(id),
-  kind          TEXT NOT NULL,           -- masjid | musafir_khana | hotel
+  kind          TEXT NOT NULL,           -- masjid | musafir_khana | hotel | restaurant
   name          TEXT NOT NULL,
   address       TEXT,
   maps_url      TEXT,
