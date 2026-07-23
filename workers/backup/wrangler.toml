@@ -1,0 +1,23 @@
+# Standalone scheduled Worker for nightly D1 -> R2 backups.
+# Deploy from this directory:  npx wrangler deploy
+# Test one run without waiting for the cron:  npx wrangler dev --test-scheduled
+# then hit http://localhost:8787/__scheduled  (or just GET / for the manual path).
+
+name = "jamaat-directory-backup"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+
+# 02:00 UTC every day.
+[triggers]
+crons = ["0 2 * * *"]
+
+# Same D1 database as the Pages project.
+[[d1_databases]]
+binding = "DB"
+database_name = "jamaat_directory"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+
+# Same R2 bucket as the Pages project.
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "jamaat-directory-backups"

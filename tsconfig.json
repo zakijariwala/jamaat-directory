@@ -6,6 +6,6 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "functions", "scripts", "test", "env.d.ts"],
+  "include": ["src", "functions", "scripts", "test", "workers", "env.d.ts"],
   "exclude": ["dist", ".wrangler", "node_modules"]
 }
