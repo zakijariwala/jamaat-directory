@@ -118,11 +118,15 @@ Build order is from Packet 2. **Stages 1–2 are done, verified, and pushed.**
 - [x] **2 — Snapshot generator + `/directory.json` + no-phone-numbers test**
 - [x] **+ restaurants** added as a facility kind alongside hotels (your request)
 - [x] **3 — Frontend: home, search, city pages, all states** — built from the design (Astro + Tailwind v4, inline SVG icons)
-- [~] **4 — `/api/reveal`** — basic one-number endpoint done; rate limiting + Turnstile still to add
-- [ ] 5 — `/api/ingest` + Apps Script trigger (shared HMAC secret)
-- [ ] 6 — `/api/flag` + removal flow
-- [ ] 7 — Nightly R2 backup (scheduled Worker)
-- [ ] 8 — Analytics, `noindex` flag wiring, custom domain, deploy
+- [x] **4 — `/api/reveal`** — per-IP rate limiting (KV) + Turnstile server verify (client widget added at deploy)
+- [x] **5 — `/api/ingest`** (HMAC) + Apps Script trigger (`docs/apps-script.gs`)
+- [x] **6 — `/api/flag`** + self-service removal + 48h caution
+- [x] **7 — Nightly R2 backup** (`workers/backup`, scheduled)
+- [~] **8 — Deploy** — code done (analytics beacon, `noindex` + `robots.txt`); Cloudflare/Google provisioning + custom domain remain (see §9 + README "Deploy")
+
+**All application code (steps 1–8) is written, tested, and pushed.** What remains
+is provisioning the Cloudflare/Google resources on your accounts and deploying —
+§9 and the README "Deploy" section have every command.
 
 **What's proven so far:** tests pass, typecheck clean, `astro build` succeeds,
 and the migration + seed apply to a real local D1 with correct row counts
