@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildSnapshot } from '../src/lib/snapshot';
 import { cities, contacts, facilities } from '../src/data/seed';
-import type { PublicContact } from '../src/lib/types';
+import type { FlagRow, PublicContact } from '../src/lib/types';
 
 // Fixed "now" so the stale calculations are deterministic (matches the PRD's
 // working date). 2026-07-23.
@@ -116,6 +116,45 @@ describe('city presence and status chips', () => {
     const names = snap.cities.map((c) => c.name);
     const sorted = [...names].sort((a, b) => a.localeCompare(b));
     expect(names).toEqual(sorted);
+  });
+});
+
+describe('caution flag (unresolved problem report > 48h)', () => {
+  const flag = (over: Partial<FlagRow>): FlagRow => ({
+    id: 'flag-1',
+    target_type: 'contact',
+    target_id: 'c-sangli-1',
+    reason: 'wrong number',
+    kind: 'problem',
+    resolved: 0,
+    created_at: '2026-07-20T00:00:00Z', // 3 days before NOW
+    ...over,
+  });
+
+  const cautionOf = (id: string, flags: FlagRow[]) =>
+    buildSnapshot(cities, contacts, facilities, NOW, flags)
+      .cities.flatMap((c) => c.contacts)
+      .find((c) => c.id === id)?.caution;
+
+  it('marks an entry with a problem report older than 48h', () => {
+    expect(cautionOf('c-sangli-1', [flag({})])).toBe(true);
+  });
+
+  it('does not flag a report younger than 48h', () => {
+    expect(cautionOf('c-sangli-1', [flag({ created_at: '2026-07-22T06:00:00Z' })])).toBe(false);
+  });
+
+  it('does not flag a resolved report', () => {
+    expect(cautionOf('c-sangli-1', [flag({ resolved: 1 })])).toBe(false);
+  });
+
+  it('does not flag on a removal_request (only problem reports caution)', () => {
+    expect(cautionOf('c-sangli-1', [flag({ kind: 'removal_request' })])).toBe(false);
+  });
+
+  it('defaults to no caution when no flags are supplied', () => {
+    const c = snap.cities.flatMap((x) => x.contacts).find((x) => x.id === 'c-sangli-1');
+    expect(c?.caution).toBe(false);
   });
 });
 

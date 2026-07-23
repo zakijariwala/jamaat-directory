@@ -10,7 +10,7 @@
 
 import { buildSnapshot } from '../src/lib/snapshot';
 import { cities as seedCities, contacts as seedContacts, facilities as seedFacilities } from '../src/data/seed';
-import type { CityRow, ContactRow, FacilityRow } from '../src/lib/types';
+import type { CityRow, ContactRow, FacilityRow, FlagRow } from '../src/lib/types';
 
 interface Env {
   DB?: D1Database;
@@ -21,14 +21,21 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   let snapshot;
   if (db) {
-    const [cities, contacts, facilities] = await Promise.all([
+    const [cities, contacts, facilities, flags] = await Promise.all([
       db.prepare('SELECT * FROM cities').all<CityRow>(),
       db.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
       db.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
+      db.prepare('SELECT * FROM flags WHERE resolved = 0').all<FlagRow>(),
     ]);
-    snapshot = buildSnapshot(cities.results, contacts.results, facilities.results);
+    snapshot = buildSnapshot(
+      cities.results,
+      contacts.results,
+      facilities.results,
+      Date.now(),
+      flags.results,
+    );
   } else {
-    // No D1 bound yet (prototype): derive from seed.
+    // No D1 bound yet (prototype): derive from seed (no flags).
     snapshot = buildSnapshot(seedCities, seedContacts, seedFacilities);
   }
 

@@ -170,6 +170,12 @@ const revealActionBtn =
                         ? 'Needs verification'
                         : `Verified ${formatVerified(c.verified_at)}`}
                     </span>
+                    {c.caution && (
+                      <span class="font-data-mono text-data-mono text-secondary flex items-center gap-1 uppercase mt-1">
+                        <Icon name="flag" size={14} />
+                        Reported — verify first
+                      </span>
+                    )}
                   </div>
 
                   <div class="md:col-span-4 flex flex-col gap-2">
@@ -238,6 +244,12 @@ const revealActionBtn =
                     <p class="font-data-mono text-data-mono text-secondary">
                       Timings change — confirm before travelling.
                     </p>
+                    {f.caution && (
+                      <p class="font-data-mono text-data-mono text-secondary flex items-center gap-1 uppercase">
+                        <Icon name="flag" size={14} />
+                        Reported — verify first
+                      </p>
+                    )}
                   </div>
                   <div class="md:col-span-4 flex flex-col gap-2">
                     {f.facilities.length > 0 && (
@@ -297,6 +309,12 @@ const revealActionBtn =
                     {f.booking_note && (
                       <p class="text-body-sm font-body-sm mt-1">
                         <strong>Booking:</strong> {f.booking_note}
+                      </p>
+                    )}
+                    {f.caution && (
+                      <p class="font-data-mono text-data-mono text-secondary flex items-center gap-1 uppercase">
+                        <Icon name="flag" size={14} />
+                        Reported — verify first
                       </p>
                     )}
                   </div>

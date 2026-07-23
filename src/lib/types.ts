@@ -63,6 +63,19 @@ export interface FacilityRow {
   created_at: string;
 }
 
+export type FlagTarget = 'contact' | 'facility';
+export type FlagKind = 'problem' | 'removal_request';
+
+export interface FlagRow {
+  id: string;
+  target_type: FlagTarget;
+  target_id: string;
+  reason: string | null;
+  kind: FlagKind;
+  resolved: number; // 0/1
+  created_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // Public snapshot (directory.json) — no phone fields anywhere
 // ---------------------------------------------------------------------------
@@ -77,6 +90,7 @@ export interface PublicContact {
   languages: string | null;
   verified_at: string | null;
   stale: boolean; // verified_at missing or older than 12 months
+  caution: boolean; // an unresolved problem report has sat > 48h
 }
 
 export interface PublicFacility {
@@ -91,6 +105,7 @@ export interface PublicFacility {
   facilities: string[];
   verified_at: string | null;
   stale: boolean;
+  caution: boolean; // an unresolved problem report has sat > 48h
 }
 
 /** The status chips a traveller reads at a glance (contact + facility kinds). */

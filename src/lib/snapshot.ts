@@ -13,6 +13,7 @@ import type {
   CityRow,
   ContactRow,
   FacilityRow,
+  FlagRow,
   PublicCity,
   PublicContact,
   PublicFacility,
@@ -20,6 +21,21 @@ import type {
 } from './types';
 
 const TWELVE_MONTHS_MS = 365 * 24 * 60 * 60 * 1000;
+const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
+
+/**
+ * Ids of entries that carry an unresolved "problem" report older than 48h.
+ * Such entries show a visible caution rather than silently staying wrong.
+ */
+function cautionIds(flags: FlagRow[], now: number): Set<string> {
+  const ids = new Set<string>();
+  for (const f of flags) {
+    if (f.kind !== 'problem' || f.resolved === 1) continue;
+    const t = Date.parse(f.created_at);
+    if (!Number.isNaN(t) && now - t > FORTY_EIGHT_HOURS_MS) ids.add(f.target_id);
+  }
+  return ids;
+}
 
 function parseJsonArray(raw: string | null): string[] {
   if (!raw) return [];
@@ -47,7 +63,7 @@ export function isFacilityPublishable(f: FacilityRow): boolean {
   return f.status === 'live';
 }
 
-function toPublicContact(c: ContactRow, now: number): PublicContact {
+function toPublicContact(c: ContactRow, now: number, caution: boolean): PublicContact {
   // Explicit allowlist. `phone` is deliberately not referenced.
   return {
     id: c.id,
@@ -59,10 +75,11 @@ function toPublicContact(c: ContactRow, now: number): PublicContact {
     languages: c.languages,
     verified_at: c.verified_at,
     stale: isStale(c.verified_at, now),
+    caution,
   };
 }
 
-function toPublicFacility(f: FacilityRow, now: number): PublicFacility {
+function toPublicFacility(f: FacilityRow, now: number, caution: boolean): PublicFacility {
   // Explicit allowlist. `phone` is deliberately not referenced.
   return {
     id: f.id,
@@ -76,6 +93,7 @@ function toPublicFacility(f: FacilityRow, now: number): PublicFacility {
     facilities: parseJsonArray(f.facilities),
     verified_at: f.verified_at,
     stale: isStale(f.verified_at, now),
+    caution,
   };
 }
 
@@ -84,21 +102,23 @@ export function buildSnapshot(
   contacts: ContactRow[],
   facilities: FacilityRow[],
   now: number = Date.now(),
+  flags: FlagRow[] = [],
 ): Snapshot {
   const pubContacts = contacts.filter(isContactPublishable);
   const pubFacilities = facilities.filter(isFacilityPublishable);
+  const caution = cautionIds(flags, now);
 
   const contactsByCity = new Map<string, PublicContact[]>();
   for (const c of pubContacts) {
     const list = contactsByCity.get(c.city_id) ?? [];
-    list.push(toPublicContact(c, now));
+    list.push(toPublicContact(c, now, caution.has(c.id)));
     contactsByCity.set(c.city_id, list);
   }
 
   const facilitiesByCity = new Map<string, PublicFacility[]>();
   for (const f of pubFacilities) {
     const list = facilitiesByCity.get(f.city_id) ?? [];
-    list.push(toPublicFacility(f, now));
+    list.push(toPublicFacility(f, now, caution.has(f.id)));
     facilitiesByCity.set(f.city_id, list);
   }
 
