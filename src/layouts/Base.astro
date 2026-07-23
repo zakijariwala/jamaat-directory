@@ -14,6 +14,10 @@ const {
 // Access posture (open committee decision): ship with noindex ON by default.
 // Set NOINDEX="false" in the environment for the fully-public posture.
 const noindex = (import.meta.env.NOINDEX ?? 'true') !== 'false';
+
+// Cloudflare Web Analytics (no cookies, no personal data). Set the token to
+// enable the beacon; leave unset (prototype) and nothing loads.
+const analyticsToken = import.meta.env.CF_ANALYTICS_TOKEN ?? '';
 ---
 
 <!doctype html>
@@ -42,5 +46,14 @@ const noindex = (import.meta.env.NOINDEX ?? 'true') !== 'false';
       >Skip to content</a
     >
     <slot />
+    {
+      analyticsToken && (
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${analyticsToken}"}`}
+        />
+      )
+    }
   </body>
 </html>

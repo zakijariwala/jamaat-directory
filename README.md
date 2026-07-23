@@ -126,20 +126,52 @@ wrangler pages secret put TURNSTILE_SECRET  # Cloudflare Turnstile server key
 
 ## Deploy
 
+Provision once (needs your Cloudflare account), then deploy:
+
 ```bash
-npm run deploy               # astro build + wrangler pages deploy ./dist
+npx wrangler login
+npx wrangler d1 create jamaat_directory          # paste id into wrangler.toml + workers/backup/wrangler.toml
+npx wrangler r2 bucket create jamaat-directory-backups
+npx wrangler kv namespace create RATE_LIMIT      # paste id into wrangler.toml
+npm run db:migrate && npm run db:seed            # schema + seed into remote D1
+
+npx wrangler pages secret put INGEST_SECRET      # shared with docs/apps-script.gs
+npx wrangler pages secret put TURNSTILE_SECRET   # from the Turnstile dashboard
+
+npm run deploy                                    # astro build + wrangler pages deploy ./dist
+cd workers/backup && npx wrangler deploy && cd ../..   # nightly backup Worker
 ```
+
+Then in the dashboard: create a **Turnstile** site (put the site key in the
+client widget), enable **Web Analytics** (set `CF_ANALYTICS_TOKEN` as a build
+var), add the **custom domain**, and — once D1 is live — remove the seed
+fallbacks in `functions/directory.json.ts` and `functions/api/reveal.ts`.
+Full step-by-step is in `handover.md`.
 
 ## Build status
 
 - [x] **1 — Scaffold, Wrangler config, D1 schema/migrations, seed script**
 - [x] **2 — Snapshot generator + `/directory.json` + no-phone-numbers test**
 - [x] **3 — Frontend: home, search, city pages, all states** *(from the design)*
-- [~] **4 — `/api/reveal`** — basic one-number endpoint done; **rate limiting + Turnstile still to add**
-- [ ] 5 — `/api/ingest` + Apps Script trigger
-- [ ] 6 — `/api/flag` + removal flow
-- [ ] 7 — Nightly R2 backup (scheduled Worker)
-- [ ] 8 — Analytics, `noindex` flag wiring, custom domain, deploy
+- [x] **4 — `/api/reveal`** with per-IP rate limiting + Turnstile *(client Turnstile widget added at deploy)*
+- [x] **5 — `/api/ingest`** (HMAC) + Apps Script trigger (`docs/apps-script.gs`)
+- [x] **6 — `/api/flag`** + self-service removal + 48h caution
+- [x] **7 — Nightly R2 backup** (`workers/backup`, scheduled)
+- [~] **8 — Deploy** — code done (analytics beacon, `noindex`/`robots.txt`); **provisioning + custom domain is on the Cloudflare account** (see below)
 
-**Prototype (steps 1–3) is ready to demo.** Run `npm run preview` and open a city
-page; "Show number" reveals one number at a time via `/api/reveal`.
+All **code** for steps 1–8 is in place; what remains is provisioning the
+Cloudflare/Google resources and deploying (see **Deploy** and `handover.md`).
+
+## Environment variables
+
+- **Build-time** (`import.meta.env`, set in Pages build settings or a local `.env`):
+  - `NOINDEX` — `"true"` (default) ships `noindex` + a disallow `robots.txt`.
+  - `CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token; unset = no beacon.
+- **Runtime secrets** (`wrangler pages secret put …`, or `.dev.vars` locally):
+  - `INGEST_SECRET`, `TURNSTILE_SECRET`.
+
+## Performance / accessibility targets (acceptance criteria)
+
+3G-usable < 2s; Lighthouse Perf 90+, A11y 100; JS < 50KB gzipped; 17px base;
+48px tap targets; 4.5:1 contrast; keyboard + reduced-motion. Icons are inline
+SVG (no icon font); run Lighthouse against the deployed preview to confirm.
