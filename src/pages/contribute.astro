@@ -34,6 +34,14 @@ const CHARGES = [
   { value: 'donation', label: 'Donation' },
   { value: 'paid', label: 'Paid' },
 ];
+// Suggestions for the languages field (datalist, not a hard list — a person can
+// speak several, so it stays free text and takes a comma-separated list).
+// Community-relevant languages first, then the broad national set.
+const LANGUAGES = [
+  'Gujarati', 'Kutchi', 'Urdu', 'Hindi', 'English', 'Marathi', 'Sindhi',
+  'Memoni', 'Bengali', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Punjabi',
+  'Konkani', 'Odia', 'Assamese', 'Kashmiri',
+];
 ---
 
 <Base title="Contribute — KSIJ Travel Directory">
@@ -102,7 +110,13 @@ const CHARGES = [
               {CONTACT_ROLES.map((r) => <option value={r}></option>)}
             </datalist>
           </div>
-          <div><label class={label} for="ct-langs">Languages</label><input id="ct-langs" name="ct_langs" class={field} /></div>
+          <div>
+            <label class={label} for="ct-langs">Languages</label>
+            <input id="ct-langs" name="ct_langs" list="language-options" autocomplete="off" placeholder="Pick or type — separate several with commas" class={field} />
+            <datalist id="language-options">
+              {LANGUAGES.map((l) => <option value={l}></option>)}
+            </datalist>
+          </div>
         </div>
         <div><label class={label} for="ct-helps">What can they help with?</label><input id="ct-helps" name="ct_helps" class={field} /></div>
         <label class="flex items-center gap-3 text-body-lg"><input type="checkbox" id="ct-wa" class="w-5 h-5" /> On WhatsApp</label>
