@@ -4,6 +4,29 @@ A step-by-step runbook to take this repo from nothing to a live site with the
 full backend pipeline. Everything here fits Cloudflare's **free tier** at launch
 scale — see [Costs](#costs) at the end.
 
+## Fast path — one command
+
+If you'd rather not run the phases by hand, `scripts/provision.sh` does the whole
+Cloudflare core end-to-end:
+
+```bash
+npx wrangler login                 # or: export CLOUDFLARE_API_TOKEN
+bash scripts/provision.sh          # D1, KV, R2, migrate, seed, deploy Pages + backup Worker
+```
+
+It creates the resources, **patches their ids into both `wrangler.toml` files**,
+deploys the site and the backup Worker, and prints a freshly generated
+`INGEST_SECRET` (paste it into the Apps Script). Options:
+
+```bash
+bash scripts/provision.sh --no-seed                       # schema only, no sample data
+# the extras below use the REST API — need CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID:
+bash scripts/provision.sh --domain yourdomain.org --turnstile --analytics
+```
+
+The numbered phases below are the **explained, manual equivalent** of what the
+script runs — read them to understand each step or to do it by hand.
+
 ## What you'll end up with
 
 | Resource | Purpose |
