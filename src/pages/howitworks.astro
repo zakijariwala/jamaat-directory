@@ -2,12 +2,11 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 
-// A plain-language explainer for the jamaat body / committee — NOT the
-// engineering architecture doc (that stays in docs/how-it-works.html). Purpose:
-// let a non-technical governing body understand the project and endorse a
-// launch. No commands, no code, no jargon.
+// A plain-language explainer for the jamaat body / committee. Not the
+// engineering architecture doc (that stays in docs/how-it-works.html). Prose
+// follows the stop-slop rules: active voice, human subjects, specifics, "you",
+// no em dashes, no adverb padding.
 
-// Section heading style shared across the page.
 const h2 = 'text-headline-md font-headline-md uppercase tracking-tight border-b-[2px] border-on-background pb-stack-compact mb-stack-regular';
 const lead = 'text-body-lg font-body-lg text-on-surface-variant';
 
@@ -15,47 +14,47 @@ const lead = 'text-body-lg font-body-lg text-on-surface-variant';
 const flow = [
   {
     icon: 'add_box',
-    step: '1 — Anyone contributes',
-    body: 'A community member fills in a short Google Form to add a contact, a masjid, a place to stay, or to report/remove an entry. No account, no app.',
+    step: 'Step 1. You add an entry',
+    body: 'You open the directory, tap Add, and fill a short form on the site. You add a contact, a masjid, a place to stay, a hotel, or a restaurant. You need no account. You install no app.',
   },
   {
     icon: 'verified',
-    step: '2 — A moderator reviews',
-    body: 'A named jamaat volunteer checks the entry in a familiar Google Sheet — the same as reviewing a spreadsheet. Nothing goes live until they approve it. No developer is needed.',
+    step: 'Step 2. A moderator approves it',
+    body: 'A named jamaat volunteer reads your entry. They work in a review page on the site or in a downloaded Excel file. They mark it live. Your entry stays hidden until they do.',
   },
   {
     icon: 'travel_explore',
-    step: '3 — It appears on the website',
-    body: 'Approved entries show up on the public directory. A traveller opens one link, searches a city, and finds a local contact, the masjid, and somewhere to stay.',
+    step: 'Step 3. It reaches travellers',
+    body: 'Your approved entry shows on the public directory. A traveller opens one link, searches a city, and finds a local contact, the masjid, and a place to stay.',
   },
 ];
 
 const privacy = [
-  'Phone numbers are never published in bulk. They are shown one at a time, only when a visitor taps “Show number”, protected by a bot check and rate limiting.',
-  'A contact is only listed with the person’s consent. Anyone can report or remove their own entry at any time.',
-  'Only entries a moderator has marked “live” are ever shown.',
-  'The site currently ships unlisted — it is not found on Google — until the body decides the access posture.',
+  'We never publish phone numbers in bulk. A visitor taps Show number to reveal one at a time. A bot check and rate limits guard every reveal.',
+  'We list a person only with their consent. Anyone can report or remove their own entry at any time.',
+  'We show only the entries a moderator marked live.',
+  'The site ships unlisted for now. Google does not list it. You choose when that changes.',
 ];
 
 const costs = [
-  { item: 'Website + hosting (Cloudflare)', cost: '₹0 / month', note: 'Free tier covers the expected traffic.' },
-  { item: 'Contributions (Google Form + Sheet)', cost: '₹0 / month', note: 'Runs on an ordinary Google account.' },
-  { item: 'Custom domain (optional)', cost: '~$8–12 / year', note: 'Only if we want our own web address.' },
-  { item: 'Extra capacity (only if very large)', cost: '~$5 / month', note: 'Not needed at launch scale.' },
+  { item: 'Website and hosting (Cloudflare)', cost: '₹0 / month', note: 'The free tier covers the traffic we expect.' },
+  { item: 'Contributions and moderation (in-site)', cost: '₹0 / month', note: 'The form and the review tools run on the same site.' },
+  { item: 'Custom domain (optional)', cost: '~$8 to $12 / year', note: 'You pay this only for your own web address.' },
+  { item: 'Extra capacity (large scale only)', cost: '~$5 / month', note: 'You skip this at launch scale.' },
 ];
 
 const decisions = [
-  { q: 'Access posture', d: 'Unlisted (share by link only) or fully public (findable on Google)?' },
+  { q: 'Access posture', d: 'Share by link only, or list the site on Google. You pick.' },
   { q: 'Moderators', d: 'Name at least two jamaat volunteers to review and approve entries.' },
-  { q: 'Hotels & restaurants', d: 'Keep these sections in the first version, or contacts + masjids + stay only?' },
-  { q: 'Web address', d: 'Do we want a custom domain name, and if so, which?' },
-  { q: 'Endorsement', d: 'Formal go-ahead to launch, and any rules about what may be listed.' },
+  { q: 'Hotels and restaurants', d: 'Keep these sections in the first version, or start with contacts, masjids, and stays.' },
+  { q: 'Web address', d: 'Choose whether you want a custom domain, and which name.' },
+  { q: 'Endorsement', d: 'Give the go-ahead to launch, and set any rules about what we may list.' },
 ];
 ---
 
 <Base
   title="How it works — KSIJ Travel Directory"
-  description="A plain-language explainer of the KSIJ Travel Directory for the jamaat body: what it is, how it works, who runs it, what it costs, and what we need you to decide."
+  description="A plain-language explainer of the KSIJ Travel Directory for the jamaat body: what it is, how it works, who runs it, what it costs, and what you decide."
 >
   <!-- Top app bar (matches the directory) -->
   <header
@@ -95,11 +94,11 @@ const decisions = [
           One shared link. A trusted contact in every jamaat.
         </h2>
         <p class={`${lead} mb-stack-regular`}>
-          The KSIJ Travel Directory is a simple public web directory of jamaat
-          contacts and facilities across India. A traveller opens one link,
-          searches a city, and gets a local contact, the masjid, and somewhere to
-          stay. No app to install, no login. It is already built and running as a
-          working prototype for the body to review.
+          The KSIJ Travel Directory lists jamaat contacts and facilities across
+          India. A traveller opens one link, searches a city, and gets a local
+          contact, the masjid, and a place to stay. You install nothing. You sign
+          in nowhere. We built it, and it runs today as a working prototype for you
+          to review.
         </p>
         <a
           href="/ksij-directory-briefing.pdf"
@@ -115,12 +114,12 @@ const decisions = [
       <section>
         <h2 class={h2}>The need</h2>
         <p class={lead}>
-          When our members travel to an unfamiliar city, finding a reliable local
-          jamaat contact, the nearest masjid, or a musafir khana to stay in still
-          depends on word-of-mouth and personal networks. Newcomers and younger
-          travellers often have neither. This directory turns that scattered
-          knowledge into one trusted, always-available reference — pan-India from
-          day one, with no city treated as the default.
+          Our members travel to cities they do not know. To find a local contact,
+          the nearest masjid, or a musafir khana, they ask around and lean on
+          personal networks. Newcomers and younger travellers rarely hold those
+          networks. We gather that scattered knowledge into one reference you reach
+          any time. It covers every region from day one, and it treats no city as
+          the default.
         </p>
       </section>
 
@@ -128,8 +127,8 @@ const decisions = [
       <section>
         <h2 class={h2}>How it works</h2>
         <p class={`${lead} mb-stack-regular`}>
-          The whole system is three plain steps. The community keeps it up to
-          date; a jamaat moderator keeps it trustworthy.
+          The system runs in three steps. You keep it current. A jamaat moderator
+          keeps it trustworthy.
         </p>
         <div class="flex flex-col gap-4">
           {
@@ -154,12 +153,12 @@ const decisions = [
       <section>
         <h2 class={h2}>Who runs it</h2>
         <p class={lead}>
-          Day-to-day moderation happens in an ordinary Google Sheet, so a
-          non-technical jamaat volunteer can approve an entry or fix a typo without
-          a developer. The website itself is hosted on Cloudflare and needs no
-          servers to maintain. In short: the community contributes, named
-          moderators approve, and the site runs itself. All it needs from the body
-          is oversight — and the moderators to staff it.
+          A jamaat volunteer moderates the entries. They work in a review page on
+          the site or in a downloaded Excel file. They approve an entry or fix a
+          typo without a developer. Cloudflare hosts the website, so you maintain no
+          servers. The community adds entries, named moderators approve them, and
+          the site serves itself. It asks two things of you: oversight, and the
+          moderators to staff it.
         </p>
       </section>
 
@@ -167,8 +166,8 @@ const decisions = [
       <section>
         <h2 class={h2}>Privacy &amp; safety</h2>
         <p class={`${lead} mb-stack-regular`}>
-          Protecting members’ contact details was a first-class design goal, built
-          into the system — not an afterthought.
+          We protected members' contact details from the first design sketch. These
+          rules hold:
         </p>
         <ul class="flex flex-col gap-stack-regular">
           {
@@ -191,8 +190,8 @@ const decisions = [
           ₹0 / month to run at launch scale.
         </p>
         <p class={`${lead} mb-stack-regular`}>
-          The system is designed to sit inside the free tiers of Cloudflare and
-          Google. The only optional spending is a custom web address.
+          The system sits inside the free tiers of Cloudflare. You spend money on
+          one optional thing: a custom web address.
         </p>
         <div class="border-[2px] border-on-background divide-y-[1px] divide-outline-variant">
           {
@@ -215,10 +214,9 @@ const decisions = [
       <section>
         <h2 class={h2}>Where it stands</h2>
         <p class={lead}>
-          The directory is fully built and deployed as a working prototype, loaded
-          with sample cities so the body can see and use it today. What remains is
-          adding real jamaat data and switching on live community contributions —
-          which is exactly what the decisions below unlock.
+          You can open the directory today. We loaded it with sample cities, so you
+          search it and use it now. Two tasks remain. You add real jamaat data. You
+          switch on live community contributions. The decisions below unlock both.
         </p>
       </section>
 

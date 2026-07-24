@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import { TURNSTILE_SITE_KEY } from '../lib/config';
+import { TURNSTILE_SITE_KEY, CONTRIBUTE_GUIDE_URL } from '../lib/config';
 
 const field =
   'w-full h-[52px] px-4 bg-surface border-[2px] border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors';
@@ -26,6 +26,17 @@ const section = 'text-headline-md font-headline-md uppercase border-b-[2px] bord
     <p class="font-data-mono text-data-mono text-on-surface-variant uppercase mb-4">
       Phone numbers are never shown publicly. They are revealed one at a time, on request.
     </p>
+
+    <a
+      href={CONTRIBUTE_GUIDE_URL}
+      class="flex items-center justify-between gap-3 border-[2px] border-on-background bg-surface-container-low px-4 py-3 mb-6 hover:bg-surface-variant transition-colors"
+    >
+      <span class="flex items-center gap-3">
+        <Icon name="menu_book" size={20} class="text-primary shrink-0" />
+        <span class="text-body-lg font-body-lg">New here? Read how to fill this form (and watch the video)</span>
+      </span>
+      <Icon name="arrow_back" size={18} class="rotate-180 shrink-0 text-on-surface-variant" />
+    </a>
 
     <form id="contribute-form" class="flex flex-col">
       <h2 class={section}>City / Jamaat</h2>

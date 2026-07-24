@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { CONTRIBUTE_URL, HOWTO_VIDEO_URL } from '../lib/config';
+
+const h2 = 'text-headline-md font-headline-md uppercase tracking-tight border-b-[2px] border-on-background pb-stack-compact mb-stack-regular mt-4';
+const lead = 'text-body-lg font-body-lg';
+
+// Field-by-field help, matching /contribute.
+const fields = [
+  {
+    title: 'City or town',
+    body: 'Name the city the contact or facility sits in. Write the common name a traveller would search, like Pune or Panvel. You must fill this box.',
+  },
+  {
+    title: 'Jamaat name',
+    body: 'Write the full jamaat name for that city, like Panvel Shia Isna Ashari Jamaat. Skip it if you do not know it.',
+  },
+  {
+    title: 'State and nearest rail / airport',
+    body: 'Add the state and the closest railway station and airport. These help a traveller plan the trip. Leave a box blank when you are unsure.',
+  },
+  {
+    title: 'Contact name and phone',
+    body: 'Give the person a traveller can call. Write the phone with the country code, like +91 98765 43210. A contact needs both a name and a phone.',
+  },
+  {
+    title: 'Role, languages, what they help with',
+    body: 'Say what the person does in the jamaat, the languages they speak, and the help they offer, like accommodation or majlis timings. Short notes work best.',
+  },
+  {
+    title: 'Consent (read this one)',
+    body: 'Tick "my own details" when you add yourself. Tick "I have their permission" when you add someone else. We publish a contact only when one box is ticked. We never show the number in bulk; a visitor reveals it one at a time.',
+  },
+  {
+    title: 'Facility (optional)',
+    body: 'Add a masjid, musafir khana, hotel, or restaurant. Pick the type, name it, and add the address and a Google Maps link so a traveller finds it fast.',
+  },
+];
+---
+
+<Base
+  title="How to fill the form — KSIJ Travel Directory"
+  description="A short guide to adding a jamaat contact or facility to the KSIJ Travel Directory."
+>
+  <header
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
+  >
+    <div class="flex items-center gap-3 w-full max-w-3xl mx-auto">
+      <a href="/" aria-label="Back to directory" class="text-on-primary p-1 -ml-1 hover:opacity-80"><Icon name="arrow_back" /></a>
+      <h1 class="text-headline-md font-headline-md uppercase">How to fill the form</h1>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[72px] pb-24 px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto">
+    <p class={`${lead} mb-2`}>
+      This form adds a jamaat contact or facility to the directory. You help a fellow traveller reach a real person in a city they do not know.
+    </p>
+    <p class="font-data-mono text-data-mono text-on-surface-variant uppercase mb-6">
+      A moderator reads every entry before it appears. Nothing goes live on its own.
+    </p>
+
+    <!-- Video (placeholder until the video is published) -->
+    <section>
+      <h2 class={h2}>Watch first</h2>
+      {HOWTO_VIDEO_URL ? (
+        <a
+          href={HOWTO_VIDEO_URL}
+          target="_blank"
+          rel="noopener"
+          class="flex items-center gap-3 bg-primary text-on-primary border-[2px] border-on-background px-5 py-4 text-label-caps font-label-caps uppercase hover:bg-primary-container transition-colors"
+        >
+          <Icon name="forum" size={20} />
+          Watch the video (2 min)
+        </a>
+      ) : (
+        <div class="flex items-center gap-3 border-[2px] border-dashed border-outline px-5 py-6 text-on-surface-variant bg-surface-container-low">
+          <Icon name="forum" size={20} />
+          <div>
+            <p class="text-label-caps font-label-caps uppercase">Video coming soon</p>
+            <p class="font-data-mono text-data-mono">A short walkthrough of the form and its purpose lands here.</p>
+          </div>
+        </div>
+      )}
+    </section>
+
+    <!-- Field guide -->
+    <section>
+      <h2 class={h2}>What each box means</h2>
+      <div class="flex flex-col gap-4">
+        {
+          fields.map((f) => (
+            <div class="border-l-[2px] border-primary pl-4">
+              <p class="text-label-caps font-label-caps uppercase mb-stack-compact">{f.title}</p>
+              <p class="text-body-lg font-body-lg text-on-surface-variant">{f.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- After submit -->
+    <section>
+      <h2 class={h2}>After you submit</h2>
+      <p class={`${lead} text-on-surface-variant`}>
+        Your entry waits in a review queue. A named jamaat moderator checks it and marks it live. The contact then shows on the city page, and a visitor can request the number. You can report or remove any entry later from its card.
+      </p>
+    </section>
+
+    <a
+      href={CONTRIBUTE_URL}
+      class="mt-8 w-full flex items-center justify-center gap-2 bg-primary text-on-primary text-label-caps font-label-caps uppercase py-4 px-6 border-[2px] border-on-background hover:bg-primary-container transition-colors"
+    >
+      <Icon name="add" size={18} />
+      Start the form
+    </a>
+  </main>
+</Base>
