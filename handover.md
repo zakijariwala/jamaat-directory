@@ -1,280 +1,258 @@
 # Handover — Jamaat Directory
 
 Everything you need to pick this project up on your laptop and keep building.
-Read this once end to end before you start.
 
-Last updated: 23 July 2026.
+Last updated: 24 July 2026.
 
 ---
 
-## 1. What this is (30-second version)
+## 1. Current state — read this first
+
+- **The prototype is DEPLOYED** on Cloudflare Pages → **https://jamaat-directory.pages.dev**
+  (seed data, unlisted / `noindex`).
+- **Repo:** its own home now → **https://github.com/zakijariwala/jamaat-directory** (`main`).
+- **All application code (build steps 1–8) is written, tested, and deployed.** 43 tests
+  pass. What remains is *content* and a few connect-the-dots tasks — see §9.
+
+**Provisioned on Cloudflare so far:**
+
+| Resource | Status |
+|---|---|
+| **D1** database `jamaat_directory` | ✅ created; schema + seed loaded (remote) |
+| **KV** namespace `RATE_LIMIT` | ✅ created (reveal rate limiting) |
+| **Pages** project `jamaat-directory` | ✅ deployed via `wrangler pages deploy` |
+| **INGEST_SECRET** | ✅ set during deploy — *save the value; the Apps Script needs it* |
+| **R2** bucket (backups) | ⏳ deferred until backups are needed |
+| **Turnstile / Web Analytics / custom domain** | ⏳ not set up yet |
+
+The real D1 + KV ids are committed in `wrangler.toml` (they're resource
+identifiers, not secrets), so the repo is deploy-ready out of the box.
+
+---
+
+## 2. What this is (30-second version)
 
 A public, pan-India web directory of jamaat contacts and facilities for a Khoja
-Shia network. One shareable link, no login, no app. Built on Cloudflare
-(Pages + Functions + D1 + R2 + Turnstile) with a Google Form/Sheet as the
-non-technical intake and moderation surface.
+Shia network. One shareable link, no login, no app. Cloudflare Pages (Astro
+static frontend) + Pages Functions + D1 + KV (+ R2 for backups later), with a
+Google Form/Sheet as the non-technical intake and moderation surface.
 
 The authoritative product spec is the **PRD** (Packet 1) and the **build packet**
-(Packet 2). The `README.md` covers day-to-day dev. This file is specifically
-about **moving the project to a new machine and finishing the remaining stages.**
+(Packet 2). `README.md` covers day-to-day dev; `docs/DEPLOYMENT.md` is the full
+Cloudflare runbook; `docs/how-it-works.html` explains the architecture with
+diagrams. This file is the map for picking the work back up.
 
 ---
 
-## 2. Where the code lives (read this — it's slightly unusual)
+## 3. Where the code lives
 
-- **Repo:** `zakijariwala/ai-website-cloner-template`
-- **Branch:** `jamaat-directory`
-
-⚠️ The Jamaat Directory does **not** live on that repo's `main` branch. `main`
-is an unrelated project (a website-cloner template). `jamaat-directory` is a
-clean **orphan branch** (its own history, no shared files with `main`) that
-contains *only* this project.
-
-Why: creating a brand-new dedicated repo was the original plan, but the GitHub
-integration in use couldn't create repos on your behalf. The orphan branch was
-the clean workaround. **When you migrate, this is a good moment to move it to
-its own repo** — see §8.
+- **Repo:** `github.com/zakijariwala/jamaat-directory`, branch **`main`**.
+- History note: it began as an orphan branch on the `ai-website-cloner-template`
+  repo, then moved to this dedicated repo. `main` is clean and project-only.
 
 ---
 
-## 3. Get it onto your laptop
+## 4. Get it on your laptop
+
+Fresh clone:
 
 ```bash
-# Clone and switch to the project branch
-git clone https://github.com/zakijariwala/ai-website-cloner-template.git jamaat-directory
+git clone https://github.com/zakijariwala/jamaat-directory.git
 cd jamaat-directory
-git checkout jamaat-directory
-
-# (Optional but recommended) confirm you're on the right branch
-git branch --show-current   # -> jamaat-directory
+npm install
 ```
 
-If you'd rather not carry the unrelated `main` history, you can start a fresh
-repo from this branch's tree — see §8.
+**If you already have a laptop copy pointed at the old template repo**, re-point
+it to the new one (the deploy fixes are already in `main`, so local edits can be
+dropped):
+
+```bash
+git remote set-url origin https://github.com/zakijariwala/jamaat-directory.git
+git fetch origin
+git reset --hard origin/main        # ⚠️ discards uncommitted edits (already in main)
+git branch -m main                  # optional: rename local branch to main
+```
+
+Your `node_modules`, local D1 (`.wrangler`), and `dist` are gitignored, so
+they're untouched — no reinstall needed.
 
 ---
 
-## 4. Prerequisites
+## 5. Prerequisites
 
 | Tool | Version | Notes |
 |---|---|---|
-| **Node.js** | **22.18+** (dev'd on 22.22) | The `gen:seed-sql` script runs TypeScript directly via Node's native type-stripping. On Node < 22.18 it won't run as-is (see gotcha in §9). |
+| **Node.js** | **22.18+** (dev'd on 22.22) | Some scripts run TypeScript directly via Node's native type-stripping. On Node < 22.18 run them via `npx tsx` instead. |
 | **npm** | 10+ | Ships with Node. |
-| **Cloudflare account** | — | Free tier is enough to start. Wrangler is already a dev dependency; no global install needed. |
-| **Google account** | — | For the Form + Sheet + Apps Script intake (Stage 5). |
-| Git | any recent | — |
-
-You do **not** need to install Wrangler, Astro, or anything globally —
-`npm install` pulls everything (including a local `wrangler`).
+| **Git Bash** (Windows) | — | `scripts/provision.sh` is a bash script — run it in **Git Bash**, not PowerShell. In PowerShell, run chained commands one line at a time (no `&&` on PS 5.1). |
+| **Cloudflare account** | — | Already connected. Wrangler is a dev dependency (`npx wrangler …`); no global install needed. |
+| **Google account** | — | For the Form + Sheet + Apps Script intake. |
 
 ---
 
-## 5. First run on the new machine
+## 6. First run on a new machine (local)
 
 ```bash
-npm install                  # restores exact versions from package-lock.json
+npm install
 
-# Local database (uses a local SQLite via Wrangler/Miniflare — no cloud needed)
-npm run db:migrate:local     # apply migrations/0001_init.sql to local D1
-npm run db:seed:local        # regenerate seed.sql from src/data/seed.ts + load it
+# Local database (local SQLite via Wrangler/Miniflare — no cloud)
+npm run db:migrate:local
+npm run db:seed:local
 
-# Verify everything works
-npm test                     # Vitest — 28 tests incl. the no-phone-numbers guard
+# Verify
+npm test                     # Vitest — 43 tests incl. the no-phone-numbers guard
 npm run typecheck            # tsc --noEmit
-npm run build                # astro build (static output to ./dist)
+npm run build                # astro build → ./dist
 
-# Run it
-npm run dev                  # Astro dev server (frontend only, fast)
-npm run preview              # astro build + wrangler pages dev — exercises the
-                             # Pages Functions (/directory.json, later /api/*)
-                             # against the local D1. Closest to production.
+# Run
+npm run dev                  # Astro dev server (UI only, fast). Show-number won't work here.
+npm run preview              # build + wrangler pages dev — Functions + local D1 (reveal works)
 ```
 
-If all four verification commands pass, your environment is good.
+> ⚠️ For local `preview`, do **not** set `TURNSTILE_SECRET` (e.g. don't copy
+> `.dev.vars.example` verbatim) or `/api/reveal` will `403`. Leave it unset —
+> reveal + rate-limiting work without it.
 
 ---
 
-## 6. Full command reference
+## 7. Command reference
 
 | Command | What it does |
 |---|---|
 | `npm run dev` | Astro dev server (UI only). |
 | `npm run preview` | Build + `wrangler pages dev ./dist` — Functions + local D1. |
 | `npm run build` | Static build to `./dist`. |
-| `npm run deploy` | Build + `wrangler pages deploy ./dist`. |
-| `npm test` / `npm run test:watch` | Vitest. |
-| `npm run typecheck` | `tsc --noEmit`. |
-| `npm run gen:seed-sql` | Regenerate `seed.sql` from `src/data/seed.ts`. |
-| `npm run db:migrate:local` / `db:migrate` | Apply migrations to local / remote D1. |
-| `npm run db:seed:local` / `db:seed` | Load seed data into local / remote D1. |
+| `npm run deploy` | Build + `wrangler pages deploy ./dist` (redeploy the live site). |
+| `npm test` / `npm run typecheck` | Vitest / `tsc --noEmit`. |
+| `npm run db:migrate` / `db:seed` | Apply migrations / load seed into **remote** D1. |
+| `npm run db:migrate:local` / `db:seed:local` | Same, against the **local** D1. |
+| `bash scripts/provision.sh` | One-command Cloudflare setup (Git Bash). Idempotent. |
+
+To redeploy after any code change: **`npm run deploy`**.
 
 ---
 
-## 7. Current build status
+## 8. How it was deployed (and how to redeploy)
 
-Build order is from Packet 2. **Stages 1–2 are done, verified, and pushed.**
+The whole Cloudflare core was set up with **`bash scripts/provision.sh`** (Git
+Bash): it created D1 + KV, wrote their ids into the config, migrated + seeded the
+remote D1, deployed Pages, and set `INGEST_SECRET`. Full manual equivalent +
+costs are in **`docs/DEPLOYMENT.md`**.
 
-- [x] **1 — Scaffold, Wrangler config, D1 schema/migrations, seed script**
-- [x] **2 — Snapshot generator + `/directory.json` + no-phone-numbers test**
-- [x] **+ restaurants** added as a facility kind alongside hotels (your request)
-- [x] **3 — Frontend: home, search, city pages, all states** — built from the design (Astro + Tailwind v4, inline SVG icons)
-- [x] **4 — `/api/reveal`** — per-IP rate limiting (KV) + Turnstile server verify (client widget added at deploy)
-- [x] **5 — `/api/ingest`** (HMAC) + Apps Script trigger (`docs/apps-script.gs`)
-- [x] **6 — `/api/flag`** + self-service removal + 48h caution
-- [x] **7 — Nightly R2 backup** (`workers/backup`, scheduled)
-- [~] **8 — Deploy** — code done (analytics beacon, `noindex` + `robots.txt`); Cloudflare/Google provisioning + custom domain remain (see §9 + README "Deploy")
-
-**All application code (steps 1–8) is written, tested, and pushed.** What remains
-is provisioning the Cloudflare/Google resources on your accounts and deploying —
-§9 and the README "Deploy" section have every command.
-
-**What's proven so far:** tests pass, typecheck clean, `astro build` succeeds,
-and the migration + seed apply to a real local D1 with correct row counts
-(11 cities · 12 published contacts · 21 published facilities) and correct
-publish-rule behaviour. The generated snapshot contains **zero** phone data.
+- **Redeploy the site:** `npm run deploy`.
+- **Access posture:** `NOINDEX="true"` (default) ships `noindex` + a disallow
+  `robots.txt`. Set `NOINDEX=false` (build var) and redeploy to go fully public.
 
 ---
 
-## 8. Moving to a dedicated repo (recommended during migration)
+## 9. What's left — your next steps
 
-The cleanest home for this is its own repo. On your laptop:
-
-```bash
-# From inside the checked-out jamaat-directory branch:
-# 1. Create a new empty repo on GitHub (e.g. github.com/zakijariwala/jamaat-directory)
-# 2. Point a new remote at it and push this branch as main
-git remote rename origin old-template          # keep the old one around, renamed
-git remote add origin https://github.com/zakijariwala/jamaat-directory.git
-git push -u origin jamaat-directory:main        # push this tree as the new main
-```
-
-Because `jamaat-directory` is an orphan branch, its tree is already free of the
-template's files, so it becomes a clean `main` with no leftover history to prune.
-
----
-
-## 9. Cloud & Google provisioning (needs your accounts — not yet done)
-
-None of this exists yet; it requires accounts only you control. Do it as you
-reach the relevant stage.
-
-### Cloudflare (Stages 4–8)
-
-```bash
-# One-time login
-npx wrangler login
-
-# D1 database — paste the returned database_id into wrangler.toml
-npx wrangler d1 create jamaat_directory
-
-# R2 bucket for nightly backups (Stage 7)
-npx wrangler r2 bucket create jamaat-directory-backups
-
-# Apply schema + seed to the REMOTE D1
-npm run db:migrate
-npm run db:seed
-
-# Secrets (Stages 4–5) — never committed
-npx wrangler pages secret put INGEST_SECRET     # shared HMAC secret w/ Apps Script
-npx wrangler pages secret put TURNSTILE_SECRET  # Cloudflare Turnstile server key
-```
-
-Also in the Cloudflare dashboard, when you get there:
-- **Turnstile:** create a site, note the **site key** (frontend) and **secret key** (server). Stage 4.
-- **Web Analytics:** enable for the Pages project (no cookies). Stage 8.
-- **Pages:** connect the repo or deploy via `npm run deploy`. Stage 8.
-- **Custom domain + HTTPS.** Stage 8, open decision (§11).
-
-### Google (Stage 5)
-
-- Build the **Google Form** (fields per PRD §6.1; consent checkbox required, not pre-ticked).
-- The Form's responses go to a **Google Sheet**.
-- In the Sheet: **Extensions → Apps Script**, paste the trigger snippet (produced
-  in Stage 5), set the shared `INGEST_SECRET` constant to match Cloudflare, and
-  install the `onFormSubmit` + `onEdit` triggers. It POSTs HMAC-signed rows to
-  `/api/ingest`.
+1. **Set the Google Form link.** `src/lib/config.ts` → `FORM_URL` drives every
+   Add / Report / Remove button. Optionally set `FORM_CITY_ENTRY` (the form's
+   city-field id, from Forms' "Get pre-filled link") to pre-fill the city. Then
+   `npm run deploy`.
+2. **Build the Google Form + Sheet + Apps Script** (turns on live contributions):
+   - One Form whose first question is *"What would you like to do?"*
+     (Add / Report / Remove) with section branching; responses → a Sheet.
+   - Sheet → Extensions → Apps Script → paste `docs/apps-script.gs`. Script
+     Properties: `INGEST_URL = https://jamaat-directory.pages.dev/api/ingest`,
+     `INGEST_SECRET =` the value from deploy. Add the `onFormSubmit` + `onEdit`
+     triggers, and match the `COLS` map to your sheet headers.
+   - The sample script maps **city + one contact**; extend its column map to also
+     populate `facilities[]` for masjid / musafir / hotel / restaurant.
+3. **Client-side Turnstile widget.** `/api/reveal` enforces Turnstile only when
+   `TURNSTILE_SECRET` is set. The client widget isn't wired yet, so **do not set
+   that secret** until it is, or reveals `403`. Rate limiting (KV) is already live.
+4. **R2 + nightly backups** (when wanted): enable R2 in the dashboard →
+   `npx wrangler r2 bucket create jamaat-directory-backups` →
+   `cd workers/backup && npx wrangler deploy`.
+5. **Custom domain + Web Analytics** — optional polish (`docs/DEPLOYMENT.md`
+   phases 7 & 9).
+6. **Real data.** Replace the sample cities in `src/data/seed.ts`, or (better)
+   let the Google Form populate D1 and stop relying on seed.
 
 ---
 
-## 10. The design blocker (why Stage 3 is paused)
+## 10. Deploy fixes already applied (so you don't rediscover them)
 
-Packet 2 says, repeatedly, to build the frontend **from the design output — the
-token sheet and component HTML/CSS — exactly**, without improvising styling.
+Found during the first real Cloudflare deploy, fixed in the repo:
 
-That design output isn't in the repo yet:
-- The **Stitch link is private** to your Google login and can't be fetched by tooling.
-- The **Claude Design deliverable** (token sheet + component HTML/CSS) hasn't been provided.
-
-**To unblock Stage 3, bring one of these to the machine you're building on:**
-1. The Claude Design output (token sheet + component HTML/CSS), or
-2. Screenshots of every Stitch screen (home, city page, empty state, reveal), or
-3. A **Figma export** of the Stitch project (a `figma.com` link).
-
-The PRD §8.5 written direction (Ink/Slate/Paper/Mist/Jade/Amber palette, IBM
-Plex Serif + Sans, hairline rules, 4px max radius) is enough to build faithfully
-*if you decide* to skip the mockups — but the packet's explicit instruction is to
-implement the actual components.
+- **`wrangler kv namespace list --json`** — the `--json` flag isn't accepted on
+  Wrangler 4.x (the command already outputs JSON). Removed from `provision.sh`.
+- **Remote D1 rejects `BEGIN TRANSACTION` / `COMMIT`** — the seed generator no
+  longer wraps the inserts in an explicit transaction (D1 handles atomicity).
+- **R2 binding removed from the Pages config** — the site's Functions don't use
+  R2 (only the backup Worker does), and binding a not-yet-created bucket failed
+  the Pages deploy. R2 now lives only in `workers/backup/wrangler.toml`.
 
 ---
 
-## 11. Open decisions (carry these forward)
+## 11. Page-building model (important architecture note)
 
-From PRD §15 / the packet. None block the code that's written; several block launch.
+The **data** (`/directory.json`) is always live from D1; the **HTML pages** (home
+index + `/city/[id]`) are generated **at build time from `src/data/seed.ts`**. So
+a city added via the Form lands in D1 and appears in `/directory.json`
+immediately, but its rendered page waits for a rebuild. Before launch, decide
+between (A) trigger a Pages rebuild on ingest, or (B) client-render the list/city
+pages from `directory.json`. Full explanation with diagrams:
+`docs/how-it-works.html`.
 
-1. **Access posture** — public / unlisted+`noindex` / passcoded. Shipping with
-   `NOINDEX="true"` (unlisted) by default; it's a single flag in `wrangler.toml`.
-2. **Hotels in v1?** They're the weakest, hardest-to-keep-current section.
-3. **Restaurants** — added on your request (alongside hotels). Same longevity
-   caveat as hotels; decide if both stay for v1.
-4. **Named moderators** (min. two).
-5. **Domain name.**
-6. **Any jamaat body whose endorsement should precede launch**, and whether that
+---
+
+## 12. Open decisions (carry these forward)
+
+1. **Access posture** — public / unlisted+`noindex` / passcoded. Shipping
+   unlisted (`NOINDEX="true"`) by default.
+2. **Hotels + restaurants in v1?** Both are the weakest, hardest-to-keep-current
+   sections. Decide if both stay.
+3. **Named moderators** (min. two).
+4. **Domain name.**
+5. **Any jamaat body whose endorsement should precede launch**, and whether that
    changes what may be published.
+6. **Frontend page-building strategy** (§11) — rebuild-on-write vs client-render.
 
 ---
 
-## 12. Deviations from the packet (flagged, not silent)
+## 13. Deviations from the packet (flagged, not silent)
 
-- **Indore (Madhya Pradesh)** was added to the seed. The packet's sample city
-  list had no Central-region city, but the PRD requires a spread across all five
-  regions. Noted in a `src/data/seed.ts` comment.
-- **Restaurants** added as a facility `kind` (your request). No structural
-  migration was needed — `facilities.kind` is free-form `TEXT`.
-- **"Cloudflare Worker" = Cloudflare Pages Functions.** The `/api/*` routes and
-  `/directory.json` are implemented as Pages Functions (in `functions/`), which
-  are Workers on the same origin as the static site. Same runtime; simpler
-  same-origin deploy. Not an architecture change.
-
----
-
-## 13. Gotchas & conventions
-
-- **Secrets:** never commit. Local dev values go in `.dev.vars` (gitignored;
-  copy from `.dev.vars.example`). Production via `wrangler pages secret put`.
-- **`seed.sql` is generated and gitignored.** The single source of truth is the
-  typed `src/data/seed.ts`. Run `npm run gen:seed-sql` after editing it.
-- **`wrangler.toml` has a placeholder `database_id`** — fill it in from
-  `wrangler d1 create` before any remote D1 command works.
-- **Node type-stripping:** `npm run gen:seed-sql` runs `node scripts/gen-seed-sql.ts`
-  directly. Needs Node ≥ 22.18. On older Node, either upgrade or run it via
-  `npx tsx scripts/gen-seed-sql.ts`.
-- **The no-phone-numbers guarantee is enforced in code**, not by convention:
-  `buildSnapshot()` builds public objects from an explicit allowlist, and a test
-  fails the build if any phone-like pattern reaches the snapshot. Keep it that way.
-- Gitignored (won't transfer, regenerated locally): `node_modules/`, `dist/`,
-  `.astro/`, `.wrangler/`, `seed.sql`, `.dev.vars`.
+- **Design:** the delivered design (a navy/red "functional field-manual"
+  brutalist system, **Public Sans + JetBrains Mono**) superseded the PRD §8.5
+  written direction (IBM Plex / Jade). Icons are inline SVG (not an icon font)
+  so they survive WhatsApp/Instagram in-app browsers. The three sub-14px type
+  sizes were lifted to the a11y floor (17px base, 14px min) per your decision.
+- **Indore (Madhya Pradesh)** added to the seed so all five regions are covered.
+- **Restaurants** added as a facility `kind` (your request) — no migration needed
+  (`facilities.kind` is free-form `TEXT`).
+- **"Cloudflare Worker" = Pages Functions.** `/api/*` and `/directory.json` are
+  Pages Functions (Workers on the same origin). Same runtime; simpler deploy.
 
 ---
 
-## 14. Resuming the build
+## 14. Gotchas & conventions
 
-Immediate next action once you're set up:
+- **Secrets** never get committed. Local dev → `.dev.vars` (gitignored). Prod →
+  `wrangler pages secret put`. Resource **ids** (D1/KV) are not secrets and *are*
+  committed in `wrangler.toml`.
+- **`seed.sql`** and **`public/directory.json`** are generated + gitignored. The
+  source of truth is `src/data/seed.ts` (`npm run gen:seed-sql`, `gen:snapshot`).
+- **No-phone-numbers guarantee is enforced in code** — `buildSnapshot()` builds
+  public objects from an explicit allowlist, and a test fails the build if any
+  phone-like pattern reaches the snapshot. Keep it that way.
+- **Windows:** use **Git Bash** for `scripts/*.sh`; in PowerShell run commands one
+  line at a time (no `&&` on PS 5.1), and env vars are `$env:NAME="value"`.
+- Gitignored (regenerated locally): `node_modules/`, `dist/`, `.astro/`,
+  `.wrangler/`, `seed.sql`, `public/directory.json`, `.dev.vars`.
 
-1. **Provide the design** (§10) → I build **Stage 3** (home, search, city page)
-   from it exactly.
-2. Then **Stages 4–8** in order, wiring the reveal API, ingest pipeline, flags,
-   backups, and deploy — each needs some of the provisioning in §9.
+---
 
-The goal for the first milestone (per the packet) is **Stages 1–3 as a working
-prototype with seed data**, shown to the committee before the Sheet is wired.
-Stages 1–2 are done; only the design stands between you and that prototype.
+## 15. Resuming the build
+
+Fastest path to a fully live directory:
+
+1. Set `FORM_URL` (§9.1) and `npm run deploy` — the Add/Report/Remove buttons go live.
+2. Build the Google Form + wire `docs/apps-script.gs` (§9.2) — real contributions flow into D1.
+3. Decide the page-building strategy (§11) so new cities appear without a manual redeploy.
+4. Add Turnstile widget, R2 backups, custom domain as you go (§9.3–9.5).
+
+The prototype is already up for the committee to react to — everything from here
+is turning that into the live, self-maintaining directory.

@@ -15,7 +15,7 @@ crons = ["0 2 * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "jamaat_directory"
-database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+database_id = "1f5be6a5-a54c-47b5-98cf-1f6486322c55"
 
 # Same R2 bucket as the Pages project.
 [[r2_buckets]]

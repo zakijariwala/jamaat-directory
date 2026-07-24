@@ -12,7 +12,7 @@ compatibility_date = "2026-07-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "jamaat_directory"
-database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+database_id = "1f5be6a5-a54c-47b5-98cf-1f6486322c55"
 migrations_dir = "migrations"
 
 # NOTE: R2 is NOT bound here — the site's Functions don't use it. Only the
@@ -24,7 +24,7 @@ migrations_dir = "migrations"
 # unthrottled (fine for the prototype).
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "REPLACE_WITH_ID_FROM_wrangler_kv_namespace_create"
+id = "307b5256c0604810931f425eaea9634f"
 
 # --- Public, non-secret vars ----------------------------------------------
 # Access posture is an open committee decision; ship with noindex ON.
