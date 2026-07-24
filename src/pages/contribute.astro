@@ -7,6 +7,33 @@ const field =
   'w-full h-[52px] px-4 bg-surface border-[2px] border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors';
 const label = 'text-label-caps font-label-caps uppercase text-on-surface-variant mb-1 block';
 const section = 'text-headline-md font-headline-md uppercase border-b-[2px] border-on-background pb-2 mb-4 mt-8';
+
+// Closed-set option lists for the dropdowns. States/UTs feed the free-text
+// `state` column; a moderator sets the coarse `region` enum later. Roles are
+// suggestions (datalist), so a custom title still works.
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa',
+  'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala',
+  'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland',
+  'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+];
+const INDIAN_UTS = [
+  'Andaman and Nicobar Islands', 'Chandigarh',
+  'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir',
+  'Ladakh', 'Lakshadweep', 'Puducherry',
+];
+const CONTACT_ROLES = [
+  'President', 'Vice President', 'Secretary', 'Joint Secretary', 'Treasurer',
+  'Trustee', 'Committee Member', 'Imam-e-Jamaat', 'Aalim / Sheikh',
+  'Youth Wing', 'Ladies Wing', 'Education / Madrasah', 'Relief / Welfare',
+  'Volunteer',
+];
+const CHARGES = [
+  { value: 'free', label: 'Free' },
+  { value: 'donation', label: 'Donation' },
+  { value: 'paid', label: 'Paid' },
+];
 ---
 
 <Base title="Contribute — KSIJ Travel Directory">
@@ -44,7 +71,18 @@ const section = 'text-headline-md font-headline-md uppercase border-b-[2px] bord
         <div><label class={label} for="c-name">City or town *</label><input id="c-name" name="city_name" required class={field} /></div>
         <div><label class={label} for="c-jamaat">Jamaat name</label><input id="c-jamaat" name="jamaat_name" class={field} /></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class={label} for="c-state">State / region</label><input id="c-state" name="state" class={field} /></div>
+          <div>
+            <label class={label} for="c-state">State / union territory</label>
+            <select id="c-state" name="state" class={field}>
+              <option value="">—</option>
+              <optgroup label="States">
+                {INDIAN_STATES.map((s) => <option value={s}>{s}</option>)}
+              </optgroup>
+              <optgroup label="Union Territories">
+                {INDIAN_UTS.map((s) => <option value={s}>{s}</option>)}
+              </optgroup>
+            </select>
+          </div>
           <div><label class={label} for="c-rail">Nearest rail</label><input id="c-rail" name="nearest_rail" class={field} /></div>
         </div>
         <div><label class={label} for="c-air">Nearest airport</label><input id="c-air" name="nearest_air" class={field} /></div>
@@ -57,7 +95,13 @@ const section = 'text-headline-md font-headline-md uppercase border-b-[2px] bord
           <div><label class={label} for="ct-phone">Phone (with country code)</label><input id="ct-phone" name="ct_phone" inputmode="tel" class={field} /></div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class={label} for="ct-role">Role</label><input id="ct-role" name="ct_role" class={field} /></div>
+          <div>
+            <label class={label} for="ct-role">Role</label>
+            <input id="ct-role" name="ct_role" list="role-options" autocomplete="off" placeholder="Pick or type a role" class={field} />
+            <datalist id="role-options">
+              {CONTACT_ROLES.map((r) => <option value={r}></option>)}
+            </datalist>
+          </div>
           <div><label class={label} for="ct-langs">Languages</label><input id="ct-langs" name="ct_langs" class={field} /></div>
         </div>
         <div><label class={label} for="ct-helps">What can they help with?</label><input id="ct-helps" name="ct_helps" class={field} /></div>
@@ -82,9 +126,16 @@ const section = 'text-headline-md font-headline-md uppercase border-b-[2px] bord
           <div><label class={label} for="f-name">Name</label><input id="f-name" name="f_name" class={field} /></div>
         </div>
         <div><label class={label} for="f-address">Address</label><input id="f-address" name="f_address" class={field} /></div>
+        <div><label class={label} for="f-maps">Google Maps link</label><input id="f-maps" name="f_maps" class={field} /></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class={label} for="f-maps">Google Maps link</label><input id="f-maps" name="f_maps" class={field} /></div>
           <div><label class={label} for="f-timings">Timings</label><input id="f-timings" name="f_timings" class={field} /></div>
+          <div>
+            <label class={label} for="f-charges">Charges</label>
+            <select id="f-charges" name="f_charges" class={field}>
+              <option value="">—</option>
+              {CHARGES.map((c) => <option value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -171,6 +222,7 @@ const section = 'text-headline-md font-headline-md uppercase border-b-[2px] bord
         payload.facilities.push({
           kind: fKind, name: fName, address: val('f-address'),
           maps_url: val('f-maps'), timings: val('f-timings'),
+          charges_band: val('f-charges'),
         });
       }
 
