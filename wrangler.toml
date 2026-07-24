@@ -15,11 +15,8 @@ database_name = "jamaat_directory"
 database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
 migrations_dir = "migrations"
 
-# --- R2: nightly JSON backups only ----------------------------------------
-# Create with:  wrangler r2 bucket create jamaat-directory-backups
-[[r2_buckets]]
-binding = "BACKUPS"
-bucket_name = "jamaat-directory-backups"
+# NOTE: R2 is NOT bound here — the site's Functions don't use it. Only the
+# nightly backup Worker uses R2 (see workers/backup/wrangler.toml).
 
 # --- KV: per-IP rate limiting for /api/reveal ------------------------------
 # Create with:  wrangler kv namespace create RATE_LIMIT

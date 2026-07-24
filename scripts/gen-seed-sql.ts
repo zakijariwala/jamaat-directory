@@ -46,7 +46,6 @@ const sql = [
   '-- GENERATED FILE — do not edit by hand. Source: src/data/seed.ts',
   '-- Regenerate with: npm run gen:seed-sql',
   '',
-  'BEGIN TRANSACTION;',
   'DELETE FROM flags;',
   'DELETE FROM facilities;',
   'DELETE FROM contacts;',
@@ -60,8 +59,6 @@ const sql = [
   '',
   '-- facilities',
   insert('facilities', facilityCols as string[], facilities as unknown as Row[]),
-  '',
-  'COMMIT;',
   '',
 ].join('\n');
 

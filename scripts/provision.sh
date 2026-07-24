@@ -74,7 +74,7 @@ echo "  D1 id: $D1_ID"
 
 # ---------------------------------------------------------------- KV
 get_kv_id() {
-  $WR kv namespace list --json 2>/dev/null | KV_BINDING="$KV_BINDING" node -e '
+  $WR kv namespace list 2>/dev/null | KV_BINDING="$KV_BINDING" node -e '
     try {
       const raw = require("fs").readFileSync(0, "utf8").trim() || "[]";
       const d = JSON.parse(raw); const arr = Array.isArray(d) ? d : (d.result || []);
