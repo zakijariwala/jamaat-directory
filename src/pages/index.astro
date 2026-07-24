@@ -48,17 +48,23 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
 ];
 ---
 
-<Base title="Community Directory">
+<Base title="KSIJ Travel Directory">
   <!-- TopAppBar -->
   <header
     class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
   >
     <div class="flex items-center gap-4 w-full max-w-7xl mx-auto">
-      <Icon name="menu_book" />
+      <img
+        src="/logo.svg"
+        alt="KSIJ"
+        width="40"
+        height="40"
+        class="h-10 w-10 object-contain rounded-[4px] shrink-0"
+      />
       <h1 class="text-headline-md font-headline-md tracking-tight uppercase flex-grow text-center md:text-left">
-        Community Directory
+        KSIJ Travel Directory
       </h1>
-      <div class="w-6"></div>
+      <div class="w-10"></div>
     </div>
   </header>
 

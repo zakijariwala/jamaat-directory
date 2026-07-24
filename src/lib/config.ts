@@ -2,7 +2,7 @@
 
 // The Google Form used for contributions (Add / Report / Remove).
 // Replace with the real published form URL once it exists.
-export const FORM_URL = 'https://forms.gle/REPLACE_WITH_REAL_FORM';
+export const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe3zAfDIp4hZ1CRloK9B5NqWrl-qKZGOPf1dhrYTQYnc-uBxg/viewform';
 
 // To pre-fill the city on the form, set the form's city-field entry id
 // (looks like 'entry.1234567890'). Until then, links open the plain form.

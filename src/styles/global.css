@@ -15,33 +15,35 @@
 */
 
 @theme {
-  /* --- Colour (design tokens) --- */
-  --color-background: #fcf9f8;
+  /* --- Colour (KSIJ brand: green primary, gold accent, white surfaces) --- */
+  --color-background: #ffffff;
   --color-on-background: #1c1b1b;
-  --color-surface: #fcf9f8;
-  --color-surface-dim: #dcd9d9;
-  --color-surface-bright: #fcf9f8;
+  --color-surface: #ffffff;
+  --color-surface-dim: #dddddd;
+  --color-surface-bright: #ffffff;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f6f3f2;
-  --color-surface-container: #f0eded;
-  --color-surface-container-high: #eae7e7;
-  --color-surface-container-highest: #e5e2e1;
-  --color-surface-variant: #e5e2e1;
+  --color-surface-container-low: #f6f6f6;
+  --color-surface-container: #f0f0f0;
+  --color-surface-container-high: #eaeaea;
+  --color-surface-container-highest: #e4e4e4;
+  --color-surface-variant: #e4e4e4;
   --color-on-surface: #1c1b1b;
   --color-on-surface-variant: #43474f;
   --color-inverse-surface: #313030;
   --color-inverse-on-surface: #f3f0ef;
   --color-outline: #737780;
   --color-outline-variant: #c3c6d1;
-  --color-primary: #001e40;
+  --color-primary: #0a983c;
   --color-on-primary: #ffffff;
-  --color-primary-container: #003366;
-  --color-on-primary-container: #799dd6;
-  --color-inverse-primary: #a7c8ff;
-  --color-secondary: #b7102a;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #db313f;
-  --color-on-secondary-container: #fffbff;
+  --color-primary-container: #077d30;
+  --color-on-primary-container: #d3f0db;
+  --color-inverse-primary: #7fd79c;
+  --color-secondary: #dfa928;
+  --color-on-secondary: #1c1b1b;
+  --color-secondary-container: #c9971f;
+  --color-on-secondary-container: #1c1b1b;
+  /* caution text that must pass 4.5:1 on white (gold as text does not) */
+  --color-warning: #8a6a00;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
