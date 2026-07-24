@@ -52,6 +52,12 @@ describe('matching across fields', () => {
     expect(idsFor('kerala')).toContain('kochi');
   });
 
+  it('matches on country', () => {
+    expect(idsFor('united kingdom')).toContain('london');
+    expect(idsFor('tanzania')).toContain('dar-es-salaam');
+    expect(idsFor('canada')).toContain('toronto');
+  });
+
   it('is case- and space-insensitive on the city name', () => {
     expect(cityMatches(snap.cities.find((c) => c.id === 'sangli')!, '  sAnGli ')).toBe(true);
   });

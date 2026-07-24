@@ -12,21 +12,21 @@ import type { PublicCity } from '../lib/types';
 // disabled (a11y floor) and paints instantly; client search enhances it.
 const snap = buildSnapshot(cities, contacts, facilities);
 
-// Group by state; states alphabetical; cities already alphabetical within.
-const byState = new Map<string, PublicCity[]>();
+// Group by country; countries alphabetical; cities already alphabetical within.
+const byCountry = new Map<string, PublicCity[]>();
 for (const c of snap.cities) {
-  const st = c.state ?? 'Other';
-  if (!byState.has(st)) byState.set(st, []);
-  byState.get(st)!.push(c);
+  const co = c.country ?? 'Other';
+  if (!byCountry.has(co)) byCountry.set(co, []);
+  byCountry.get(co)!.push(c);
 }
-const states = [...byState.keys()].sort((a, b) => a.localeCompare(b));
-const stateId = (st: string) => `state-${normalize(st).replace(/\s+/g, '-')}`;
+const countries = [...byCountry.keys()].sort((a, b) => a.localeCompare(b));
+const countryId = (co: string) => `country-${normalize(co).replace(/\s+/g, '-')}`;
 
-// A–Z rail maps each present state initial to its section.
+// A–Z rail maps each present country initial to its section.
 const initials = new Map<string, string>();
-for (const st of states) {
-  const letter = st[0]!.toUpperCase();
-  if (!initials.has(letter)) initials.set(letter, stateId(st));
+for (const co of countries) {
+  const letter = co[0]!.toUpperCase();
+  if (!initials.has(letter)) initials.set(letter, countryId(co));
 }
 const alphabet = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 
@@ -34,7 +34,7 @@ const coverage = relativeDays(snap.updated_at);
 
 // The normalized haystack a row is matched against, mirroring lib/search.
 const searchAttr = (c: PublicCity) =>
-  normalize([c.name, c.jamaat_name, c.state ?? '', ...c.aliases].join(' '));
+  normalize([c.name, c.jamaat_name, c.state ?? '', c.country ?? '', ...c.aliases].join(' '));
 
 const isUnavailable = (c: PublicCity) =>
   !c.has.contact && !c.has.masjid && !c.has.stay && !c.has.hotel && !c.has.restaurant;
@@ -112,16 +112,16 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
       <!-- Directory list -->
       <div class="px-margin-mobile md:px-margin-desktop pr-12 md:pr-16 relative">
         {
-          states.map((st) => (
-            <section data-state-group class="mb-8">
+          countries.map((co) => (
+            <section data-country-group class="mb-8">
               <h2
-                id={stateId(st)}
+                id={countryId(co)}
                 class="sticky top-[132px] z-30 bg-background py-stack-compact text-headline-md font-headline-md border-b-[2px] border-on-background mt-4 uppercase scroll-mt-[140px]"
               >
-                {st}
+                {co}
               </h2>
               <div class="flex flex-col">
-                {byState.get(st)!.map((c) =>
+                {byCountry.get(co)!.map((c) =>
                   isUnavailable(c) ? (
                     <div
                       data-city-row
@@ -217,7 +217,7 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
 
     <!-- A–Z quick jump -->
     <nav
-      aria-label="Jump to state"
+      aria-label="Jump to country"
       class="w-8 md:w-12 fixed right-0 top-[132px] bottom-0 flex flex-col items-center pt-4 pb-24 border-l-[1px] border-outline-variant bg-surface-container-lowest z-30 hide-scrollbar overflow-y-auto"
     >
       <ul class="flex flex-col items-center gap-[2px] text-label-caps font-label-caps w-full">
@@ -264,7 +264,7 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
   const q = document.getElementById('q') as HTMLInputElement | null;
   const clearBtn = document.getElementById('q-clear');
   const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-city-row]'));
-  const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-state-group]'));
+  const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-country-group]'));
   const emptyState = document.getElementById('empty-state');
   const emptyQuery = document.getElementById('empty-query');
   const emptyQuery2 = document.getElementById('empty-query-2');
@@ -286,7 +286,7 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
       row.hidden = !match;
       if (match) visible++;
     }
-    // Hide a state group whose rows are all filtered out.
+    // Hide a country group whose rows are all filtered out.
     for (const group of groups) {
       const anyVisible = group.querySelector('[data-city-row]:not([hidden])');
       group.hidden = searching && !anyVisible;

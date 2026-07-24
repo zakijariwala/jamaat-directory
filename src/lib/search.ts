@@ -20,11 +20,11 @@ export function normalize(input: string): string {
     .trim();
 }
 
-type Searchable = Pick<PublicCity, 'name' | 'jamaat_name' | 'state' | 'aliases'>;
+type Searchable = Pick<PublicCity, 'name' | 'jamaat_name' | 'state' | 'country' | 'aliases'>;
 
 /** The normalized strings a query is tested against for one city. */
 export function cityHaystack(city: Searchable): string[] {
-  return [city.name, city.jamaat_name, city.state ?? '', ...city.aliases]
+  return [city.name, city.jamaat_name, city.state ?? '', city.country ?? '', ...city.aliases]
     .map(normalize)
     .filter((s) => s.length > 0);
 }

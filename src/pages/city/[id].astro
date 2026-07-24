@@ -88,6 +88,9 @@ const revealActionBtn =
         <div
           class="font-data-mono text-data-mono text-on-primary flex flex-col gap-1 border-t-[1px] md:border-t-0 border-on-primary-container pt-2 md:pt-0 shrink-0 uppercase"
         >
+          {city.country && (
+            <span class="text-on-primary-container">Country: {city.country}</span>
+          )}
           {city.state && (
             <span class="text-on-primary-container">State: {city.state}</span>
           )}

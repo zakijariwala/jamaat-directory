@@ -29,7 +29,7 @@ function insert(table: string, columns: string[], rows: Row[]): string {
 }
 
 const cityCols: Array<keyof CityRow> = [
-  'id', 'name', 'jamaat_name', 'state', 'aliases', 'region',
+  'id', 'name', 'jamaat_name', 'state', 'country', 'aliases', 'region',
   'nearest_rail', 'nearest_air', 'notes', 'updated_at',
 ];
 const contactCols: Array<keyof ContactRow> = [

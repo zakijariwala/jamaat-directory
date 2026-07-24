@@ -21,8 +21,9 @@ export interface CityRow {
   name: string;
   jamaat_name: string;
   state: string | null;
+  country: string | null;
   aliases: string | null; // JSON array string
-  region: Region | null;
+  region: Region | null; // legacy Indian bucket; unused, kept for back-compat
   nearest_rail: string | null;
   nearest_air: string | null;
   notes: string | null;
@@ -122,6 +123,7 @@ export interface PublicCity {
   name: string;
   jamaat_name: string;
   state: string | null;
+  country: string | null;
   region: Region | null;
   aliases: string[];
   nearest_rail: string | null;

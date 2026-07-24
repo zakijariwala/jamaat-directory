@@ -28,7 +28,7 @@ describe('HMAC signing', () => {
 describe('buildIngestStatements', () => {
   const city: CityRow = {
     id: 'ooty', name: 'Ooty', jamaat_name: 'Ooty Jamaat', state: 'Tamil Nadu',
-    aliases: JSON.stringify(['udhagamandalam']), region: 'south',
+    country: 'India', aliases: JSON.stringify(['udhagamandalam']), region: 'south',
     nearest_rail: 'Udagamandalam (UAM)', nearest_air: 'Coimbatore (CJB)',
     notes: null, updated_at: '2026-07-23T00:00:00Z',
   };

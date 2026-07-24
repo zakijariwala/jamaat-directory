@@ -160,8 +160,9 @@ describe('caution flag (unresolved problem report > 48h)', () => {
 
 describe('counts and coverage', () => {
   it('counts only published rows', () => {
-    // 11 cities; published contacts exclude removed/pending/unconsented (3 dropped).
-    expect(snap.counts.cities).toBe(11);
+    // 11 India + 4 international cities; published contacts exclude
+    // removed/pending/unconsented (3 dropped).
+    expect(snap.counts.cities).toBe(15);
     expect(snap.counts.contacts).toBe(contacts.length - 3);
   });
 

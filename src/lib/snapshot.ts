@@ -130,6 +130,7 @@ export function buildSnapshot(
       name: city.name,
       jamaat_name: city.jamaat_name,
       state: city.state,
+      country: city.country,
       region: city.region,
       aliases: parseJsonArray(city.aliases),
       nearest_rail: city.nearest_rail,

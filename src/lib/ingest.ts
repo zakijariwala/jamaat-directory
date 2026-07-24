@@ -22,7 +22,7 @@ export interface Statement {
 }
 
 const CITY_COLS: Array<keyof CityRow> = [
-  'id', 'name', 'jamaat_name', 'state', 'aliases', 'region',
+  'id', 'name', 'jamaat_name', 'state', 'country', 'aliases', 'region',
   'nearest_rail', 'nearest_air', 'notes', 'updated_at',
 ];
 const CONTACT_COLS: Array<keyof ContactRow> = [

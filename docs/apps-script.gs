@@ -45,7 +45,7 @@ var CITIES_TAB = 'Cities';
 var CONTACTS_TAB = 'Contacts';
 var FACILITIES_TAB = 'Facilities';
 
-var CITY_HEADERS = ['id', 'name', 'jamaat_name', 'state', 'aliases', 'region',
+var CITY_HEADERS = ['id', 'name', 'jamaat_name', 'state', 'country', 'aliases', 'region',
   'nearest_rail', 'nearest_air', 'notes', 'updated_at', 'submission_ts'];
 var CONTACT_HEADERS = ['id', 'city_id', 'name', 'phone', 'whatsapp', 'role',
   'helps_with', 'best_time', 'languages', 'self_added', 'consent', 'status',
@@ -154,6 +154,9 @@ function transformRow_(headers, values) {
     name: cityName,
     jamaat_name: String(g('Jamaat name')).trim(),
     state: String(g('State')).trim(),
+    // Form has no Country question yet; default to India so a re-push never
+    // nulls an existing city's country. Drop the default when the form adds it.
+    country: String(g('Country')).trim() || 'India',
     aliases: '[]',
     region: STATE_REGION[String(g('State')).trim().toLowerCase()] || '',
     nearest_rail: String(g('Nearest railway station')).trim(),
@@ -338,7 +341,8 @@ function pushCity_(cityId) {
     submission_id: cityId + ':' + Date.now(),
     city: {
       id: city.id, name: city.name, jamaat_name: city.jamaat_name,
-      state: emptyToNull_(city.state), aliases: city.aliases || '[]',
+      state: emptyToNull_(city.state), country: emptyToNull_(city.country),
+      aliases: city.aliases || '[]',
       region: emptyToNull_(city.region), nearest_rail: emptyToNull_(city.nearest_rail),
       nearest_air: emptyToNull_(city.nearest_air), notes: emptyToNull_(city.notes),
       updated_at: city.updated_at,
