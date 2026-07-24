@@ -1,16 +1,17 @@
 // Build/runtime configuration for the frontend.
 
-// The Google Form used for contributions (Add / Report / Remove).
-// Replace with the real published form URL once it exists.
+// The in-site contribution form (replaces the Google Form intake).
+export const CONTRIBUTE_URL = '/contribute';
+
+// Cloudflare Turnstile site key (PUBLIC — safe to ship). When empty the widget
+// is omitted and /api/submit skips the check (fine for local/prototype).
+export const TURNSTILE_SITE_KEY = '';
+
+// Legacy Google Form link — kept only for the Report/Remove links until the
+// flag flow is moved in-site. Deprecated for new contributions.
 export const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe3zAfDIp4hZ1CRloK9B5NqWrl-qKZGOPf1dhrYTQYnc-uBxg/viewform';
 
-// To pre-fill the city on the form, set the form's city-field entry id
-// (looks like 'entry.1234567890'). Until then, links open the plain form.
-export const FORM_CITY_ENTRY = '';
-
-/** Google Form link, optionally pre-filled with a city name. */
+/** Link to the in-site contribute form, optionally pre-filling the city. */
 export function addContactUrl(city?: string): string {
-  if (!city || !FORM_CITY_ENTRY) return FORM_URL;
-  const sep = FORM_URL.includes('?') ? '&' : '?';
-  return `${FORM_URL}${sep}usp=pp_url&${FORM_CITY_ENTRY}=${encodeURIComponent(city)}`;
+  return city ? `${CONTRIBUTE_URL}?city=${encodeURIComponent(city)}` : CONTRIBUTE_URL;
 }

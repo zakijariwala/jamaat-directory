@@ -86,6 +86,20 @@ describe('stale flag (verified_at older than 12 months)', () => {
   });
 });
 
+describe('city status (staging gate)', () => {
+  it('excludes a pending city from the snapshot', () => {
+    const pendingCity = {
+      id: 'staging-town', name: 'Staging Town', jamaat_name: 'Test Jamaat',
+      state: null, aliases: '[]', region: null, nearest_rail: null,
+      nearest_air: null, notes: null, status: 'pending' as const,
+      updated_at: '2026-07-25T00:00:00Z',
+    };
+    const snap2 = buildSnapshot([...cities, pendingCity], contacts, facilities, NOW);
+    expect(snap2.cities.find((c) => c.id === 'staging-town')).toBeUndefined();
+    expect(snap2.counts.cities).toBe(snap.counts.cities); // unchanged
+  });
+});
+
 describe('city presence and status chips', () => {
   it('includes a masjid-only city with the contact chip greyed', () => {
     const bhavnagar = snap.cities.find((c) => c.id === 'bhavnagar');

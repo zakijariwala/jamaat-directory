@@ -22,7 +22,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   let snapshot;
   if (db) {
     const [cities, contacts, facilities, flags] = await Promise.all([
-      db.prepare('SELECT * FROM cities').all<CityRow>(),
+      db.prepare("SELECT * FROM cities WHERE status = 'live'").all<CityRow>(),
       db.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
       db.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
       db.prepare('SELECT * FROM flags WHERE resolved = 0').all<FlagRow>(),

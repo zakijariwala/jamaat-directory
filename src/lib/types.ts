@@ -26,6 +26,7 @@ export interface CityRow {
   nearest_rail: string | null;
   nearest_air: string | null;
   notes: string | null;
+  status: RowStatus; // cities are approvable as a unit; only 'live' publishes
   updated_at: string;
 }
 

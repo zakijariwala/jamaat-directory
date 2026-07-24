@@ -1,0 +1,145 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+
+const field =
+  'w-full h-[52px] px-4 bg-surface border-[2px] border-on-background text-body-lg font-body-lg focus:outline-none focus:border-primary';
+const btnPrimary =
+  'bg-primary text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background hover:bg-primary-container transition-colors';
+const btnGhost =
+  'bg-surface-container text-on-background text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background hover:bg-surface-variant transition-colors';
+---
+
+<Base title="Moderate — KSIJ Travel Directory">
+  <header
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
+  >
+    <div class="flex items-center gap-3 w-full max-w-4xl mx-auto">
+      <a href="/" aria-label="Back" class="text-on-primary p-1 -ml-1 hover:opacity-80"><Icon name="arrow_back" /></a>
+      <h1 class="text-headline-md font-headline-md uppercase">Moderate — pending</h1>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[72px] pb-24 px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto">
+    <!-- Login -->
+    <section id="login">
+      <p class="text-body-lg font-body-lg mb-4">Enter the moderator passcode.</p>
+      <div class="flex gap-3 max-w-md">
+        <input id="passcode" type="password" autocomplete="off" placeholder="Passcode" class={field} />
+        <button id="login-btn" class={btnPrimary}>Enter</button>
+      </div>
+      <p id="login-error" class="hidden text-error font-data-mono text-data-mono mt-3" role="alert"></p>
+    </section>
+
+    <!-- Panel -->
+    <section id="panel" class="hidden">
+      <div class="flex flex-wrap items-center gap-3 mb-6 pb-4 border-b-[2px] border-on-background">
+        <a href="/api/pending.xlsx" class={btnGhost}>Download Excel</a>
+        <label class={btnGhost + ' cursor-pointer'}>
+          Upload edited Excel
+          <input id="import-file" type="file" accept=".xlsx" class="hidden" />
+        </label>
+        <span id="import-status" class="font-data-mono text-data-mono text-on-surface-variant"></span>
+      </div>
+      <div id="list"></div>
+      <p id="empty" class="hidden font-data-mono text-data-mono text-on-surface-variant uppercase py-8">No pending submissions.</p>
+    </section>
+  </main>
+
+  <script>
+    const loginEl = document.getElementById('login')!;
+    const panelEl = document.getElementById('panel')!;
+    const listEl = document.getElementById('list')!;
+    const emptyEl = document.getElementById('empty')!;
+    const loginErr = document.getElementById('login-error')!;
+
+    function esc(s: unknown): string {
+      return String(s ?? '').replace(/[&<>"]/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as Record<string, string>
+      )[c]!);
+    }
+
+    async function load(): Promise<boolean> {
+      const res = await fetch('/api/pending');
+      if (res.status === 401 || res.status === 503) return false;
+      const data = await res.json();
+      render(data);
+      return true;
+    }
+
+    function row(type: string, id: string, title: string, sub: string): string {
+      return `<div class="flex items-center justify-between gap-4 py-3 border-b-[1px] border-outline-variant" data-id="${esc(id)}">
+        <div class="min-w-0">
+          <div class="text-body-lg font-body-lg truncate">${esc(title)}</div>
+          <div class="font-data-mono text-data-mono text-on-surface-variant truncate uppercase">${esc(sub)}</div>
+        </div>
+        <div class="flex gap-2 shrink-0">
+          <button data-act="approve" data-type="${type}" data-rid="${esc(id)}" class="bg-primary text-on-primary text-label-caps font-label-caps uppercase py-2 px-3 border-[2px] border-on-background">Approve</button>
+          <button data-act="reject" data-type="${type}" data-rid="${esc(id)}" class="bg-surface-container text-on-background text-label-caps font-label-caps uppercase py-2 px-3 border-[2px] border-on-background">Reject</button>
+        </div>
+      </div>`;
+    }
+
+    function render(data: any) {
+      const parts: string[] = [];
+      for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}`));
+      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}`));
+      for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}`, `${f.city_id} · ${f.kind}`));
+      const total = data.cities.length + data.contacts.length + data.facilities.length;
+      listEl.innerHTML = parts.join('');
+      emptyEl.classList.toggle('hidden', total > 0);
+    }
+
+    let lastHead = '';
+    function sectionHead(kind: string): string {
+      if (kind === lastHead) return '';
+      lastHead = kind;
+      return `<h2 class="text-label-caps font-label-caps uppercase text-on-surface-variant mt-6 mb-1">${kind}</h2>`;
+    }
+
+    listEl.addEventListener('click', async (e) => {
+      const btn = (e.target as HTMLElement).closest('button[data-act]') as HTMLButtonElement | null;
+      if (!btn) return;
+      btn.disabled = true;
+      const res = await fetch('/api/approve', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ type: btn.dataset.type, id: btn.dataset.rid, action: btn.dataset.act }),
+      });
+      if (res.ok) btn.closest('[data-id]')?.remove();
+      else btn.disabled = false;
+    });
+
+    document.getElementById('import-file')!.addEventListener('change', async (e) => {
+      const input = e.target as HTMLInputElement;
+      const file = input.files?.[0];
+      if (!file) return;
+      const statusEl = document.getElementById('import-status')!;
+      statusEl.textContent = 'Uploading…';
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/import', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      statusEl.textContent = res.ok ? `Applied ${data.applied} update(s).` : `Error: ${data.error || res.status}`;
+      input.value = '';
+      if (res.ok) load();
+    });
+
+    async function doLogin() {
+      loginErr.classList.add('hidden');
+      const passcode = (document.getElementById('passcode') as HTMLInputElement).value;
+      const res = await fetch('/api/login', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ passcode }),
+      });
+      if (!res.ok) { loginErr.textContent = 'Wrong passcode.'; loginErr.classList.remove('hidden'); return; }
+      loginEl.classList.add('hidden');
+      panelEl.classList.remove('hidden');
+      load();
+    }
+    document.getElementById('login-btn')!.addEventListener('click', doLogin);
+    document.getElementById('passcode')!.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') doLogin(); });
+
+    // If a valid cookie already exists, skip the login screen.
+    load().then((ok) => { if (ok) { loginEl.classList.add('hidden'); panelEl.classList.remove('hidden'); } });
+  </script>
+</Base>

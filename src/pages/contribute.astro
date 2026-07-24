@@ -1,0 +1,186 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { TURNSTILE_SITE_KEY } from '../lib/config';
+
+const field =
+  'w-full h-[52px] px-4 bg-surface border-[2px] border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors';
+const label = 'text-label-caps font-label-caps uppercase text-on-surface-variant mb-1 block';
+const section = 'text-headline-md font-headline-md uppercase border-b-[2px] border-on-background pb-2 mb-4 mt-8';
+---
+
+<Base title="Contribute — KSIJ Travel Directory">
+  <header
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
+  >
+    <div class="flex items-center gap-3 w-full max-w-3xl mx-auto">
+      <a href="/" aria-label="Back to directory" class="text-on-primary p-1 -ml-1 hover:opacity-80"><Icon name="arrow_back" /></a>
+      <h1 class="text-headline-md font-headline-md uppercase">Add to the directory</h1>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[72px] pb-24 px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto">
+    <p class="text-body-lg font-body-lg mb-2">
+      Submit a jamaat contact or facility. Every entry is reviewed by a moderator before it appears — nothing is published automatically.
+    </p>
+    <p class="font-data-mono text-data-mono text-on-surface-variant uppercase mb-4">
+      Phone numbers are never shown publicly. They are revealed one at a time, on request.
+    </p>
+
+    <form id="contribute-form" class="flex flex-col">
+      <h2 class={section}>City / Jamaat</h2>
+      <div class="flex flex-col gap-4">
+        <div><label class={label} for="c-name">City or town *</label><input id="c-name" name="city_name" required class={field} /></div>
+        <div><label class={label} for="c-jamaat">Jamaat name</label><input id="c-jamaat" name="jamaat_name" class={field} /></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="c-state">State / region</label><input id="c-state" name="state" class={field} /></div>
+          <div><label class={label} for="c-rail">Nearest rail</label><input id="c-rail" name="nearest_rail" class={field} /></div>
+        </div>
+        <div><label class={label} for="c-air">Nearest airport</label><input id="c-air" name="nearest_air" class={field} /></div>
+      </div>
+
+      <h2 class={section}>Contact</h2>
+      <div class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="ct-name">Full name</label><input id="ct-name" name="ct_name" class={field} /></div>
+          <div><label class={label} for="ct-phone">Phone (with country code)</label><input id="ct-phone" name="ct_phone" inputmode="tel" class={field} /></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="ct-role">Role</label><input id="ct-role" name="ct_role" class={field} /></div>
+          <div><label class={label} for="ct-langs">Languages</label><input id="ct-langs" name="ct_langs" class={field} /></div>
+        </div>
+        <div><label class={label} for="ct-helps">What can they help with?</label><input id="ct-helps" name="ct_helps" class={field} /></div>
+        <label class="flex items-center gap-3 text-body-lg"><input type="checkbox" id="ct-wa" class="w-5 h-5" /> On WhatsApp</label>
+        <label class="flex items-start gap-3 text-body-lg"><input type="checkbox" id="ct-self" class="w-5 h-5 mt-1" /> These are my own details</label>
+        <label class="flex items-start gap-3 text-body-lg"><input type="checkbox" id="ct-consent" class="w-5 h-5 mt-1" /> I have this person's permission to list their name and number in a public directory</label>
+      </div>
+
+      <h2 class={section}>Facility <span class="text-body-sm font-body-sm normal-case text-on-surface-variant">(optional)</span></h2>
+      <div class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class={label} for="f-kind">Type</label>
+            <select id="f-kind" class={field}>
+              <option value="">—</option>
+              <option value="masjid">Masjid / imambargah</option>
+              <option value="musafir_khana">Musafir khana</option>
+              <option value="hotel">Hotel</option>
+              <option value="restaurant">Restaurant</option>
+            </select>
+          </div>
+          <div><label class={label} for="f-name">Name</label><input id="f-name" name="f_name" class={field} /></div>
+        </div>
+        <div><label class={label} for="f-address">Address</label><input id="f-address" name="f_address" class={field} /></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="f-maps">Google Maps link</label><input id="f-maps" name="f_maps" class={field} /></div>
+          <div><label class={label} for="f-timings">Timings</label><input id="f-timings" name="f_timings" class={field} /></div>
+        </div>
+      </div>
+
+      {TURNSTILE_SITE_KEY && (
+        <div class="cf-turnstile mt-6" data-sitekey={TURNSTILE_SITE_KEY}></div>
+      )}
+
+      <p id="form-error" class="hidden text-error font-data-mono text-data-mono mt-6" role="alert"></p>
+
+      <button
+        type="submit"
+        id="submit-btn"
+        class="mt-8 w-full bg-primary text-on-primary text-label-caps font-label-caps uppercase py-4 px-6 border-[2px] border-on-background hover:bg-primary-container transition-colors"
+      >
+        Submit for review
+      </button>
+    </form>
+
+    <div id="thanks" class="hidden text-center py-16">
+      <Icon name="check" size={48} class="text-primary mx-auto" label="Submitted" />
+      <p class="text-headline-md font-headline-md uppercase mt-4">Thank you</p>
+      <p class="text-body-lg font-body-lg mt-2">Your submission is pending review. <a href="/" class="text-primary underline">Back to directory</a></p>
+    </div>
+  </main>
+
+  {TURNSTILE_SITE_KEY && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  )}
+
+  <script>
+    const form = document.getElementById('contribute-form') as HTMLFormElement | null;
+    const errEl = document.getElementById('form-error');
+    const thanks = document.getElementById('thanks');
+    const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+
+    // Pre-fill the city from ?city=
+    const city = new URLSearchParams(location.search).get('city');
+    if (city) (document.getElementById('c-name') as HTMLInputElement).value = city;
+
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value.trim() ?? '';
+    const checked = (id: string) => (document.getElementById(id) as HTMLInputElement)?.checked ?? false;
+
+    function showError(msg: string) {
+      if (!errEl) return;
+      errEl.textContent = msg;
+      errEl.classList.remove('hidden');
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errEl?.classList.add('hidden');
+
+      const ctName = val('ct-name');
+      const ctPhone = val('ct-phone');
+      const fKind = val('f-kind');
+      const fName = val('f-name');
+
+      if (!val('c-name')) return showError('City or town is required.');
+      if (!ctName && !fName) return showError('Add at least one contact or one facility.');
+      if (ctName && !ctPhone) return showError('A contact needs a phone number.');
+      if (ctName && ctPhone && !checked('ct-self') && !checked('ct-consent')) {
+        return showError('For a contact, tick "my own details" or confirm you have their permission.');
+      }
+
+      const payload: any = {
+        city: {
+          name: val('c-name'),
+          jamaat_name: val('c-jamaat'),
+          state: val('c-state'),
+          nearest_rail: val('c-rail'),
+          nearest_air: val('c-air'),
+        },
+        contacts: [],
+        facilities: [],
+      };
+      if (ctName && ctPhone) {
+        payload.contacts.push({
+          name: ctName, phone: ctPhone, whatsapp: checked('ct-wa'),
+          role: val('ct-role'), helps_with: val('ct-helps'), languages: val('ct-langs'),
+          self: checked('ct-self'), consent: checked('ct-consent'),
+        });
+      }
+      if (fKind && fName) {
+        payload.facilities.push({
+          kind: fKind, name: fName, address: val('f-address'),
+          maps_url: val('f-maps'), timings: val('f-timings'),
+        });
+      }
+
+      const token = (document.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement)?.value;
+      if (token) payload.cf_token = token;
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || data.error || 'Submission failed.');
+        form.classList.add('hidden');
+        thanks?.classList.remove('hidden');
+      } catch (err) {
+        showError((err as Error).message);
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit for review'; }
+      }
+    });
+  </script>
+</Base>

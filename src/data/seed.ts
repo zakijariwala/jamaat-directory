@@ -36,6 +36,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Sangli (SLI)',
     nearest_air: 'Kolhapur (KLH) / Pune (PNQ)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-18T00:00:00Z',
   },
   {
@@ -48,6 +49,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Pune Junction (PUNE)',
     nearest_air: 'Pune (PNQ)',
     notes: null,
+    status: 'live',
     updated_at: '2026-07-20T09:00:00Z',
   },
   {
@@ -60,6 +62,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Bhavnagar Terminus (BVC)',
     nearest_air: 'Bhavnagar (BHU)',
     notes: 'Masjid listed; a local contact is still needed here.',
+    status: 'live',
     updated_at: '2026-05-30T00:00:00Z',
   },
   {
@@ -72,6 +75,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Chennai Central (MAS)',
     nearest_air: 'Chennai (MAA)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-02T00:00:00Z',
   },
   {
@@ -84,6 +88,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Howrah (HWH) / Sealdah (SDAH)',
     nearest_air: 'Kolkata (CCU)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-10T00:00:00Z',
   },
   {
@@ -96,6 +101,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'New Delhi (NDLS) / Hazrat Nizamuddin (NZM)',
     nearest_air: 'Delhi (DEL)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-25T00:00:00Z',
   },
   {
@@ -108,6 +114,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'KSR Bengaluru (SBC)',
     nearest_air: 'Bengaluru (BLR)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-14T00:00:00Z',
   },
   {
@@ -120,6 +127,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Secunderabad (SC)',
     nearest_air: 'Hyderabad (HYD)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-08T00:00:00Z',
   },
   {
@@ -132,6 +140,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Lucknow Charbagh (LKO)',
     nearest_air: 'Lucknow (LKO)',
     notes: null,
+    status: 'live',
     updated_at: '2026-05-22T00:00:00Z',
   },
   {
@@ -144,6 +153,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Ernakulam Junction (ERS)',
     nearest_air: 'Kochi (COK)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-05T00:00:00Z',
   },
   {
@@ -156,6 +166,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Indore Junction (INDB)',
     nearest_air: 'Indore (IDR)',
     notes: null,
+    status: 'live',
     updated_at: '2026-06-01T00:00:00Z',
   },
 ];

@@ -104,6 +104,7 @@ export function buildSnapshot(
   now: number = Date.now(),
   flags: FlagRow[] = [],
 ): Snapshot {
+  const pubCities = cities.filter((c) => c.status === 'live');
   const pubContacts = contacts.filter(isContactPublishable);
   const pubFacilities = facilities.filter(isFacilityPublishable);
   const caution = cautionIds(flags, now);
@@ -122,7 +123,7 @@ export function buildSnapshot(
     facilitiesByCity.set(f.city_id, list);
   }
 
-  const publicCities: PublicCity[] = cities.map((city) => {
+  const publicCities: PublicCity[] = pubCities.map((city) => {
     const cityContacts = contactsByCity.get(city.id) ?? [];
     const cityFacilities = facilitiesByCity.get(city.id) ?? [];
     return {
@@ -162,7 +163,7 @@ export function buildSnapshot(
       updatedAt = d;
     }
   };
-  for (const city of cities) consider(city.updated_at);
+  for (const city of pubCities) consider(city.updated_at);
   for (const c of pubContacts) consider(c.verified_at);
   for (const f of pubFacilities) consider(f.verified_at);
 
