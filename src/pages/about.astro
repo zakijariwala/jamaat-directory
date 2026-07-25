@@ -1,0 +1,139 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+
+const h2 = 'text-headline-md font-headline-md uppercase border-b-2 border-on-background pb-2 mb-4 mt-8';
+const field = 'w-full px-4 py-3 rounded-none bg-surface border-2 border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors';
+const label = 'block text-label-caps font-label-caps uppercase text-on-background mb-1';
+
+const goals = [
+  'Put a trusted local contact within reach of one link in every jamaat.',
+  'Show each city the masjid, the musafir khana, and a place to eat.',
+  'Guard members’ phone numbers. A visitor reveals one number at a time, never a bulk list.',
+  'Let anyone add or correct an entry, and let a named moderator approve it before it shows.',
+  'Reach jamaats beyond India as they join, and treat no city as the default.',
+];
+---
+
+<Base
+  title="About — KSIJ Travel Directory"
+  description="Who runs the KSIJ Travel Directory, what it aims to do, and how to send feedback."
+>
+  <header
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-2 border-on-background"
+  >
+    <div class="flex items-center gap-4 w-full max-w-3xl mx-auto">
+      <a href="/" aria-label="Back to directory" class="shrink-0 flex items-center">
+        <img src="/logo.svg" alt="KSIJ" width="40" height="40" class="h-10 w-10 object-contain rounded-[4px]" />
+      </a>
+      <h1 class="text-headline-md font-headline-md tracking-tight uppercase flex-grow">About</h1>
+      <a href="/howitworks" class="shrink-0 flex items-center gap-1 text-label-caps font-label-caps uppercase hover:opacity-80 transition-opacity">
+        <Icon name="menu_book" size={18} />
+        <span class="hidden sm:inline">How it works</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="main" class="pt-[56px]">
+    <div class="w-full max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-8">
+      <!-- Intro -->
+      <p class="text-data-mono font-data-mono text-primary uppercase mb-stack-regular">
+        External Affairs and International Relations Youth Committee
+      </p>
+      <h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg uppercase tracking-tight mb-stack-regular">
+        A trusted contact in every jamaat.
+      </h2>
+      <p class="text-body-lg font-body-lg text-on-surface-variant">
+        The External Affairs and International Relations Youth Committee runs this
+        directory. We list jamaat contacts and facilities so you reach a real local
+        person in a city you do not know. You open one link. You search a city. You
+        get a name, a role, and a way to reach them. You install no app. You sign in
+        nowhere.
+      </p>
+
+      <!-- Goals -->
+      <h2 class={h2}>What we aim to do</h2>
+      <ul class="flex flex-col gap-stack-regular">
+        {
+          goals.map((g) => (
+            <li class="flex gap-3 text-body-lg font-body-lg">
+              <span class="shrink-0 text-primary mt-1"><Icon name="check" size={20} /></span>
+              <span>{g}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- How it stays trustworthy -->
+      <h2 class={h2}>How we keep it trustworthy</h2>
+      <p class="text-body-lg font-body-lg text-on-surface-variant">
+        A named committee moderator reads every entry and marks it live. Nothing
+        reaches the public on its own. We list a person only with their consent, and
+        anyone can report or remove their own entry. The site holds no advertising
+        and asks for no login.
+      </p>
+
+      <!-- Feedback -->
+      <h2 class={h2}>Send feedback</h2>
+      <p class="text-body-lg font-body-lg text-on-surface-variant mb-4">
+        Tell us what to fix, what to add, or what confused you. We read every note.
+        Leave your name and a way to reach you if you want a reply.
+      </p>
+
+      <form id="feedback-form" class="flex flex-col gap-4 border-2 border-on-background rounded-none p-5 md:p-6 bg-surface">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="fb-name">Your name (optional)</label><input id="fb-name" class={field} /></div>
+          <div><label class={label} for="fb-contact">Email or phone (optional)</label><input id="fb-contact" class={field} /></div>
+        </div>
+        <div>
+          <label class={label} for="fb-message">Your feedback *</label>
+          <textarea id="fb-message" rows="5" class={field}></textarea>
+        </div>
+        <p id="fb-error" class="hidden text-error font-data-mono text-data-mono" role="alert"></p>
+        <button
+          type="submit"
+          id="fb-btn"
+          class="w-full sm:w-auto self-start bg-secondary text-on-secondary text-label-caps font-label-caps uppercase tracking-wider py-4 px-6 border-2 border-on-background rounded-none shadow-[4px_4px_0px_rgba(28,27,27,1)] hover:shadow-[2px_2px_0px_rgba(28,27,27,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-transform active:scale-95"
+        >
+          Send feedback
+        </button>
+      </form>
+
+      <div id="fb-thanks" class="hidden border-2 border-on-background rounded-none p-6 bg-surface-container-low mt-4">
+        <p class="text-headline-md font-headline-md uppercase">Thank you</p>
+        <p class="text-body-lg font-body-lg mt-2">We got your note. <a href="/" class="text-primary underline">Back to the directory</a></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('feedback-form') as HTMLFormElement | null;
+    const errEl = document.getElementById('fb-error');
+    const thanks = document.getElementById('fb-thanks');
+    const btn = document.getElementById('fb-btn') as HTMLButtonElement | null;
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value.trim() ?? '';
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errEl?.classList.add('hidden');
+      const message = val('fb-message');
+      if (!message) { if (errEl) { errEl.textContent = 'Write your feedback first.'; errEl.classList.remove('hidden'); } return; }
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name: val('fb-name'), contact: val('fb-contact'), message }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Could not send.');
+        form.classList.add('hidden');
+        thanks?.classList.remove('hidden');
+      } catch (err) {
+        if (errEl) { errEl.textContent = (err as Error).message; errEl.classList.remove('hidden'); }
+        if (btn) { btn.disabled = false; btn.textContent = 'Send feedback'; }
+      }
+    });
+  </script>
+</Base>
