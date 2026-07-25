@@ -42,6 +42,7 @@ export interface ContactRow {
   languages: string | null;
   self_added: number; // 0/1
   consent: number; // 0/1
+  provenance?: string | null; // private moderation note; NEVER published
   status: RowStatus;
   verified_at: string | null;
   created_at: string;

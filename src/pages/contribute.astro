@@ -52,6 +52,12 @@ const FEATURES = ["Wuzu", "Ladies' section", 'Parking', 'Ziyarat', 'Wheelchair a
 // Hotel / restaurant attributes — also stored as chips in facilities[].
 const PRICE_BANDS = ['Budget', 'Mid-range', 'Higher-end'];
 const HALAL_OPTS = ['Strictly Halal', 'Halal options available', 'Not sure'];
+// Private moderation-trust context (stored in the contact's provenance note).
+const HOW_KNOWN = [
+  'Family or close friend', 'Met while travelling', 'Through jamaat work',
+  'Business or professional', "I don't know them personally — heard from someone else",
+];
+const KNOWS = ["Yes, I've told them", 'Not yet'];
 ---
 
 <Base title="Contribute — KSIJ Travel Directory">
@@ -145,6 +151,22 @@ const HALAL_OPTS = ['Strictly Halal', 'Halal options available', 'Not sure'];
             <select id="ct-wa" class={field}>
               <option value="">—</option>
               {WHATSAPP_OPTS.map((t) => <option value={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class={label} for="ct-known">How do you know this contact?</label>
+            <select id="ct-known" class={field}>
+              <option value="">—</option>
+              {HOW_KNOWN.map((h) => <option value={h}>{h}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class={label} for="ct-knows">Do they know you're submitting?</label>
+            <select id="ct-knows" class={field}>
+              <option value="">—</option>
+              {KNOWS.map((k) => <option value={k}>{k}</option>)}
             </select>
           </div>
         </div>
@@ -288,6 +310,7 @@ const HALAL_OPTS = ['Strictly Halal', 'Halal options available', 'Not sure'];
           name: ctName, phone: ctPhone, whatsapp: val('ct-wa') === 'Yes',
           role: val('ct-role'), helps_with: val('ct-helps'), languages: val('ct-langs'),
           best_time: val('ct-best'),
+          how_known: val('ct-known'), knows: val('ct-knows'),
           self: checked('ct-self'), consent: checked('ct-consent'),
         });
       }

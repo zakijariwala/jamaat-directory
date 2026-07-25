@@ -83,7 +83,7 @@ const btnGhost =
     function render(data: any) {
       const parts: string[] = [];
       for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}`));
-      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}`));
+      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}${c.provenance ? ' · ' + c.provenance : ''}`));
       for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}`, `${f.city_id} · ${f.kind}`));
       const total = data.cities.length + data.contacts.length + data.facilities.length;
       listEl.innerHTML = parts.join('');

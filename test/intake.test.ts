@@ -57,6 +57,22 @@ describe('buildPendingRows', () => {
     expect(facilities).toHaveLength(0);
   });
 
+  it('combines how_known + knows into a private provenance note', () => {
+    const { contacts } = buildPendingRows({
+      city: { name: 'Test' },
+      contacts: [{ name: 'A', phone: '123456', self: true, how_known: 'Through jamaat work', knows: "Yes, I've told them" }],
+    }, NOW);
+    expect(contacts[0].provenance).toBe("Known: Through jamaat work · They know: Yes, I've told them");
+  });
+
+  it('leaves provenance null when neither field is given', () => {
+    const { contacts } = buildPendingRows({
+      city: { name: 'Test' },
+      contacts: [{ name: 'A', phone: '123456', self: true }],
+    }, NOW);
+    expect(contacts[0].provenance).toBeNull();
+  });
+
   it('throws when the city name is missing', () => {
     expect(() => buildPendingRows({ city: { name: '' } }, NOW)).toThrow();
   });

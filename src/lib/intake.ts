@@ -17,6 +17,8 @@ export interface SubmittedContact {
   languages?: string;
   self?: boolean; // submitter is adding their own details
   consent?: boolean; // has the person's consent to publish
+  how_known?: string; // how the submitter knows this person (trust signal)
+  knows?: string; // does the person know they're being submitted
 }
 
 export interface SubmittedFacility {
@@ -95,6 +97,10 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
     const name = (c.name ?? '').trim();
     const phone = (c.phone ?? '').trim();
     if (!name || !phone) continue;
+    const provenance = [
+      clean(c.how_known) ? `Known: ${clean(c.how_known)}` : '',
+      clean(c.knows) ? `They know: ${clean(c.knows)}` : '',
+    ].filter(Boolean).join(' · ') || null;
     contacts.push({
       id: `c-${cityId}-${slug(name)}-${last4(phone)}`,
       city_id: cityId,
@@ -107,6 +113,7 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
       languages: clean(c.languages),
       self_added: c.self ? 1 : 0,
       consent: c.consent ? 1 : 0,
+      provenance,
       status: 'pending',
       verified_at: null, // set on approval
       created_at: now,

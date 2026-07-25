@@ -27,7 +27,7 @@ const CITY_COLS: Array<keyof CityRow> = [
 ];
 const CONTACT_COLS: Array<keyof ContactRow> = [
   'id', 'city_id', 'name', 'phone', 'whatsapp', 'role', 'helps_with',
-  'best_time', 'languages', 'self_added', 'consent', 'status', 'verified_at', 'created_at',
+  'best_time', 'languages', 'self_added', 'consent', 'provenance', 'status', 'verified_at', 'created_at',
 ];
 const FACILITY_COLS: Array<keyof FacilityRow> = [
   'id', 'city_id', 'kind', 'name', 'address', 'maps_url', 'phone', 'timings',

@@ -34,7 +34,7 @@ const cityCols: Array<keyof CityRow> = [
 ];
 const contactCols: Array<keyof ContactRow> = [
   'id', 'city_id', 'name', 'phone', 'whatsapp', 'role', 'helps_with',
-  'best_time', 'languages', 'self_added', 'consent', 'status',
+  'best_time', 'languages', 'self_added', 'consent', 'provenance', 'status',
   'verified_at', 'created_at',
 ];
 const facilityCols: Array<keyof FacilityRow> = [
