@@ -51,41 +51,44 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
 <Base title="KSIJ Travel Directory">
   <!-- TopAppBar -->
   <header
-    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[56px] bg-primary text-on-primary border-b-[2px] border-on-background"
+    class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-[76px] bg-primary text-on-primary border-b-[2px] border-on-background"
   >
-    <div class="flex items-center gap-4 w-full max-w-7xl mx-auto">
+    <div class="flex items-center gap-3 md:gap-4 w-full max-w-7xl mx-auto">
       <img
         src="/logo.svg"
         alt="KSIJ"
-        width="40"
-        height="40"
-        class="h-10 w-10 object-contain rounded-[4px] shrink-0"
+        width="48"
+        height="48"
+        class="h-11 w-11 md:h-12 md:w-12 object-contain rounded-[6px] shrink-0"
       />
-      <h1 class="text-[17px] sm:text-headline-md leading-tight font-headline-md tracking-tight uppercase flex-grow text-center md:text-left">
-        KSIJ Travel Directory
+      <h1 class="flex flex-col leading-none flex-grow min-w-0">
+        <span class="text-[22px] md:text-[28px] font-headline-md tracking-tight uppercase">KSIJ</span>
+        <span class="text-[11px] md:text-data-mono font-data-mono tracking-[0.18em] uppercase text-on-primary/90 mt-1">Travel Directory</span>
       </h1>
-      <a
-        href="/about"
-        class="shrink-0 flex items-center gap-1 text-label-caps font-label-caps uppercase hover:opacity-80 transition-opacity"
-      >
-        <Icon name="person" size={18} />
-        <span class="hidden sm:inline">About</span>
-      </a>
-      <a
-        href="/howitworks"
-        class="shrink-0 flex items-center gap-1 text-label-caps font-label-caps uppercase hover:opacity-80 transition-opacity"
-      >
-        <Icon name="menu_book" size={18} />
-        <span class="hidden sm:inline">How it works</span>
-      </a>
+      <nav class="flex items-center gap-5 md:gap-7 shrink-0">
+        <a
+          href="/about"
+          class="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity"
+        >
+          <Icon name="person" size={24} />
+          <span class="text-[11px] md:text-[13px] leading-none">About</span>
+        </a>
+        <a
+          href="/howitworks"
+          class="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity"
+        >
+          <Icon name="menu_book" size={24} />
+          <span class="text-[11px] md:text-[13px] leading-none">How it works</span>
+        </a>
+      </nav>
     </div>
   </header>
 
-  <main id="main" class="pt-[56px] w-full max-w-7xl mx-auto flex">
+  <main id="main" class="pt-[76px] w-full max-w-7xl mx-auto flex">
     <div class="flex-grow flex flex-col relative w-full min-w-0">
       <!-- Sticky search + coverage -->
       <section
-        class="sticky top-[56px] z-40 bg-surface border-b-[2px] border-on-background px-margin-mobile md:px-margin-desktop py-stack-regular flex flex-col gap-stack-compact"
+        class="sticky top-[76px] z-40 bg-surface border-b-[2px] border-on-background px-margin-mobile md:px-margin-desktop py-stack-regular flex flex-col gap-stack-compact"
       >
         <div class="relative w-full">
           <Icon
@@ -129,7 +132,7 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
             <section data-state-group class="mb-8">
               <h2
                 id={stateId(st)}
-                class="sticky top-[132px] z-30 bg-background py-stack-compact text-headline-md font-headline-md border-b-[2px] border-on-background mt-4 uppercase scroll-mt-[140px]"
+                class="sticky top-[152px] z-30 bg-background py-stack-compact text-headline-md font-headline-md border-b-[2px] border-on-background mt-4 uppercase scroll-mt-[160px]"
               >
                 {st}
               </h2>
@@ -231,7 +234,7 @@ const chips: Array<{ name: string; label: string; key: keyof PublicCity['has'] }
     <!-- A–Z quick jump -->
     <nav
       aria-label="Jump to state"
-      class="w-8 md:w-12 fixed right-0 top-[132px] bottom-0 flex flex-col items-center pt-4 pb-24 border-l-[1px] border-outline-variant bg-surface-container-lowest z-30 hide-scrollbar overflow-y-auto"
+      class="w-8 md:w-12 fixed right-0 top-[152px] bottom-0 flex flex-col items-center pt-4 pb-24 border-l-[1px] border-outline-variant bg-surface-container-lowest z-30 hide-scrollbar overflow-y-auto"
     >
       <ul class="flex flex-col items-center gap-[2px] text-label-caps font-label-caps w-full">
         {
