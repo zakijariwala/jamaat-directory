@@ -45,6 +45,13 @@ const LANGUAGES = [
   'Memoni', 'Bengali', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Punjabi',
   'Konkani', 'Odia', 'Assamese', 'Kashmiri',
 ];
+const BEST_TIMES = ['Morning', 'Afternoon', 'Evening after 6pm', 'Anytime'];
+const WHATSAPP_OPTS = ['Yes', 'No', 'Not sure'];
+// Facility feature chips (masjid / musafir khana). Stored in facilities[].
+const FEATURES = ["Wuzu", "Ladies' section", 'Parking', 'Ziyarat', 'Wheelchair access', 'Langar or food'];
+// Hotel / restaurant attributes — also stored as chips in facilities[].
+const PRICE_BANDS = ['Budget', 'Mid-range', 'Higher-end'];
+const HALAL_OPTS = ['Strictly Halal', 'Halal options available', 'Not sure'];
 ---
 
 <Base title="Contribute — KSIJ Travel Directory">
@@ -125,7 +132,22 @@ const LANGUAGES = [
           </div>
         </div>
         <div><label class={label} for="ct-helps">What can they help with?</label><input id="ct-helps" name="ct_helps" class={field} /></div>
-        <label class="flex items-center gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-wa" class="w-5 h-5 accent-primary" /> On WhatsApp</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class={label} for="ct-best">Best time to call</label>
+            <select id="ct-best" class={field}>
+              <option value="">—</option>
+              {BEST_TIMES.map((t) => <option value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class={label} for="ct-wa">On WhatsApp?</label>
+            <select id="ct-wa" class={field}>
+              <option value="">—</option>
+              {WHATSAPP_OPTS.map((t) => <option value={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
         <div class="rounded-lg bg-surface-container border border-outline/60 p-4 flex flex-col gap-3">
           <p class="text-body-sm font-medium text-on-surface">Permission — tick one if you add a contact</p>
           <label class="flex items-start gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-self" class="w-5 h-5 mt-1 accent-primary shrink-0" /> These are my own details</label>
@@ -159,6 +181,30 @@ const LANGUAGES = [
             <select id="f-charges" name="f_charges" class={field}>
               <option value="">—</option>
               {CHARGES.map((c) => <option value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class={label}>Features (masjid / musafir khana)</label>
+          <div class="grid grid-cols-2 gap-2">
+            {FEATURES.map((f) => (
+              <label class="flex items-center gap-2 text-body-lg cursor-pointer"><input type="checkbox" class="f-feature w-5 h-5 accent-primary shrink-0" value={f} /> {f}</label>
+            ))}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class={label} for="f-price">Price band (hotel / restaurant)</label>
+            <select id="f-price" class={field}>
+              <option value="">—</option>
+              {PRICE_BANDS.map((p) => <option value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class={label} for="f-halal">Halal (hotel / restaurant)</label>
+            <select id="f-halal" class={field}>
+              <option value="">—</option>
+              {HALAL_OPTS.map((h) => <option value={h}>{h}</option>)}
             </select>
           </div>
         </div>
@@ -239,16 +285,22 @@ const LANGUAGES = [
       };
       if (ctName && ctPhone) {
         payload.contacts.push({
-          name: ctName, phone: ctPhone, whatsapp: checked('ct-wa'),
+          name: ctName, phone: ctPhone, whatsapp: val('ct-wa') === 'Yes',
           role: val('ct-role'), helps_with: val('ct-helps'), languages: val('ct-langs'),
+          best_time: val('ct-best'),
           self: checked('ct-self'), consent: checked('ct-consent'),
         });
       }
       if (fKind && fName) {
+        const chips = Array.from(document.querySelectorAll<HTMLInputElement>('.f-feature:checked')).map((el) => el.value);
+        const price = val('f-price');
+        const halal = val('f-halal');
+        if (price) chips.push(price);
+        if (halal) chips.push(halal);
         payload.facilities.push({
           kind: fKind, name: fName, address: val('f-address'),
           maps_url: val('f-maps'), timings: val('f-timings'),
-          charges_band: val('f-charges'),
+          charges_band: val('f-charges'), facilities: chips,
         });
       }
 
