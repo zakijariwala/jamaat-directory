@@ -128,10 +128,10 @@ const HELP_OPTIONS = [
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class={label} for="ct-role">Role</label>
-            <input id="ct-role" name="ct_role" list="role-options" autocomplete="off" placeholder="Pick or type a role" class={field} />
-            <datalist id="role-options">
-              {CONTACT_ROLES.map((r) => <option value={r}></option>)}
-            </datalist>
+            <select id="ct-role" class={field}>
+              <option value="">—</option>
+              {CONTACT_ROLES.map((r) => <option value={r}>{r}</option>)}
+            </select>
           </div>
           <div>
             <label class={label} for="ct-helps">What can they help with?</label>
