@@ -58,6 +58,11 @@ const HOW_KNOWN = [
   'Business or professional', "I don't know them personally — heard from someone else",
 ];
 const KNOWS = ["Yes, I've told them", 'Not yet'];
+const HELP_OPTIONS = [
+  'Accommodation / musafir khana', 'Local transport', 'Majlis & programme timings',
+  'Directions & getting around', 'Food / meals', 'Ziyarat guidance',
+  'Emergency / urgent help', 'General guidance',
+];
 ---
 
 <Base title="Contribute — KSIJ Travel Directory">
@@ -130,14 +135,21 @@ const KNOWS = ["Yes, I've told them", 'Not yet'];
             </datalist>
           </div>
           <div>
-            <label class={label} for="ct-langs">Languages</label>
-            <input id="ct-langs" name="ct_langs" list="language-options" autocomplete="off" placeholder="Pick or type — separate several with commas" class={field} />
-            <datalist id="language-options">
-              {LANGUAGES.map((l) => <option value={l}></option>)}
-            </datalist>
+            <label class={label} for="ct-helps">What can they help with?</label>
+            <select id="ct-helps" class={field}>
+              <option value="">—</option>
+              {HELP_OPTIONS.map((h) => <option value={h}>{h}</option>)}
+            </select>
           </div>
         </div>
-        <div><label class={label} for="ct-helps">What can they help with?</label><input id="ct-helps" name="ct_helps" class={field} /></div>
+        <div>
+          <label class={label}>Languages</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {LANGUAGES.map((l) => (
+              <label class="flex items-center gap-2 text-body-lg cursor-pointer"><input type="checkbox" class="ct-lang w-5 h-5 accent-primary shrink-0" value={l} /> {l}</label>
+            ))}
+          </div>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class={label} for="ct-best">Best time to call</label>
@@ -308,7 +320,8 @@ const KNOWS = ["Yes, I've told them", 'Not yet'];
       if (ctName && ctPhone) {
         payload.contacts.push({
           name: ctName, phone: ctPhone, whatsapp: val('ct-wa') === 'Yes',
-          role: val('ct-role'), helps_with: val('ct-helps'), languages: val('ct-langs'),
+          role: val('ct-role'), helps_with: val('ct-helps'),
+          languages: Array.from(document.querySelectorAll<HTMLInputElement>('.ct-lang:checked')).map((el) => el.value).join(', '),
           best_time: val('ct-best'),
           how_known: val('ct-known'), knows: val('ct-knows'),
           self: checked('ct-self'), consent: checked('ct-consent'),
