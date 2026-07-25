@@ -3,13 +3,12 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { TURNSTILE_SITE_KEY, CONTRIBUTE_GUIDE_URL } from '../lib/config';
 
-// Card wrapper for each section — gives the eye clear visual chunks.
-const card = 'bg-surface-container-low border border-outline rounded-xl p-5 md:p-6 shadow-sm mb-6';
-// Softer than the brutalist default: subtle radius, 1px border, focus ring.
+// Brutalist "field-manual" container: hard 2px border, square, flat surface.
+const card = 'border-2 border-on-background rounded-none p-5 md:p-6 bg-surface mb-6';
 const field =
-  'w-full h-12 px-4 rounded-lg bg-surface border border-outline text-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all';
-const label = 'block text-body-sm font-medium text-on-surface mb-1.5';
-const section = 'text-headline-md font-headline-md tracking-tight text-on-background border-b border-outline/50 pb-3 mb-5';
+  'w-full h-12 px-4 rounded-none bg-surface border-2 border-on-background text-body-lg font-body-lg placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors';
+const label = 'block text-label-caps font-label-caps uppercase text-on-background mb-1';
+const section = 'text-headline-md font-headline-md uppercase border-b-2 border-on-background pb-2 mb-4';
 
 // Closed-set option lists for the dropdowns. States/UTs feed the free-text
 // `state` column; a moderator sets the coarse `region` enum later. Roles are
@@ -85,11 +84,11 @@ const HELP_OPTIONS = [
 
     <a
       href={CONTRIBUTE_GUIDE_URL}
-      class="flex items-center justify-between gap-3 border border-outline rounded-lg bg-surface-container-low px-4 py-3 mb-6 hover:bg-surface-variant transition-colors"
+      class="flex items-center justify-between gap-3 border-2 border-dashed border-on-background rounded-none bg-surface-container-low px-4 py-3 mb-6 hover:bg-surface-variant transition-colors"
     >
       <span class="flex items-center gap-3">
         <Icon name="menu_book" size={20} class="text-primary shrink-0" />
-        <span class="text-body-lg font-body-lg">New here? Read how to fill this form (and watch the video)</span>
+        <span class="font-data-mono text-data-mono uppercase">New here? Read how to fill this form (and watch the video)</span>
       </span>
       <Icon name="arrow_back" size={18} class="rotate-180 shrink-0 text-on-surface-variant" />
     </a>
@@ -182,8 +181,8 @@ const HELP_OPTIONS = [
             </select>
           </div>
         </div>
-        <div class="rounded-lg bg-surface-container border border-outline/60 p-4 flex flex-col gap-3">
-          <p class="text-body-sm font-medium text-on-surface">Permission — tick one if you add a contact</p>
+        <div class="rounded-none bg-surface-container border-2 border-on-background p-4 flex flex-col gap-3">
+          <p class="text-label-caps font-label-caps uppercase text-on-background">Permission — tick one if you add a contact</p>
           <label class="flex items-start gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-self" class="w-5 h-5 mt-1 accent-primary shrink-0" /> These are my own details</label>
           <label class="flex items-start gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-consent" class="w-5 h-5 mt-1 accent-primary shrink-0" /> I have this person's permission to list their name and number in a public directory</label>
         </div>
@@ -254,7 +253,7 @@ const HELP_OPTIONS = [
       <button
         type="submit"
         id="submit-btn"
-        class="w-full bg-primary text-on-primary text-label-caps font-label-caps uppercase tracking-wider py-4 px-6 rounded-lg hover:bg-primary-container transition-colors shadow-sm"
+        class="w-full bg-secondary text-on-secondary text-label-caps font-label-caps uppercase tracking-wider py-4 px-6 border-2 border-on-background rounded-none shadow-[4px_4px_0px_rgba(28,27,27,1)] hover:shadow-[2px_2px_0px_rgba(28,27,27,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-transform active:scale-95"
       >
         Submit for review
       </button>
