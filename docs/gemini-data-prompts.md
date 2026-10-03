@@ -122,6 +122,11 @@ notes = anything a traveller should know about reaching the jamaat (optional,
 one short sentence, public).
 ```
 
+**Import only after the go-live steps** (`docs/PROGRESS.md`): until the live
+database is cleared and redeployed, the sample Pune, Sangli, Bengaluru and
+Hyderabad are still live, and the importer skips `jamaat` rows for cities that
+already exist.
+
 The importer ignores `size_estimate` and `size_evidence`; copy them into the
 pilot table in `docs/PROGRESS.md` and set each city's target there.
 
