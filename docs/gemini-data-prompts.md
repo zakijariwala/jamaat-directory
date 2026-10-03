@@ -13,6 +13,8 @@ directly (`npm run import:listings`, see `data/README.md`).
   personal mobile numbers. People need to give permission, so they come in
   through `/contribute`. Business and office numbers listed publicly on Google
   Maps or an official website are fine.
+- **Quote values that contain commas** (addresses!) in double quotes, or the
+  columns shift. Each prompt asks for this; check before saving.
 - **Blank beats guessed.** Tell Gemini to leave a cell empty rather than invent
   it, and to give a source link for every row.
 - **Spell each city exactly the same in every phase** (e.g. always
@@ -181,6 +183,10 @@ Output ONE CSV in a code block with exactly these columns:
 kind,name,city,state,address,maps_url,phone,timings,charges,features,source
 
 kind = masjid (for masjids, imambargahs, husainiyas) or musafir_khana.
+Wrap any value containing a comma in double quotes. maps_url must be the
+place's own page link (maps.app.goo.gl/... or google.com/maps/place/...), not a
+search link; if you can't open the place itself, leave maps_url empty. Only
+fill features if you actually saw them on the listing.
 source = "Google Maps".
 ```
 
@@ -242,6 +248,10 @@ Output ONE CSV in a code block with exactly these columns:
 kind,name,city,state,address,maps_url,phone,timings,price_band,halal,features,source
 
 kind = restaurant or hotel. source = "Google Maps".
+Wrap any value containing a comma in double quotes. maps_url must be the
+place's own page link (maps.app.goo.gl/... or google.com/maps/place/...), not a
+search link; if you can't open the place itself, leave maps_url empty. Only
+fill features if you actually saw them on the listing.
 ```
 
 Save as `data/imports/phase-4-food-hotels.csv`, then:

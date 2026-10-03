@@ -37,7 +37,7 @@ North and East come later as listing-only cities. Data is collected with
 |---|---|---|
 | 1 | Jamaat long-list → pick 15 cities | ✅ list proposed (below); sizes come from Phase 2 |
 | 2 | Jamaat rows (name, stations, office number) + size estimate | ◐ CSV checked 3 Oct (15 rows import cleanly; no office numbers found; Una station to verify); sizes marked `?` are Gemini estimates for Zaki to confirm |
-| 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ☐ |
+| 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ◐ CSV checked 3 Oct: 11 places in 7 cities (Gemini + Shia Portal + ksijbhavnagar.org); 8 cities have none yet. Map links are searches, not place pins; several addresses to verify |
 | 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ☐ |
 | 5 | Check pass, import, approve, Publish to site | ☐ |
 
