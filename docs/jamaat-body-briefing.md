@@ -26,20 +26,22 @@ default.
 The whole system is three plain steps. The community keeps it up to date; a
 jamaat moderator keeps it trustworthy.
 
-1. **Anyone contributes.** A community member fills in a short Google Form to add
-   a contact, a masjid, a place to stay, or to report/remove an entry. No
-   account, no app.
-2. **A moderator reviews.** A named jamaat volunteer checks the entry in a
-   familiar Google Sheet — the same as reviewing a spreadsheet. Nothing goes live
-   until they approve it. No developer is needed.
-3. **It appears on the website.** Approved entries show up on the public
-   directory. A traveller opens one link, searches a city, and finds a local
+1. **Anyone contributes.** A community member fills in a short form on the
+   website to add a contact, a masjid, a place to stay, or the jamaat's office
+   number, or to report/remove an entry. No account, no app. Larger lists (for
+   example halal restaurants) can be loaded in bulk.
+2. **A moderator reviews.** A named jamaat volunteer checks each entry on a
+   passcode-protected review page, or in Excel. Nothing goes live until they
+   approve it. No developer is needed.
+3. **It appears on the website.** The moderator clicks *Publish to site* and
+   approved entries show up on the public directory within a couple of minutes. A traveller opens one link, searches a city, and finds a local
    contact, the masjid, and somewhere to stay.
 
 ## Who runs it
 
-Day-to-day moderation happens in an ordinary Google Sheet, so a non-technical
-jamaat volunteer can approve an entry or fix a typo without a developer. The
+Day-to-day moderation happens on a simple review page (with an Excel download
+and upload), so a non-technical jamaat volunteer can approve entries without a
+developer. The
 website itself is hosted on Cloudflare and needs no servers to maintain. In
 short: the community contributes, named moderators approve, and the site runs
 itself. All it needs from the body is oversight — and the moderators to staff it.
@@ -61,13 +63,13 @@ system — not an afterthought.
 ## What it costs
 
 **₹0 / month to run at launch scale.** The system is designed to sit inside the
-free tiers of Cloudflare and Google. The only optional spending is a custom web
+free tier of Cloudflare. The only optional spending is a custom web
 address.
 
 | Item | Cost | Note |
 |---|---|---|
 | Website + hosting (Cloudflare) | ₹0 / month | Free tier covers the expected traffic. |
-| Contributions (Google Form + Sheet) | ₹0 / month | Runs on an ordinary Google account. |
+| Contributions + moderation | ₹0 / month | Built into the website. |
 | Custom domain (optional) | ~$8–12 / year | Only if we want our own web address. |
 | Extra capacity (only if very large) | ~$5 / month | Not needed at launch scale. |
 

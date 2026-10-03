@@ -263,31 +263,34 @@ flowchart TD
           </tr>
           <tr>
             <td>Home index +<br><code>/city/[id]</code> pages<br><span class="mono" style="font-size:12px;color:var(--faint)">the HTML</span></td>
-            <td class="mono">seed.ts, at<br>build time</td>
-            <td>only on<br><code>astro build</code></td>
-            <td><span class="no">No — needs a rebuild</span></td>
+            <td class="mono">live /directory.json,<br>at build time</td>
+            <td>on <b>Publish to site</b><br>(deploy hook) or deploy</td>
+            <td><span class="yes">Yes — after publish (~2 min)</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <p>Today’s prototype renders pages from <code>src/data/seed.ts</code> because
-      <code>astro build</code> can’t read D1 (a runtime binding). That’s what makes
-      it fast and JS-optional — and it’s the one production decision left:</p>
+    <p><b>Decided: option A.</b> <code>astro build</code> can’t read D1 directly (a
+      runtime binding), so production builds fetch the live, phone-free
+      <code>/directory.json</code> and render static pages from it. A moderator
+      approves a batch in <code>/moderate</code>, then clicks <b>Publish to site</b>,
+      which fires the Pages deploy hook. Pages stay fast and work with JS off. A
+      build that can’t reach the live data fails rather than publishing samples.</p>
 
     <figure>
       <div class="plate">
 <pre class="mermaid">
 %%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e7edf3','primaryTextColor':'#14202c','primaryBorderColor':'#001e40','lineColor':'#5a6b7a'}}}%%
 flowchart LR
-  ING["New city in D1<br/>via /api/ingest"] --> Q{"Frontend strategy"}
+  ING["New city in D1<br/>via /contribute or import"] --> Q{"Frontend strategy"}
   Q -->|"A · rebuild on write"| HOOK["Deploy hook → astro build<br/>reads live /directory.json<br/>→ new static page"]
   Q -->|"B · client-render"| CR["Home + one /city route<br/>fetch /directory.json,<br/>render by slug"]
   HOOK --> LA["Live in ~1–2 min<br/>works with JS off"]
   CR --> LB["Live within 5-min cache<br/>city pages need JS"]
 </pre>
       </div>
-      <figcaption><b>A</b> keeps the no-JS / perf wins with a short rebuild delay. &nbsp; <b>B</b> is instant but city pages then require JS.</figcaption>
+      <figcaption><b>A</b> (chosen) keeps the no-JS / perf wins with a short rebuild delay. &nbsp; <b>B</b> would be instant but city pages would then require JS.</figcaption>
     </figure>
   </section>
 

@@ -1,5 +1,6 @@
 // Bulk listing import: rows from a supplied spreadsheet (halal restaurants,
-// hotels, masjids, musafir khanas) -> pending D1 rows.
+// hotels, masjids, musafir khanas) -> pending D1 rows. Rows with kind
+// `jamaat` describe the city itself (jamaat name, stations, office number).
 //
 // Pure and dependency-free so it is unit-testable; scripts/import-listings.ts
 // does the file reading and SQL writing. Same rules as the public intake:
@@ -47,7 +48,7 @@ export interface ImportOptions {
 // Header aliases -> canonical column. Matching is case/space/punctuation-insensitive.
 const HEADER_ALIASES: Record<string, string[]> = {
   kind: ['kind', 'type', 'category'],
-  name: ['name', 'restaurant', 'restaurantname', 'hotel', 'hotelname', 'placename', 'title'],
+  name: ['name', 'restaurant', 'restaurantname', 'hotel', 'hotelname', 'placename', 'title', 'jamaatname'],
   city: ['city', 'town', 'cityortown'],
   state: ['state', 'stateut', 'stateunionterritory'],
   address: ['address', 'fulladdress', 'location', 'area'],
@@ -59,9 +60,18 @@ const HEADER_ALIASES: Record<string, string[]> = {
   features: ['features', 'tags', 'amenities'],
   notes: ['notes', 'note', 'bookingnote', 'remarks'],
   source: ['source'],
+  charges: ['charges', 'chargesband', 'cost'],
+  nearest_rail: ['nearestrail', 'railwaystation', 'nearestrailwaystation', 'station'],
+  nearest_air: ['nearestair', 'airport', 'nearestairport'],
+  aliases: ['aliases', 'oldnames', 'othernames', 'alsoknownas'],
 };
 
-const KIND_ALIASES: Record<string, FacilityKind> = {
+const CHARGES: Record<string, FacilityRow['charges_band']> = { free: 'free', donation: 'donation', paid: 'paid' };
+
+const KIND_ALIASES: Record<string, FacilityKind | 'jamaat'> = {
+  jamaat: 'jamaat',
+  jamat: 'jamaat',
+  city: 'jamaat',
   restaurant: 'restaurant',
   restaurants: 'restaurant',
   food: 'restaurant',
@@ -184,6 +194,38 @@ export function buildListingRows(records: RawRecord[], opts: ImportOptions = {})
 
     const knownId = known.get(key(r.city));
     const cityId = knownId ?? slug(r.city);
+
+    if (kind === 'jamaat') {
+      // The city's own row: jamaat name, stations, office number. Fills in a
+      // placeholder created by an earlier listing row for the same city.
+      if (knownId) {
+        warnings.push({ row, message: `"${r.city}" is already in the directory — change its details in /moderate, not by import` });
+        return;
+      }
+      const state = r.state || cities.get(cityId)?.state || null;
+      if (!state) warnings.push({ row, message: `city "${r.city}" has no state` });
+      const office = normalizePhone(r.phone);
+      if (office && !/^\+\d{10,15}$/.test(office)) {
+        warnings.push({ row, message: `"${r.name}": office phone "${r.phone}" not recognised — check before approving` });
+      }
+      const aliases = (r.aliases || '').split(/[;,|]/).map((a) => a.trim().toLowerCase()).filter(Boolean);
+      cities.set(cityId, {
+        id: cityId,
+        name: cityDisplayName(r.city),
+        jamaat_name: r.name,
+        state,
+        aliases: JSON.stringify(aliases),
+        region: regionForState(state),
+        nearest_rail: r.nearest_rail || null,
+        nearest_air: r.nearest_air || null,
+        notes: r.notes || null,
+        office_phone: office,
+        status: 'pending',
+        updated_at: now,
+      });
+      return;
+    }
+
     if (!knownId && !cities.has(cityId)) {
       const state = r.state || null;
       if (!state) warnings.push({ row, message: `city "${r.city}" has no state` });
@@ -233,6 +275,9 @@ export function buildListingRows(records: RawRecord[], opts: ImportOptions = {})
       chips.push(halal ?? r.halal);
       if (!halal) warnings.push({ row, message: `"${r.name}": halal value "${r.halal}" is not one of ${HALAL_OPTS.join(' / ')}` });
     }
+    if (r.charges && !CHARGES[key(r.charges)]) {
+      warnings.push({ row, message: `"${r.name}": charges "${r.charges}" is not free / donation / paid` });
+    }
     if (!address && !r.maps_url) {
       warnings.push({ row, message: `"${r.name}": no address or map link — travellers can't find it` });
     }
@@ -246,7 +291,8 @@ export function buildListingRows(records: RawRecord[], opts: ImportOptions = {})
       maps_url: r.maps_url || null,
       phone,
       timings: r.timings || null,
-      charges_band: null, // free/donation/paid is for musafir khanas; hotels use price band chips
+      // free/donation/paid applies to musafir khanas; hotels use price band chips.
+      charges_band: CHARGES[key(r.charges || '')] ?? null,
       booking_note: r.notes || null,
       facilities: JSON.stringify(chips),
       source: r.source || opts.source || null,

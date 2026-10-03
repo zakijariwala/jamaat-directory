@@ -13,8 +13,8 @@ sheet** of an Excel file is read. Header names are matched loosely, so
 
 | Column | Required | Notes |
 |---|---|---|
-| `kind` | yes* | `restaurant`, `hotel`, `masjid`, `musafir_khana`. *Omit it and pass `--kind restaurant` for a single-type list. |
-| `name` | yes | |
+| `kind` | yes* | `jamaat`, `restaurant`, `hotel`, `masjid`, `musafir_khana`. *Omit it and pass `--kind restaurant` for a single-type list. |
+| `name` | yes | For a `jamaat` row: the jamaat's full name. |
 | `city` | yes | Matched against existing cities **including old names** (Poona → Pune). Unknown cities are created as *pending*. |
 | `state` | recommended | Sets the region automatically. |
 | `address` | recommended | Also separates two outlets of the same chain in one city. |
@@ -24,8 +24,25 @@ sheet** of an Excel file is read. Header names are matched loosely, so
 | `price_band` | optional | `Budget` / `Mid-range` / `Higher-end` |
 | `halal` | optional | `Strictly Halal` / `Halal options available` / `Not sure` (`Yes` → Strictly Halal) |
 | `features` | optional | Separated by `;` or `,`, e.g. `Parking; Family section` |
-| `notes` | optional | **Public**: shown on the listing. |
+| `charges` | optional | Musafir khanas: `free` / `donation` / `paid` |
+| `notes` | optional | **Public**: shown on the listing (on a `jamaat` row: the city's field notes). |
+| `nearest_rail`, `nearest_air` | `jamaat` rows | e.g. `Mahuva (MHV)`, `Bhavnagar (BHU)` |
+| `aliases` | `jamaat` rows | Old or alternative city names, separated by `;` (e.g. `Bombay`). |
 | `source` | optional | **Private**: where the row came from. Defaults to the file name. |
+
+### `jamaat` rows (the city itself)
+
+One `jamaat` row per city sets the jamaat name, nearest railway station and
+airport, old city names, and the **jamaat office number** (`phone` column).
+Without one, a city created by a listing has no jamaat name until a moderator
+adds it. A `jamaat` row for a city that is already in the directory is skipped
+with a warning; existing cities are never changed by import.
+
+Never import **people** (representatives, contacts): they must give
+permission, so they come in through `/contribute`.
+
+Prompts for collecting this data with Gemini are in
+[`docs/gemini-data-prompts.md`](../docs/gemini-data-prompts.md).
 
 ## 2. Generate the SQL
 

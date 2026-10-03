@@ -108,3 +108,37 @@ describe('regionForState', () => {
     expect(regionForState('Atlantis')).toBeNull();
   });
 });
+
+describe('jamaat (city) rows', () => {
+  it('creates the city with jamaat name, stations, office number and aliases', () => {
+    const r = buildListingRows([
+      { kind: 'restaurant', name: 'R', city: 'Mahuva', state: 'Gujarat' },
+      {
+        kind: 'jamaat', 'Jamaat Name': 'Mahuva Khoja Shia Isna Ashari Jamaat', city: 'Mahuva', state: 'Gujarat',
+        'Nearest Railway Station': 'Mahuva (MHV)', 'Nearest Airport': 'Bhavnagar (BHU)', phone: '02844 222333',
+        'Old Names': '',
+      },
+    ], { now: NOW });
+    expect(r.cities).toHaveLength(1);
+    expect(r.cities[0]).toMatchObject({
+      id: 'mahuva', jamaat_name: 'Mahuva Khoja Shia Isna Ashari Jamaat',
+      nearest_rail: 'Mahuva (MHV)', nearest_air: 'Bhavnagar (BHU)', office_phone: '+912844222333',
+      region: 'west', status: 'pending',
+    });
+    expect(r.facilities).toHaveLength(1);
+  });
+
+  it('does not touch a city that already exists', () => {
+    const r = buildListingRows(
+      [{ kind: 'jamaat', name: 'J', city: 'Pune' }],
+      { now: NOW, knownCities: [{ id: 'pune', name: 'Pune' }] },
+    );
+    expect(r.cities).toEqual([]);
+    expect(r.warnings[0].message).toMatch(/already in the directory/);
+  });
+
+  it('maps musafir khana charges', () => {
+    const r = buildListingRows([{ kind: 'musafir khana', name: 'MK', city: 'Surat', charges: 'Donation' }], { now: NOW });
+    expect(r.facilities[0]).toMatchObject({ kind: 'musafir_khana', charges_band: 'donation' });
+  });
+});

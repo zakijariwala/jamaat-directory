@@ -3,8 +3,12 @@
 Up-to-date list of what's left before and after launch. Last updated: 3 October 2026.
 
 **Where things stand:** the site is live at https://jamaat-directory.pages.dev
-(unlisted, `noindex`) running the latest `main`. 60 tests pass, typecheck and
-build are clean. Every entry is still fictional sample data.
+(unlisted, `noindex`) running `main`. The office/representative, importer and
+build-from-live-DB work is in PR `feat/seed-import-and-representative` (91
+tests pass). The live DB still holds sample data plus one test city (Mahuva).
+
+See also: `docs/PROGRESS.md` (status + pilot table), `docs/DECISIONS.md`,
+`docs/DEPENDENCIES.md`, `docs/gemini-data-prompts.md`.
 
 **Go-live sequence for this round:**
 1. On the branch: `npm run db:migrate` (adds office / representative / source
@@ -69,9 +73,13 @@ restaurant optional.
 - [x] CSV template — `data/templates/listings-template.csv`
 - [x] Guard on `npm run db:seed` (it wipes the remote DB; now asks for confirmation)
 - [x] `npm run db:purge-samples` — removes only the fictional rows
-- [ ] **Pick the 15 cities** (owner: Zaki)
-- [ ] **Supply halal restaurant + hotel lists** (owner: Zaki) → import → approve
-- [ ] Masjid / musafir khana lists → same importer
+- [x] Importer also takes `jamaat` rows (jamaat name, stations, office number, old names)
+- [x] Gemini prompts for each data phase — `docs/gemini-data-prompts.md`
+- [ ] **Phase 1** — Gemini jamaat list → **pick the 15 cities** (owner: Zaki)
+- [ ] **Phase 2** — jamaat rows (name, stations, office number) → import
+- [ ] **Phase 3** — masjids / imambargahs / musafir khanas from Google Maps → import
+- [ ] **Phase 4** — halal restaurants + hotels (Google Maps and Zaki's own lists) → import
+- [ ] **Phase 5** — Gemini check pass on each CSV before import
 - [ ] Office numbers, representatives and contacts → via `/contribute` (needs
       consent, so not bulk-imported); a contacts importer can follow if a
       consented list exists
@@ -129,6 +137,9 @@ Excel download/upload. Expand to a tabbed dashboard:
 - [ ] **Custom domain** (see `docs/DEPLOYMENT.md`).
 - [ ] **Web Analytics** — set `CF_ANALYTICS_TOKEN` as a build var.
 - [ ] Lighthouse check against the deployed site (Perf 90+, A11y 100, JS < 50KB gz).
+- [ ] Regenerate `docs/jamaat-body-briefing.docx`, `public/ksij-directory-briefing.pdf`
+      and the `/howitworks` page from the updated `docs/jamaat-body-briefing.md`
+      (they still describe the Google Form intake)
 - [ ] Retire the Google Form / Apps Script intake once in-site flows cover
       everything (`docs/apps-script.gs`).
 
