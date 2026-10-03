@@ -25,6 +25,12 @@ directly (`npm run import:listings`, see `data/README.md`).
 
 ## Phase 1: Find the jamaats and pick the 15 cities
 
+> **Done once already (3 Oct 2026).** The checked long-list is
+> `data/reference/india-jamaats-khojapedia.csv` (65 jamaats from the India
+> Federation list on KhojaPedia). Gemini's own attempt padded North and East
+> with unsupported rows, so prefer the reference list and use Gemini only to
+> estimate jamaat sizes for it.
+
 Goal: a long list of Khoja Shia Ithna Ashari jamaats in India, so **you** can
 pick 15 pilot cities: **5 states (one per region: North, South, East, West,
 Central) × 3 jamaat sizes**, mixing complete, partial and sparse cities.

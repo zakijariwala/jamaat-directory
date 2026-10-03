@@ -40,4 +40,6 @@ questions are at the bottom (and in `TODO.md` §7).
 | Domain name | — | Committee |
 | Endorsement before launch | which jamaat body, and does it change what may be published | Committee |
 | Moderator logins | one shared passcode (current) / a login per moderator | Zaki |
+| Pilot regions | KhojaPedia lists no jamaats in North or East India, so "one state per region" can't be met. Options: the 5 states that have jamaats (Gujarat, Maharashtra, Karnataka, Telangana, Chhattisgarh); or keep the region plan and add North/East cities as listing-only (masjid/food/hotel, no jamaat) | Zaki |
+| Several jamaats in one town | e.g. Mahuva (6), Talaja (4), Nagpur (3), Ahmedabad (2). The model has one jamaat name per city. Options: list village jamaats under their own village name; combine names; add multi-jamaat support | Zaki |
 | Representatives per jamaat | exactly one (auto-replace on approve) / several | Zaki |

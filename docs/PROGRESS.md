@@ -33,7 +33,7 @@ partial, 5 sparse. Data is collected with `docs/gemini-data-prompts.md`.
 
 | Phase | What | State |
 |---|---|---|
-| 1 | Jamaat long-list → pick 15 cities | ☐ not started |
+| 1 | Jamaat long-list → pick 15 cities | ◐ long-list done (`data/reference/india-jamaats-khojapedia.csv`, 65 jamaats); city choice waiting on the region decision |
 | 2 | Jamaat rows (name, stations, office number) | ☐ |
 | 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ☐ |
 | 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ☐ |
@@ -85,4 +85,5 @@ Fill in after Phase 1. Target = complete / partial / sparse.
 | Date | What happened |
 |---|---|
 | Jul 2026 | Stages 1–8 built and deployed; in-site intake + moderation added |
+| 3 Oct 2026 | Phase 1: Gemini's list checked against KhojaPedia's India Federation list. Real jamaats exist only in Gujarat (51), Maharashtra (11), Karnataka, Telangana, Chhattisgarh (1 each); Gemini's North/East rows were unsupported. Region plan needs revisiting. |
 | 3 Oct 2026 | Status review; TODO created; office number + representative; bulk importer; 15-city pilot plan incl. incomplete cities; pages from live DB + Publish to site; db:clear; Gemini data prompts; PROGRESS / DECISIONS / DEPENDENCIES docs |
