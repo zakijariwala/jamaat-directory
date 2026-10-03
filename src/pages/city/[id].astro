@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import { buildSnapshot } from '../../lib/snapshot';
 import { formatVerified } from '../../lib/format';
-import { FORM_URL } from '../../lib/config';
+import { FORM_URL, addContactUrl } from '../../lib/config';
 import { cities, contacts, facilities } from '../../data/seed';
 import type { PublicCity, PublicFacility } from '../../lib/types';
 
@@ -38,6 +38,14 @@ function facilityChipIcon(chip: string): string {
   if (c.includes('ziyarat')) return 'location_on';
   return 'check';
 }
+
+// What this city is still missing. Incomplete cities are normal (the pilot
+// deliberately publishes them) — say so plainly and invite a contribution.
+const missing: string[] = [
+  !city.has.contact && 'a local contact',
+  !city.has.masjid && 'a masjid or imambargah',
+  !city.has.stay && !city.has.hotel && 'somewhere to stay',
+].filter((m): m is string => !!m);
 
 const chargesLabel: Record<string, string> = {
   free: 'FREE',
@@ -445,6 +453,20 @@ const revealActionBtn =
         }
       </div>
     </div>
+
+    {
+      missing.length > 0 && (
+        <section class="mt-10 p-4 border-[2px] border-dashed border-outline-variant bg-surface-container flex flex-col gap-2" aria-label="Not listed yet">
+          <p class="text-label-caps font-label-caps uppercase text-on-surface-variant">Not listed yet</p>
+          <p class="text-body-lg font-body-lg">
+            We don't have {missing.join(', ').replace(/, ([^,]*)$/, ' or $1')} for {city.name} yet.
+          </p>
+          <a href={addContactUrl(city.name)} class="self-start text-primary hover:text-primary-container underline font-data-mono text-data-mono flex items-center gap-1">
+            <Icon name="add" size={16} /> Know one? Add it
+          </a>
+        </section>
+      )
+    }
 
     <!-- Page footer: report / remove -->
     <footer class="mt-12 pt-6 border-t-[2px] border-on-background flex flex-col gap-2">

@@ -33,13 +33,25 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
 ## 2. Seed data — 15-city pilot 🔴
 
 Plan: **5 states (one per region) × 3 jamaat sizes** (metro / mid-size / small
-town) = 15 complete city pages, measured by jamaat size, not city population.
+town) = 15 cities, measured by jamaat size, not city population.
 
-A city is *complete* when it has: jamaat name, state, nearest rail/air ·
+**Deliberately a mix of complete and incomplete cities**, so the pilot shows
+the real-world picture (most towns won't have everything):
+
+| Mix | Roughly | Example of what's there |
+|---|---|---|
+| Complete | ~5 | office + representative + contacts + masjid + stay (+ restaurant) |
+| Partial | ~5 | e.g. a contact and a masjid, no stay; or a masjid and hotels, no contact |
+| Sparse | ~5 | a single item — one contact, or only halal restaurants/hotels from a supplied list |
+
+*Complete* is a target, not a gate: jamaat name, state, nearest rail/air ·
 jamaat office number (if an office exists) **and** a named representative ·
 1–2 more consented contacts · masjid/imambargah · musafir khana or hotel ·
 restaurant optional.
 
+- [x] Incomplete city pages show a **"Not listed yet"** box naming what's
+      missing (contact / masjid / stay) with an "Add it" link to `/contribute`
+- [ ] Check the home index and search read well with many sparse cities
 - [x] Bulk import for supplied lists — `npm run import:listings` (see `data/README.md`)
 - [x] CSV template — `data/templates/listings-template.csv`
 - [x] Guard on `npm run db:seed` (it wipes the remote DB; now asks for confirmation)
