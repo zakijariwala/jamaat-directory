@@ -1,12 +1,13 @@
-// Guard for `npm run db:seed`: loading the sample seed into the REMOTE database
-// first DELETES every city, contact, facility and flag — including real data.
-// Requires typing the database name to continue.
+// Guard for commands that wipe the REMOTE database (`npm run db:seed`,
+// `npm run db:clear`). Requires typing the database name to continue.
+// Pass a description of what happens next as the first argument.
 
 import { createInterface } from 'node:readline/promises';
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
-console.log('\n⚠️  This WIPES the live database (all cities, contacts, listings, reports)');
-console.log('   and replaces it with the fictional sample data.');
+const what = process.argv[2] ?? 'and replaces it with the fictional sample data.';
+console.log('\n⚠️  This WIPES data in the live database');
+console.log(`   ${what}`);
 const answer = await rl.question('   Type "jamaat_directory" to continue: ');
 rl.close();
 if (answer.trim() !== 'jamaat_directory') {

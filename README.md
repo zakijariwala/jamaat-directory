@@ -133,6 +133,17 @@ wrangler pages secret put TURNSTILE_SECRET  # Cloudflare Turnstile server key
   found on Google. Flip to `"false"` only if the committee chooses the fully
   public posture. This is the single flag for the open access-posture decision.
 
+### How pages get their data
+
+Production builds (`npm run build` / `deploy`, Cloudflare Git builds) render
+the home and city pages from the **live** `/directory.json` (D1). The build
+fails rather than fall back to sample data. `npm run dev` uses `seed.ts`.
+
+- `DIRECTORY_SOURCE=seed` forces sample data (offline builds).
+- `DIRECTORY_SOURCE_URL` overrides the snapshot URL (default: the production site).
+- `DEPLOY_HOOK_URL` (Pages secret) lets **Publish to site** in `/moderate`
+  rebuild the site after approvals.
+
 ## Privacy guarantees (enforced in code)
 
 1. **No phone number ever appears in `directory.json`.** `buildSnapshot()` builds
@@ -188,7 +199,7 @@ Cloudflare/Google resources and deploying (see **Deploy** and `handover.md`).
   - `NOINDEX` — `"true"` (default) ships `noindex` + a disallow `robots.txt`.
   - `CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token; unset = no beacon.
 - **Runtime secrets** (`wrangler pages secret put …`, or `.dev.vars` locally):
-  - `INGEST_SECRET`, `TURNSTILE_SECRET`.
+  - `INGEST_SECRET`, `TURNSTILE_SECRET`, `ADMIN_PASSCODE`, `DEPLOY_HOOK_URL`.
 
 ## Performance / accessibility targets (acceptance criteria)
 

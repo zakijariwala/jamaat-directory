@@ -13,8 +13,9 @@
 
 import { verifyTurnstile } from '../../src/lib/turnstile';
 import type { FlagKind, FlagTarget } from '../../src/lib/types';
+import { triggerRebuild, type PublishEnv } from '../../src/lib/publish';
 
-interface Env {
+interface Env extends PublishEnv {
   DB?: D1Database;
   TURNSTILE_SECRET?: string;
 }
@@ -26,7 +27,7 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   let body: { target_type?: string; target_id?: string; kind?: string; reason?: string; cf_token?: string };
   try {
     body = await request.json();
@@ -69,5 +70,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   await env.DB.batch(statements);
+  if (kind === 'removal_request') {
+    // Take the name off the static city page too (the number is already
+    // unrevealable). Throttled: public endpoint, so at most one build / 10 min.
+    waitUntil(triggerRebuild(env, 600).catch(() => undefined));
+  }
   return json({ ok: true, id: flagId });
 };

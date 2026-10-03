@@ -1,16 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import { buildSnapshot } from '../lib/snapshot';
+import { loadDirectory } from '../lib/directory-source';
 import { normalize } from '../lib/search';
 import { relativeDays } from '../lib/format';
 import { addContactUrl, FORM_URL } from '../lib/config';
-import { cities, contacts, facilities } from '../data/seed';
 import type { PublicCity } from '../lib/types';
 
-// Build-time snapshot from seed. Server-rendered so the index works with JS
-// disabled (a11y floor) and paints instantly; client search enhances it.
-const snap = buildSnapshot(cities, contacts, facilities);
+// Build-time snapshot (live directory in production, seed in dev — see
+// lib/directory-source). Server-rendered so the index works with JS disabled
+// (a11y floor) and paints instantly; client search enhances it.
+const snap = await loadDirectory();
 
 // Group by state; states alphabetical; cities already alphabetical within.
 const byState = new Map<string, PublicCity[]>();

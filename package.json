@@ -20,7 +20,8 @@
     "db:seed": "tsx scripts/confirm-wipe.ts && npm run gen:seed-sql && wrangler d1 execute jamaat_directory --remote --file=./seed.sql",
     "import:listings": "tsx scripts/import-listings.ts",
     "gen:purge-samples": "tsx scripts/gen-purge-samples-sql.ts",
-    "db:purge-samples": "npm run gen:purge-samples && wrangler d1 execute jamaat_directory --remote --file=./purge-samples.sql"
+    "db:purge-samples": "npm run gen:purge-samples && wrangler d1 execute jamaat_directory --remote --file=./purge-samples.sql",
+    "db:clear": "tsx scripts/confirm-wipe.ts \"and leaves it EMPTY.\" && wrangler d1 execute jamaat_directory --remote --file=./scripts/clear-all.sql"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260723.1",

@@ -189,13 +189,11 @@ Found during the first real Cloudflare deploy, fixed in the repo:
 
 ## 11. Page-building model (important architecture note)
 
-The **data** (`/directory.json`) is always live from D1; the **HTML pages** (home
-index + `/city/[id]`) are generated **at build time from `src/data/seed.ts`**. So
-a city added via the Form lands in D1 and appears in `/directory.json`
-immediately, but its rendered page waits for a rebuild. Before launch, decide
-between (A) trigger a Pages rebuild on ingest, or (B) client-render the list/city
-pages from `directory.json`. Full explanation with diagrams:
-`docs/how-it-works.html`.
+Production builds render the home index and `/city/[id]` pages from the
+**live** `/directory.json` (D1) — see `src/lib/directory-source.ts`. Approving
+an entry updates D1 immediately; the pages update after **Publish to site** in
+`/moderate` (Pages deploy hook, `DEPLOY_HOOK_URL` secret) or `npm run deploy`.
+`npm run dev` still uses `src/data/seed.ts`.
 
 ---
 
@@ -209,7 +207,7 @@ pages from `directory.json`. Full explanation with diagrams:
 4. **Domain name.**
 5. **Any jamaat body whose endorsement should precede launch**, and whether that
    changes what may be published.
-6. **Frontend page-building strategy** (§11) — rebuild-on-write vs client-render.
+6. ~~Frontend page-building strategy~~ — decided: build from live D1 + publish button (§11).
 
 ---
 

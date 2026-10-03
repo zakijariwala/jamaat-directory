@@ -6,6 +6,15 @@ Up-to-date list of what's left before and after launch. Last updated: 3 October 
 (unlisted, `noindex`) running the latest `main`. 60 tests pass, typecheck and
 build are clean. Every entry is still fictional sample data.
 
+**Go-live sequence for this round:**
+1. On the branch: `npm run db:migrate` (adds office / representative / source
+   columns — do this **before** merging, or `/contribute` submissions fail)
+2. `npm run db:clear` (empties the live DB; type `jamaat_directory` to confirm)
+3. Merge `feat/seed-import-and-representative` into `main`
+4. Create the deploy hook + `npx wrangler pages secret put DEPLOY_HOOK_URL`
+5. `npm run deploy` (site rebuilds from the now-empty live DB)
+6. Import supplied lists → approve in `/moderate` → **Publish to site**
+
 Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch / polish
 
 ---
@@ -14,13 +23,17 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
 
 - [ ] **Real data — 15-city pilot** (see §2). No hand-typed seed: data comes from
       supplied lists (bulk import) and `/contribute`.
-- [ ] **Approvals must reach the city pages.** City pages are built from
-      `seed.ts` at build time, so an approved D1 entry only shows on its city
-      page after a rebuild — **imported listings won't appear on city pages
-      until this is fixed.** Pick one: client-render city/home pages from
-      `/directory.json` (recommended), or trigger a Pages rebuild on approve.
-- [ ] **Remove sample data** from the live D1 once real data is approved:
-      `npm run db:purge-samples` (deletes only the `seed.ts` ids).
+- [x] **Approvals reach the city pages.** Production builds now render the
+      home + city pages from the live `/directory.json` (D1), not `seed.ts`,
+      and refuse to build if it's unreachable. `/moderate` has **Publish to
+      site** (rebuild via deploy hook); removal requests trigger a rebuild too.
+- [ ] **Create the deploy hook** (Cloudflare → Pages → jamaat-directory →
+      Settings → Builds → Deploy hooks, branch `main`) and save it:
+      `npx wrangler pages secret put DEPLOY_HOOK_URL`. Without it, run
+      `npm run deploy` after approving instead.
+- [ ] **Clear the live D1** (approved — no real submissions; the 12th live
+      city, Mahuva, was a test): `npm run db:clear`, then `npm run deploy`.
+      (`npm run db:purge-samples` remains for removing only the sample rows.)
 - [ ] **Turnstile (bot protection).** Create the Turnstile site, set
       `TURNSTILE_SITE_KEY` in `src/lib/config.ts`, then
       `wrangler pages secret put TURNSTILE_SECRET`. Covers `/contribute`,
@@ -146,4 +159,5 @@ Excel download/upload. Expand to a tabbed dashboard:
 - Nightly backup Worker (code ready, not deployed)
 - Jamaat office number + representative (code; live DB migration pending)
 - Bulk listing importer, sample purge, remote-seed guard
+- Pages built from the live DB + Publish to site; "Not listed yet" on incomplete cities
 - Deployed to Cloudflare Pages with D1 + KV; `noindex` on by default

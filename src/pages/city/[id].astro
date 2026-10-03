@@ -1,14 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
-import { buildSnapshot } from '../../lib/snapshot';
+import { loadDirectory } from '../../lib/directory-source';
 import { formatVerified } from '../../lib/format';
 import { FORM_URL, addContactUrl } from '../../lib/config';
-import { cities, contacts, facilities } from '../../data/seed';
 import type { PublicCity, PublicFacility } from '../../lib/types';
 
-export function getStaticPaths() {
-  const snap = buildSnapshot(cities, contacts, facilities);
+export async function getStaticPaths() {
+  const snap = await loadDirectory();
   return snap.cities.map((city) => ({ params: { id: city.id }, props: { city } }));
 }
 
