@@ -149,7 +149,21 @@ Using Google Maps, for each city below find:
 2. Musafir khanas (community guest houses) run by the jamaat or a Shia trust.
 
 Cities:
-<paste city, state for your 15 cities>
+Bhavnagar, Gujarat
+Ahmedabad, Gujarat
+Vadodara, Gujarat
+Jamnagar, Gujarat
+Una, Gujarat
+Pithalpur, Gujarat (village near Talaja)
+Mumbai, Maharashtra
+Pune, Maharashtra
+Nagpur, Maharashtra
+Sangli, Maharashtra
+Chandrapur, Maharashtra
+Hinganghat, Maharashtra
+Bengaluru, Karnataka
+Hyderabad, Telangana
+Raipur, Chhattisgarh
 
 Rules:
 - Only places that exist on Google Maps. maps_url must be the place's real
@@ -188,8 +202,22 @@ Using Google Maps, for each city below find halal restaurants and hotels
 useful to a Shia Muslim traveller, as close as possible to the jamaat or its
 masjid/imambargah.
 
-Cities (with the jamaat's area if known):
-<paste city, state, area>
+Cities (use the jamaat / masjid locations you found earlier as the centre):
+Bhavnagar, Gujarat
+Ahmedabad, Gujarat
+Vadodara, Gujarat
+Jamnagar, Gujarat
+Una, Gujarat
+Pithalpur, Gujarat (village near Talaja)
+Mumbai, Maharashtra
+Pune, Maharashtra
+Nagpur, Maharashtra
+Sangli, Maharashtra
+Chandrapur, Maharashtra
+Hinganghat, Maharashtra
+Bengaluru, Karnataka
+Hyderabad, Telangana
+Raipur, Chhattisgarh
 
 Restaurants: up to 5 per city.
 - Prefer places that say halal on their listing or menu, are well-known
