@@ -70,35 +70,60 @@ cities that will be complete, 5 partial and 5 sparse. Write the 15 into
 ## Phase 2: Jamaat details (one row per pilot city)
 
 Goal: the city's own row: jamaat name, nearest station and airport, old city
-names, and the **jamaat office number** if it is publicly listed.
+names, the **jamaat office number** if it is publicly listed, and a size
+estimate so you can set each city's target (complete / partial / sparse).
+The 15 cities are already filled in from `data/reference/pilot-cities.csv`.
 
 ```text
-For each of these cities, give me the details of its Khoja Shia Ithna Ashari
-jamaat:
+For each of these Khoja Shia Ithna Ashari (KSI) jamaats in India, find the
+details below. All of them are on the Council of All KSI Jamaats (India
+Federation) list, so they exist; your job is to find their details.
 
-<paste your 15 rows: city, state, jamaat name>
+city | state | jamaat
+Bhavnagar | Gujarat | KSIJ of Bhavnagar
+Ahmedabad | Gujarat | Kalupur Jamaat & Sarkhej Jamaat (two jamaats; give details for both in one row, notes says which is which)
+Vadodara | Gujarat | Baroda Jamaat
+Jamnagar | Gujarat | Jamnagar Jamaat
+Una | Gujarat | Una Jamaat
+Pithalpur | Gujarat | Pithalpur Jamaat (village near Talaja, Bhavnagar district)
+Mumbai | Maharashtra | KSIJ of Mumbai
+Pune | Maharashtra | Khoja Shia Isna Ashari Jamaat of Pune
+Nagpur | Maharashtra | Nagpur Jamaat
+Sangli | Maharashtra | Masjid-e-Ali Ibne Abu Talib - Sangli Jamaat
+Chandrapur | Maharashtra | KSIJ Chandrapur
+Hinganghat | Maharashtra | Khoja Shia Isna Ashri Jamaat Hinganghat
+Bengaluru | Karnataka | KSIJ Bangalore
+Hyderabad | Telangana | Khoja Shia Isna Ashri Jamaat Hyderabad
+Raipur | Chhattisgarh | KSIJ Raipur
 
-For each city find:
-- The jamaat's full official name.
+For each jamaat find:
+- The jamaat's full official name (keep the name above if you find nothing better).
 - Nearest railway station, written as "Station Name (CODE)", e.g. "Pune Junction (PUNE)".
 - Nearest airport, written as "City (IATA)", e.g. "Pune (PNQ)". If the nearest
   airport is in another city, name that one.
 - Old or alternative city names people still search for (e.g. Bombay, Poona,
-  Baroda), separated by ";". Leave empty if none.
+  Baroda, Bangalore), separated by ";". Leave empty if none.
 - The jamaat OFFICE phone number, ONLY if it is publicly listed on the
   jamaat's Google Maps listing or official website. Never a person's mobile.
   Leave empty if not found.
+- size_estimate: large (big community, office, several institutions),
+  medium (one jamaat with a masjid/imambargah), small (few families),
+  or unknown. size_evidence: one short reason.
 - A source URL for the phone number (or for the jamaat if there's no phone).
 
-Do not guess. Leave a cell empty if you cannot find it.
+Do not guess. Leave a cell empty if you cannot find it. Keep the city names
+spelled exactly as in the list above.
 
 Output ONE CSV in a code block with exactly these columns:
-kind,name,city,state,nearest_rail,nearest_air,aliases,phone,notes,source
+kind,name,city,state,nearest_rail,nearest_air,aliases,phone,size_estimate,size_evidence,notes,source
 
 Set kind to "jamaat" on every row. name = the jamaat's full name.
 notes = anything a traveller should know about reaching the jamaat (optional,
 one short sentence, public).
 ```
+
+The importer ignores `size_estimate` and `size_evidence`; copy them into the
+pilot table in `docs/PROGRESS.md` and set each city's target there.
 
 Save as `data/imports/phase-2-jamaats.csv`, then:
 

@@ -49,8 +49,9 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
 
 ## 2. Seed data — 15-city pilot 🔴
 
-Plan: **5 states (one per region) × 3 jamaat sizes** (metro / mid-size / small
-town) = 15 cities, measured by jamaat size, not city population.
+Plan (decision 22): **the 5 states that have jamaats** — Gujarat 6,
+Maharashtra 6, Karnataka / Telangana / Chhattisgarh 1 each; North and East
+later as listing-only cities.
 
 **Deliberately a mix of complete and incomplete cities**, so the pilot shows
 the real-world picture (most towns won't have everything):
@@ -75,8 +76,9 @@ restaurant optional.
 - [x] `npm run db:purge-samples` — removes only the fictional rows
 - [x] Importer also takes `jamaat` rows (jamaat name, stations, office number, old names)
 - [x] Gemini prompts for each data phase — `docs/gemini-data-prompts.md`
-- [ ] **Phase 1** — Gemini jamaat list → **pick the 15 cities** (owner: Zaki)
-- [ ] **Phase 2** — jamaat rows (name, stations, office number) → import
+- [x] **Phase 1** — jamaat long-list (`data/reference/india-jamaats-khojapedia.csv`)
+      → 15 cities proposed (`data/reference/pilot-cities.csv`; decision 22)
+- [ ] **Phase 2** — jamaat rows (name, stations, office number, size estimate) → import
 - [ ] **Phase 3** — masjids / imambargahs / musafir khanas from Google Maps → import
 - [ ] **Phase 4** — halal restaurants + hotels (Google Maps and Zaki's own lists) → import
 - [ ] **Phase 5** — Gemini check pass on each CSV before import
@@ -152,7 +154,7 @@ Excel download/upload. Expand to a tabbed dashboard:
 - [ ] Which jamaat body (if any) must endorse before launch, and does that
       change what may be published.
 - [x] Jamaat office number vs. named representative → **both** (§3).
-- [ ] Restaurants in towns with no jamaat: attach to nearest jamaat city, or allow listing-only cities?
+- [x] Restaurants in towns with no jamaat → listing-only cities (decisions 11, 22).
 - [ ] Shared passcode vs. per-moderator logins (§4).
 
 ---

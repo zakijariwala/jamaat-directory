@@ -14,7 +14,7 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 | Live data | Fictional samples + 1 test city (Mahuva). To be cleared at go-live. |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
 | Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet" |
-| Next | Go-live steps (below), then pilot data phases 1–5 |
+| Next | Go-live steps (below), then pilot data phase 2 |
 
 ## Go-live steps for the open PR (in order)
 
@@ -28,38 +28,41 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 
 ## Pilot data (15 cities)
 
-Plan: 5 states (one per region) × 3 jamaat sizes; roughly 5 complete, 5
-partial, 5 sparse. Data is collected with `docs/gemini-data-prompts.md`.
+Plan (decision 22): the 5 states that have jamaats: Gujarat 6, Maharashtra 6,
+Karnataka, Telangana, Chhattisgarh 1 each. Mix complete / partial / sparse.
+North and East come later as listing-only cities. Data is collected with
+`docs/gemini-data-prompts.md`; the city list is `data/reference/pilot-cities.csv`.
 
 | Phase | What | State |
 |---|---|---|
-| 1 | Jamaat long-list → pick 15 cities | ◐ long-list done (`data/reference/india-jamaats-khojapedia.csv`, 65 jamaats); city choice waiting on the region decision |
-| 2 | Jamaat rows (name, stations, office number) | ☐ |
+| 1 | Jamaat long-list → pick 15 cities | ✅ list proposed (below); sizes come from Phase 2 |
+| 2 | Jamaat rows (name, stations, office number) + size estimate | ☐ |
 | 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ☐ |
 | 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ☐ |
 | 5 | Check pass, import, approve, Publish to site | ☐ |
 
 ### Pilot cities
 
-Fill in after Phase 1. Target = complete / partial / sparse.
+Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
+(complete / partial / sparse) are filled in after Phase 2.
 
-| # | Region | State | City | Jamaat size | Target | Jamaat row | Masjid | Stay | Food | Contacts | Live |
+| # | State | City | Jamaat | Size | Target | Jamaat row | Masjid | Stay | Food | Contacts | Live |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | North | | | large | | | | | | | |
-| 2 | North | | | medium | | | | | | | |
-| 3 | North | | | small | | | | | | | |
-| 4 | South | | | large | | | | | | | |
-| 5 | South | | | medium | | | | | | | |
-| 6 | South | | | small | | | | | | | |
-| 7 | East | | | large | | | | | | | |
-| 8 | East | | | medium | | | | | | | |
-| 9 | East | | | small | | | | | | | |
-| 10 | West | | | large | | | | | | | |
-| 11 | West | | | medium | | | | | | | |
-| 12 | West | | | small | | | | | | | |
-| 13 | Central | | | large | | | | | | | |
-| 14 | Central | | | medium | | | | | | | |
-| 15 | Central | | | small | | | | | | | |
+| 1 | Gujarat | Bhavnagar | KSIJ of Bhavnagar | | | | | | | | |
+| 2 | Gujarat | Ahmedabad | Kalupur Jamaat & Sarkhej Jamaat | | | | | | | | |
+| 3 | Gujarat | Vadodara | Baroda Jamaat | | | | | | | | |
+| 4 | Gujarat | Jamnagar | Jamnagar Jamaat | | | | | | | | |
+| 5 | Gujarat | Una | Una Jamaat | | | | | | | | |
+| 6 | Gujarat | Pithalpur | Pithalpur Jamaat | | | | | | | | |
+| 7 | Maharashtra | Mumbai | KSIJ of Mumbai | | | | | | | | |
+| 8 | Maharashtra | Pune | Khoja Shia Isna Ashari Jamaat of Pune | | | | | | | | |
+| 9 | Maharashtra | Nagpur | Nagpur Jamaat | | | | | | | | |
+| 10 | Maharashtra | Sangli | Masjid-e-Ali Ibne Abu Talib - Sangli Jamaat | | | | | | | | |
+| 11 | Maharashtra | Chandrapur | KSIJ Chandrapur | | | | | | | | |
+| 12 | Maharashtra | Hinganghat | Khoja Shia Isna Ashri Jamaat Hinganghat | | | | | | | | |
+| 13 | Karnataka | Bengaluru | KSIJ Bangalore | | | | | | | | |
+| 14 | Telangana | Hyderabad | Khoja Shia Isna Ashri Jamaat Hyderabad | | | | | | | | |
+| 15 | Chhattisgarh | Raipur | KSIJ Raipur | | | | | | | | |
 
 ## Feature status
 

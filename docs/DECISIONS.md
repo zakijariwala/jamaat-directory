@@ -8,12 +8,14 @@ questions are at the bottom (and in `TODO.md` §7).
 
 | # | Date | Decision | Why | Alternatives considered |
 |---|---|---|---|---|
+| 23 | 3 Oct 2026 | Several jamaats in one area: **village jamaats are listed under their own village name**; jamaats sharing one city get a combined name (e.g. "Kalupur Jamaat & Sarkhej Jamaat") | It's what travellers search for; no code change | Multi-jamaat support per city |
+| 22 | 3 Oct 2026 | Pilot uses the **5 states that have jamaats**: Gujarat (6), Maharashtra (6), Karnataka, Telangana, Chhattisgarh (1 each). North and East come later as **listing-only cities** (masjid / food / hotels, no jamaat) | KhojaPedia's India Federation list has jamaats only in these states; Gemini's North/East rows were unsupported | Keep one state per region |
 | 21 | 3 Oct 2026 | A removal request triggers a site rebuild, throttled to once per 10 min | Takes the name off the static page; the endpoint is public, so throttling protects the build allowance | Rebuild on every removal; never |
 | 20 | 3 Oct 2026 | Cleared to empty the live database (`npm run db:clear`) | Zaki confirmed there are no real submissions; Mahuva was a test | Purge only the sample rows |
 | 19 | 3 Oct 2026 | Production builds **fail** if the live directory can't be read | Never silently publish sample data | Fall back to `seed.ts` |
 | 18 | 3 Oct 2026 | **Pages are built from the live DB**, with a **Publish to site** button (Pages deploy hook) | Keeps pages static: fast on 3G, work without JS, reuse the existing templates. Batch approvals then one rebuild (~2 min) | Client-render city pages from `/directory.json` (instant, but needs JS and a template rewrite); rebuild on every approval (burns build quota) |
 | 17 | 3 Oct 2026 | Pilot **includes incomplete cities**; city pages show a "Not listed yet" box | Shows the realistic picture: most towns won't have everything | Only publish complete cities |
-| 16 | 3 Oct 2026 | Pilot = **15 cities: 5 states (one per region) × 3 jamaat sizes**, sized by jamaat not city population | Covers all regions and page shapes with a manageable data effort | Chain-first seeding (e.g. all KGN restaurants in two states) |
+| 16 | 3 Oct 2026 | *(Superseded by 22.)* Pilot = **15 cities: 5 states (one per region) × 3 jamaat sizes**, sized by jamaat not city population | Covers all regions and page shapes with a manageable data effort | Chain-first seeding (e.g. all KGN restaurants in two states) |
 | 15 | 3 Oct 2026 | **No hand-typed seed data.** Real data comes from supplied lists (bulk import) and `/contribute`; Gemini + Google Maps used to collect lists | Repeatable, auditable, and every row is moderated | Editing `seed.ts` by hand |
 | 14 | 3 Oct 2026 | **People are never bulk-imported** (contacts, representatives) | They must give permission; that's captured in `/contribute` | Importing contact lists |
 | 13 | 3 Oct 2026 | A jamaat gets **both** an office number and a named official representative | Office when there is one; a person as the fallback, especially for small jamaats | Only one of the two |
@@ -40,6 +42,4 @@ questions are at the bottom (and in `TODO.md` §7).
 | Domain name | — | Committee |
 | Endorsement before launch | which jamaat body, and does it change what may be published | Committee |
 | Moderator logins | one shared passcode (current) / a login per moderator | Zaki |
-| Pilot regions | KhojaPedia lists no jamaats in North or East India, so "one state per region" can't be met. Options: the 5 states that have jamaats (Gujarat, Maharashtra, Karnataka, Telangana, Chhattisgarh); or keep the region plan and add North/East cities as listing-only (masjid/food/hotel, no jamaat) | Zaki |
-| Several jamaats in one town | e.g. Mahuva (6), Talaja (4), Nagpur (3), Ahmedabad (2). The model has one jamaat name per city. Options: list village jamaats under their own village name; combine names; add multi-jamaat support | Zaki |
 | Representatives per jamaat | exactly one (auto-replace on approve) / several | Zaki |
