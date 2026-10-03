@@ -8,7 +8,8 @@ questions are at the bottom (and in `TODO.md` §7).
 
 | # | Date | Decision | Why | Alternatives considered |
 |---|---|---|---|---|
-| 24 | 3 Oct 2026 | Pilot data files are **committed** in `data/pilot/` (not the gitignored `data/imports/`) | They hold no personal numbers, and the import has to run from Zaki's laptop | Keep them local only |
+| 25 | 3 Oct 2026 | Restaurants are **screened for halal** before import: no pure-veg, dhaba, bar-style or unnamed places; `halal` stays "Not sure" unless confirmed | A halal directory listing a non-halal place breaks trust | List everything Gemini returns |
+| 24 | 3 Oct 2026 | Pilot data files are **committed** in `data/pilot/` (not the gitignored `data/imports/`) | They hold only businesses' public numbers (no personal ones), and the import has to run from Zaki's laptop | Keep them local only |
 | 23 | 3 Oct 2026 | Several jamaats in one area: **village jamaats are listed under their own village name**; jamaats sharing one city get a combined name (e.g. "Kalupur Jamaat & Sarkhej Jamaat") | It's what travellers search for; no code change | Multi-jamaat support per city |
 | 22 | 3 Oct 2026 | Pilot uses the **5 states that have jamaats**: Gujarat (6), Maharashtra (6), Karnataka, Telangana, Chhattisgarh (1 each). North and East come later as **listing-only cities** (masjid / food / hotels, no jamaat) | KhojaPedia's India Federation list has jamaats only in these states; Gemini's North/East rows were unsupported | Keep one state per region |
 | 21 | 3 Oct 2026 | A removal request triggers a site rebuild, throttled to once per 10 min | Takes the name off the static page; the endpoint is public, so throttling protects the build allowance | Rebuild on every removal; never |

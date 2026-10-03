@@ -83,6 +83,9 @@ restaurant optional.
 - [x] **Phase 4** — 28 restaurants / hotels in 7 cities → `data/pilot/phase-4-food-hotels.csv`
 - [x] **Phase 5** — verified manually (Zaki)
 - [ ] **Import:** `npm run db:import-pilot` (after go-live steps) → approve → Publish to site
+- [x] Phase 4b — food + hotels for the 8 cities Gemini skipped (`phase-4b-food-hotels.csv`)
+- [ ] Halal restaurant for Bhavnagar, Hinganghat, Pithalpur
+- [ ] Confirm halal for Sigdi (Jamnagar), Hyderabad Swadh (Chandrapur)
 - [ ] Masjid / stay for Vadodara, Jamnagar, Una, Pithalpur, Nagpur, Chandrapur, Hinganghat, Raipur — via local jamaat contacts
 - [ ] Replace Google Maps search links with place share links
 - [ ] Office numbers, representatives and contacts → via `/contribute` (needs

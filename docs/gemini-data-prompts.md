@@ -260,6 +260,16 @@ Save as `data/imports/phase-4-food-hotels.csv`, then:
 npm run import:listings -- data/imports/phase-4-food-hotels.csv
 ```
 
+**If Gemini covers only some cities** (it stops when the answer gets long),
+ask again for just the missing ones in a new chat, telling it every city has
+results and to stop after 4 cities and wait for "continue". A short list does
+not mean a city has no halal food or hotels.
+
+**Screen for halal before importing.** Drop pure-veg places, dhabas, bars and
+unnamed listings; keep Muslim-named places or ones in Muslim areas, and leave
+`halal` as "Not sure" unless it is confirmed. Check the address is actually in
+(or nearest to) the city in the `city` column.
+
 **Your own lists** (for example a KGN restaurant list) go through the same
 command. Add `--kind restaurant` if the file has no `kind` column.
 
