@@ -36,7 +36,7 @@ North and East come later as listing-only cities. Data is collected with
 | Phase | What | State |
 |---|---|---|
 | 1 | Jamaat long-list → pick 15 cities | ✅ list proposed (below); sizes come from Phase 2 |
-| 2 | Jamaat rows (name, stations, office number) + size estimate | ☐ |
+| 2 | Jamaat rows (name, stations, office number) + size estimate | ◐ CSV checked 3 Oct (15 rows import cleanly; no office numbers found; Una station to verify); sizes marked `?` are Gemini estimates for Zaki to confirm |
 | 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ☐ |
 | 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ☐ |
 | 5 | Check pass, import, approve, Publish to site | ☐ |
@@ -48,21 +48,21 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 
 | # | State | City | Jamaat | Size | Target | Jamaat row | Masjid | Stay | Food | Contacts | Live |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Gujarat | Bhavnagar | KSIJ of Bhavnagar | | | | | | | | |
-| 2 | Gujarat | Ahmedabad | Kalupur Jamaat & Sarkhej Jamaat | | | | | | | | |
-| 3 | Gujarat | Vadodara | Baroda Jamaat | | | | | | | | |
-| 4 | Gujarat | Jamnagar | Jamnagar Jamaat | | | | | | | | |
-| 5 | Gujarat | Una | Una Jamaat | | | | | | | | |
-| 6 | Gujarat | Pithalpur | Pithalpur Jamaat | | | | | | | | |
-| 7 | Maharashtra | Mumbai | KSIJ of Mumbai | | | | | | | | |
-| 8 | Maharashtra | Pune | Khoja Shia Isna Ashari Jamaat of Pune | | | | | | | | |
-| 9 | Maharashtra | Nagpur | Nagpur Jamaat | | | | | | | | |
-| 10 | Maharashtra | Sangli | Masjid-e-Ali Ibne Abu Talib - Sangli Jamaat | | | | | | | | |
-| 11 | Maharashtra | Chandrapur | KSIJ Chandrapur | | | | | | | | |
-| 12 | Maharashtra | Hinganghat | Khoja Shia Isna Ashri Jamaat Hinganghat | | | | | | | | |
-| 13 | Karnataka | Bengaluru | KSIJ Bangalore | | | | | | | | |
-| 14 | Telangana | Hyderabad | Khoja Shia Isna Ashri Jamaat Hyderabad | | | | | | | | |
-| 15 | Chhattisgarh | Raipur | KSIJ Raipur | | | | | | | | |
+| 1 | Gujarat | Bhavnagar | KSIJ of Bhavnagar | medium? | | ✓ CSV | | | | | |
+| 2 | Gujarat | Ahmedabad | Kalupur Jamaat & Sarkhej Jamaat | medium? | | ✓ CSV | | | | | |
+| 3 | Gujarat | Vadodara | Baroda Jamaat | medium? | | ✓ CSV | | | | | |
+| 4 | Gujarat | Jamnagar | Jamnagar Jamaat | small? | | ✓ CSV | | | | | |
+| 5 | Gujarat | Una | Una Jamaat | small? | | ✓ CSV | | | | | |
+| 6 | Gujarat | Pithalpur | Pithalpur Jamaat | small? | | ✓ CSV | | | | | |
+| 7 | Maharashtra | Mumbai | KSIJ of Mumbai | large | | ✓ CSV | | | | | |
+| 8 | Maharashtra | Pune | Khoja Shia Isna Ashari Jamaat of Pune | medium? | | ✓ CSV | | | | | |
+| 9 | Maharashtra | Nagpur | Nagpur Jamaat | medium? | | ✓ CSV | | | | | |
+| 10 | Maharashtra | Sangli | Masjid-e-Ali Ibne Abu Talib - Sangli Jamaat | small? | | ✓ CSV | | | | | |
+| 11 | Maharashtra | Chandrapur | KSIJ Chandrapur | small? | | ✓ CSV | | | | | |
+| 12 | Maharashtra | Hinganghat | Khoja Shia Isna Ashri Jamaat Hinganghat | small? | | ✓ CSV | | | | | |
+| 13 | Karnataka | Bengaluru | KSIJ Bangalore | medium? | | ✓ CSV | | | | | |
+| 14 | Telangana | Hyderabad | Khoja Shia Isna Ashri Jamaat Hyderabad | small? | | ✓ CSV | | | | | |
+| 15 | Chhattisgarh | Raipur | KSIJ Raipur | small? | | ✓ CSV | | | | | |
 
 ## Feature status
 
