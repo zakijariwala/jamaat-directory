@@ -19,6 +19,7 @@
     "db:seed:local": "npm run gen:seed-sql && wrangler d1 execute jamaat_directory --local --file=./seed.sql",
     "db:seed": "tsx scripts/confirm-wipe.ts && npm run gen:seed-sql && wrangler d1 execute jamaat_directory --remote --file=./seed.sql",
     "import:listings": "tsx scripts/import-listings.ts",
+    "db:import-pilot": "tsx scripts/import-listings.ts data/pilot/phase-2-jamaats.csv data/pilot/phase-3-masjids-stays.csv data/pilot/phase-4-food-hotels.csv && wrangler d1 execute jamaat_directory --remote --file=./import.sql",
     "gen:purge-samples": "tsx scripts/gen-purge-samples-sql.ts",
     "db:purge-samples": "npm run gen:purge-samples && wrangler d1 execute jamaat_directory --remote --file=./purge-samples.sql",
     "db:clear": "tsx scripts/confirm-wipe.ts \"and leaves it EMPTY.\" && wrangler d1 execute jamaat_directory --remote --file=./scripts/clear-all.sql"

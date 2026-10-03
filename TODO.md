@@ -78,10 +78,13 @@ restaurant optional.
 - [x] Gemini prompts for each data phase — `docs/gemini-data-prompts.md`
 - [x] **Phase 1** — jamaat long-list (`data/reference/india-jamaats-khojapedia.csv`)
       → 15 cities proposed (`data/reference/pilot-cities.csv`; decision 22)
-- [ ] **Phase 2** — jamaat rows (name, stations, office number, size estimate) → import
-- [ ] **Phase 3** — masjids / imambargahs / musafir khanas from Google Maps → import
-- [ ] **Phase 4** — halal restaurants + hotels (Google Maps and Zaki's own lists) → import
-- [ ] **Phase 5** — Gemini check pass on each CSV before import
+- [x] **Phase 2** — jamaat rows (15) → `data/pilot/phase-2-jamaats.csv`
+- [x] **Phase 3** — 12 masjids / stays in 7 cities → `data/pilot/phase-3-masjids-stays.csv`
+- [x] **Phase 4** — 28 restaurants / hotels in 7 cities → `data/pilot/phase-4-food-hotels.csv`
+- [x] **Phase 5** — verified manually (Zaki)
+- [ ] **Import:** `npm run db:import-pilot` (after go-live steps) → approve → Publish to site
+- [ ] Masjid / stay for Vadodara, Jamnagar, Una, Pithalpur, Nagpur, Chandrapur, Hinganghat, Raipur — via local jamaat contacts
+- [ ] Replace Google Maps search links with place share links
 - [ ] Office numbers, representatives and contacts → via `/contribute` (needs
       consent, so not bulk-imported); a contacts importer can follow if a
       consented list exists

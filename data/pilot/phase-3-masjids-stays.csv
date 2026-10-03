@@ -1,0 +1,13 @@
+kind,name,city,state,address,maps_url,phone,timings,charges,features,source
+masjid,Mughal Masjid,Mumbai,Maharashtra,"Imamwada Road, Bhendi Bazaar, Umerkhadi, Mumbai, Maharashtra 400009",https://www.google.com/maps/search/Mughal+Masjid+Mumbai,,,,Wuzu; Ladies' section; Ziyarat,Google Maps
+masjid,Khoja Shia Isnaashari Jamat,Mumbai,Maharashtra,"66/70, Hasrat Abbas (a.s) Street, Dongri, Mumbai, Maharashtra 400009",https://www.google.com/maps/search/Khoja+Shia+Isnaashari+Jamat+Mumbai,,,,Wuzu; Ladies' section; Langar or food,Google Maps
+musafir_khana,Juma Lalji Shia Musafirkhana,Mumbai,Maharashtra,"Dongri, Mumbai, Maharashtra 400009",https://www.google.com/maps/search/Juma+Lalji+Shia+Musafirkhana+Mumbai,,,paid,Parking,Google Maps
+masjid,Khoja Shia Isna Ashari Jamaat,Pune,Maharashtra,"Imamwada, Camp, Pune, Maharashtra 411001",https://www.google.com/maps/search/Khoja+Shia+Isna+Ashari+Jamaat+Pune,,,,Wuzu; Ladies' section,Google Maps
+masjid,Masjid-e-Askari,Bengaluru,Karnataka,"7 Curley Street, Richmond Town, Bengaluru, Karnataka 560025",https://www.google.com/maps/search/Masjid-E-Askari+Bengaluru,,,,Wuzu; Ladies' section,Google Maps
+masjid,Dar-ul-Shifa Jama Masjid,Hyderabad,Telangana,"Darulshifa, Hyderabad, Telangana 500024",https://www.google.com/maps/search/Dar-ul-Shifa+Jama+Masjid+Hyderabad,,,,Wuzu; Parking,Google Maps
+masjid,Aza Khana E Zehra,Hyderabad,Telangana,"Darulshifa, Hyderabad, Telangana 500024",https://www.google.com/maps/search/Aza+Khana+E+Zehra+Hyderabad,,,,Wuzu; Ladies' section; Ziyarat,Google Maps
+masjid,KSIJ Bhavnagar,Bhavnagar,Gujarat,"Amba Chowk, Bhavnagar, Gujarat 364001",https://www.google.com/maps/search/KSIJ+Bhavnagar,,,,Wuzu,Google Maps; ksijbhavnagar.org
+masjid,Imambargah Mehfil-e-Hussaini (Khoja Shia Isna Asheri Jamat),Hyderabad,Telangana,"F/799 Station Road, Hyderabad, Telangana",https://www.google.com/maps/search/?api=1&query=Mehfil+e+Hussaini+Station+Road+Hyderabad,,,,,Shia Portal
+masjid,KSI Shia Masjid (Kalupur Jamaat),Ahmedabad,Gujarat,"Kalupur, Ahmedabad, Gujarat",https://www.google.com/maps/search/?api=1&query=Khoja+Shia+Masjid+Kalupur+Ahmedabad,,,,,Shia Portal
+masjid,"Khoja Shia Isna Ashari Masjid, Juhapura (Sarkhej Jamaat)",Ahmedabad,Gujarat,"Juhapura, Sarkhej, Ahmedabad, Gujarat",https://www.google.com/maps/search/?api=1&query=Khoja+Shia+Isna+Ashari+Masjid+Juhapura+Ahmedabad,,,,,Shia Portal
+masjid,Masjid-e-Ali Ibne Abu Talib (Sangli Jamaat),Sangli,Maharashtra,"Sangli, Maharashtra",https://www.google.com/maps/search/?api=1&query=Masjid+e+Ali+Ibne+Abu+Talib+Sangli,,,,,Shia Portal

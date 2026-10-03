@@ -14,7 +14,7 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 | Live data | Fictional samples + 1 test city (Mahuva). To be cleared at go-live. |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
 | Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet" |
-| Next | Go-live steps (below), then pilot data phase 2 |
+| Next | Go-live steps (below), then `npm run db:import-pilot` → approve → Publish |
 
 ## Go-live steps for the open PR (in order)
 
@@ -36,10 +36,10 @@ North and East come later as listing-only cities. Data is collected with
 | Phase | What | State |
 |---|---|---|
 | 1 | Jamaat long-list → pick 15 cities | ✅ list proposed (below); sizes come from Phase 2 |
-| 2 | Jamaat rows (name, stations, office number) + size estimate | ◐ CSV checked 3 Oct (15 rows import cleanly; no office numbers found; Una station to verify); sizes marked `?` are Gemini estimates for Zaki to confirm |
-| 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ◐ CSV checked 3 Oct: 11 places in 7 cities (Gemini + Shia Portal + ksijbhavnagar.org); 8 cities have none yet. Map links are searches, not place pins; several addresses to verify |
-| 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ☐ |
-| 5 | Check pass, import, approve, Publish to site | ☐ |
+| 2 | Jamaat rows (name, stations, office number) + size estimate | ✅ in `data/pilot/` · was ◐ CSV checked 3 Oct (15 rows import cleanly; no office numbers found; Una station to verify); sizes marked `?` are Gemini estimates for Zaki to confirm |
+| 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ✅ verified by Zaki; `data/pilot/` · was ◐ CSV checked 3 Oct: 11 places in 7 cities (Gemini + Shia Portal + ksijbhavnagar.org); 8 cities have none yet. Map links are searches, not place pins; several addresses to verify |
+| 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ✅ 16 restaurants, 12 hotels in 7 cities, verified by Zaki; `data/pilot/` |
+| 5 | Import, approve, Publish to site | ☐ ready: `npm run db:import-pilot` after go-live steps (tested on a fresh local DB: 15 cities, 40 places) |
 
 ### Pilot cities
 
@@ -88,5 +88,6 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 | Date | What happened |
 |---|---|
 | Jul 2026 | Stages 1–8 built and deployed; in-site intake + moderation added |
+| 3 Oct 2026 | Phases 2–4 collected, repaired (unquoted CSV) and verified; pilot data committed in `data/pilot/` with `npm run db:import-pilot`. |
 | 3 Oct 2026 | Phase 1: Gemini's list checked against KhojaPedia's India Federation list. Real jamaats exist only in Gujarat (51), Maharashtra (11), Karnataka, Telangana, Chhattisgarh (1 each); Gemini's North/East rows were unsupported. Region plan needs revisiting. |
 | 3 Oct 2026 | Status review; TODO created; office number + representative; bulk importer; 15-city pilot plan incl. incomplete cities; pages from live DB + Publish to site; db:clear; Gemini data prompts; PROGRESS / DECISIONS / DEPENDENCIES docs |
