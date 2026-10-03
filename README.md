@@ -101,6 +101,20 @@ npm run db:migrate                          # apply schema to remote D1
 npm run db:seed                             # load seed data
 ```
 
+## Importing real data
+
+Real listings come from supplied lists, never hand-typed seed. See
+[`data/README.md`](data/README.md):
+
+```bash
+npm run import:listings -- data/imports/list.csv --kind restaurant
+npx wrangler d1 execute jamaat_directory --remote --file=import.sql   # lands as pending
+npm run db:purge-samples      # once real data is approved: remove the fictional rows
+```
+
+`src/data/seed.ts` is test/demo data only. `npm run db:seed` wipes the remote
+database and now asks for confirmation.
+
 ## Secrets
 
 Never committed. Local values go in `.dev.vars` (gitignored — copy from

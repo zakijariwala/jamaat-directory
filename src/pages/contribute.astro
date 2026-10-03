@@ -114,7 +114,10 @@ const HELP_OPTIONS = [
           </div>
           <div><label class={label} for="c-rail">Nearest rail</label><input id="c-rail" name="nearest_rail" class={field} /></div>
         </div>
-        <div><label class={label} for="c-air">Nearest airport</label><input id="c-air" name="nearest_air" class={field} /></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class={label} for="c-air">Nearest airport</label><input id="c-air" name="nearest_air" class={field} /></div>
+          <div><label class={label} for="c-office">Jamaat office phone</label><input id="c-office" name="office_phone" inputmode="tel" class={field} /></div>
+        </div>
       </div>
       </div>
 
@@ -181,6 +184,7 @@ const HELP_OPTIONS = [
             </select>
           </div>
         </div>
+        <label class="flex items-start gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-rep" class="w-5 h-5 mt-1 accent-primary shrink-0" /> This person is the jamaat's official representative</label>
         <div class="rounded-none bg-surface-container border-2 border-on-background p-4 flex flex-col gap-3">
           <p class="text-label-caps font-label-caps uppercase text-on-background">Permission — tick one if you add a contact</p>
           <label class="flex items-start gap-3 text-body-lg cursor-pointer"><input type="checkbox" id="ct-self" class="w-5 h-5 mt-1 accent-primary shrink-0" /> These are my own details</label>
@@ -299,7 +303,7 @@ const HELP_OPTIONS = [
       const fName = val('f-name');
 
       if (!val('c-name')) return showError('City or town is required.');
-      if (!ctName && !fName) return showError('Add at least one contact or one facility.');
+      if (!ctName && !fName && !val('c-office')) return showError('Add a contact, a facility, or the jamaat office phone.');
       if (ctName && !ctPhone) return showError('A contact needs a phone number.');
       if (ctName && ctPhone && !checked('ct-self') && !checked('ct-consent')) {
         return showError('For a contact, tick "my own details" or confirm you have their permission.');
@@ -312,6 +316,7 @@ const HELP_OPTIONS = [
           state: val('c-state'),
           nearest_rail: val('c-rail'),
           nearest_air: val('c-air'),
+          office_phone: val('c-office'),
         },
         contacts: [],
         facilities: [],
@@ -324,6 +329,7 @@ const HELP_OPTIONS = [
           best_time: val('ct-best'),
           how_known: val('ct-known'), knows: val('ct-knows'),
           self: checked('ct-self'), consent: checked('ct-consent'),
+          representative: checked('ct-rep'),
         });
       }
       if (fKind && fName) {

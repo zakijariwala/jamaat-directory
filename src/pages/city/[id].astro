@@ -138,13 +138,44 @@ const revealActionBtn =
       <!-- Left column: contacts, masjid, musafir khana -->
       <div class="lg:col-span-8 flex flex-col">
         {
-          city.contacts.length > 0 && (
+          (city.office || city.contacts.length > 0) && (
             <>
               <h2 class={sectionHeader}>Section 1: Contacts</h2>
+              {city.office && (
+                <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
+                  <div class="md:col-span-8 flex flex-col">
+                    <h3 class="text-headline-md font-headline-md text-primary">Jamaat office</h3>
+                    <span class="font-data-mono text-data-mono text-on-surface-variant mt-1 uppercase">
+                      {city.jamaat_name || city.name}
+                    </span>
+                  </div>
+                  <div class="md:col-span-4 flex flex-col gap-2">
+                    <div class="reveal flex flex-col gap-2" data-id={city.id} data-type="office" data-wa="0">
+                      <button type="button" class={revealBtn}>
+                        <Icon name="call" size={18} />
+                        Show number
+                      </button>
+                      <div class="reveal-actions hidden flex-col gap-2">
+                        <div class="reveal-number font-data-mono text-data-mono text-center py-2 border-[1px] border-outline-variant bg-surface-container select-all" />
+                        <a class="reveal-call bg-primary hover:bg-primary-container" class:list={[revealActionBtn]} href="#">
+                          <Icon name="call" size={18} />
+                          Call
+                        </a>
+                      </div>
+                      <p class="reveal-error hidden text-error font-data-mono text-data-mono" role="alert" />
+                    </div>
+                  </div>
+                </article>
+              )}
               {city.contacts.map((c) => (
                 <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
                   <div class="md:col-span-4 flex flex-col">
                     <h3 class="text-headline-md font-headline-md text-primary">{c.name}</h3>
+                    {c.representative && (
+                      <span class="self-start mt-1 px-2 py-1 bg-primary text-on-primary text-label-caps font-label-caps uppercase border-[1px] border-on-background">
+                        Jamaat representative
+                      </span>
+                    )}
                     {c.role && (
                       <span class="font-data-mono text-data-mono text-on-surface-variant mt-1 uppercase">
                         Role: {c.role}

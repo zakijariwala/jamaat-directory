@@ -1,4 +1,6 @@
-// Cloudflare Pages Function: GET /api/reveal?type=contact|facility&id=…
+// Cloudflare Pages Function: GET /api/reveal?type=contact|facility|office&id=…
+//
+// type=office takes a city id and returns that jamaat's office number.
 //
 // Returns exactly ONE phone number. Phones never appear in directory.json —
 // they are served only here, one request at a time, and only for rows that are
@@ -14,6 +16,7 @@
 // are provisioned: missing bindings simply skip that protection.
 
 import {
+  cities as seedCities,
   contacts as seedContacts,
   facilities as seedFacilities,
 } from '../../src/data/seed';
@@ -47,7 +50,8 @@ function hasSessionCookie(request: Request): boolean {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  const type = url.searchParams.get('type') === 'facility' ? 'facility' : 'contact';
+  const rawType = url.searchParams.get('type');
+  const type = rawType === 'facility' || rawType === 'office' ? rawType : 'contact';
   if (!id) return json({ error: 'missing_id' }, 400);
 
   const ip = request.headers.get('CF-Connecting-IP') ?? '0.0.0.0';
@@ -85,7 +89,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   // --- Look up the single number ---
   let phone: string | null = null;
   if (env.DB) {
-    if (type === 'facility') {
+    if (type === 'office') {
+      const row = await env.DB
+        .prepare("SELECT office_phone AS phone FROM cities WHERE id = ? AND status = 'live'")
+        .bind(id)
+        .first<{ phone: string | null }>();
+      phone = row?.phone ?? null;
+    } else if (type === 'facility') {
       const row = await env.DB
         .prepare("SELECT phone FROM facilities WHERE id = ? AND status = 'live'")
         .bind(id)
@@ -101,7 +111,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       phone = row?.phone ?? null;
     }
   } else {
-    if (type === 'facility') {
+    if (type === 'office') {
+      phone = seedCities.find((c) => c.id === id && c.status === 'live')?.office_phone ?? null;
+    } else if (type === 'facility') {
       phone = seedFacilities.find((f) => f.id === id && f.status === 'live')?.phone ?? null;
     } else {
       const c = seedContacts.find(

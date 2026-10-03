@@ -69,6 +69,7 @@ function toPublicContact(c: ContactRow, now: number, caution: boolean): PublicCo
     id: c.id,
     name: c.name,
     whatsapp: c.whatsapp === 1,
+    representative: c.is_representative === 1,
     role: c.role,
     helps_with: c.helps_with,
     best_time: c.best_time,
@@ -124,7 +125,12 @@ export function buildSnapshot(
   }
 
   const publicCities: PublicCity[] = pubCities.map((city) => {
-    const cityContacts = contactsByCity.get(city.id) ?? [];
+    // Official representative(s) first; otherwise keep input order.
+    const cityContacts = (contactsByCity.get(city.id) ?? []).sort(
+      (a, b) => Number(b.representative) - Number(a.representative),
+    );
+    // Presence only — the number itself is never put in the snapshot.
+    const office = !!(city.office_phone && city.office_phone.trim());
     const cityFacilities = facilitiesByCity.get(city.id) ?? [];
     return {
       id: city.id,
@@ -136,10 +142,11 @@ export function buildSnapshot(
       nearest_rail: city.nearest_rail,
       nearest_air: city.nearest_air,
       notes: city.notes,
+      office,
       contacts: cityContacts,
       facilities: cityFacilities,
       has: {
-        contact: cityContacts.length > 0,
+        contact: office || cityContacts.length > 0,
         masjid: cityFacilities.some((f) => f.kind === 'masjid'),
         stay: cityFacilities.some((f) => f.kind === 'musafir_khana'),
         hotel: cityFacilities.some((f) => f.kind === 'hotel'),

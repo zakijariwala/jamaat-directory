@@ -23,21 +23,22 @@ export interface Statement {
 
 const CITY_COLS: Array<keyof CityRow> = [
   'id', 'name', 'jamaat_name', 'state', 'aliases', 'region',
-  'nearest_rail', 'nearest_air', 'notes', 'status', 'updated_at',
+  'nearest_rail', 'nearest_air', 'notes', 'office_phone', 'status', 'updated_at',
 ];
 const CONTACT_COLS: Array<keyof ContactRow> = [
   'id', 'city_id', 'name', 'phone', 'whatsapp', 'role', 'helps_with',
-  'best_time', 'languages', 'self_added', 'consent', 'provenance', 'status', 'verified_at', 'created_at',
+  'best_time', 'languages', 'self_added', 'consent', 'provenance', 'is_representative', 'status', 'verified_at', 'created_at',
 ];
 const FACILITY_COLS: Array<keyof FacilityRow> = [
   'id', 'city_id', 'kind', 'name', 'address', 'maps_url', 'phone', 'timings',
-  'charges_band', 'booking_note', 'facilities', 'status', 'verified_at', 'created_at',
+  'charges_band', 'booking_note', 'facilities', 'source', 'status', 'verified_at', 'created_at',
 ];
 
 function upsert(
   table: string,
   cols: string[],
   row: Record<string, unknown>,
+  verb: 'INSERT OR REPLACE' | 'INSERT OR IGNORE' = 'INSERT OR REPLACE',
 ): Statement {
   const placeholders = cols.map(() => '?').join(', ');
   const params = cols.map((c) => {
@@ -47,16 +48,27 @@ function upsert(
     return String(v);
   });
   return {
-    query: `INSERT OR REPLACE INTO ${table} (${cols.join(', ')}) VALUES (${placeholders})`,
+    query: `${verb} INTO ${table} (${cols.join(', ')}) VALUES (${placeholders})`,
     params,
   };
 }
 
-export function buildIngestStatements(payload: IngestPayload): Statement[] {
+export interface IngestOptions {
+  /**
+   * 'replace' (default, the Sheet sends full moderated rows) overwrites an
+   * existing city. 'ignore' leaves an existing city untouched and only inserts
+   * a new one — used by public intake so a submission naming an already-live
+   * city can't knock it back to 'pending' or wipe its office number.
+   */
+  city?: 'replace' | 'ignore';
+}
+
+export function buildIngestStatements(payload: IngestPayload, opts: IngestOptions = {}): Statement[] {
   const stmts: Statement[] = [];
 
   if (payload.city) {
-    stmts.push(upsert('cities', CITY_COLS as string[], payload.city as unknown as Record<string, unknown>));
+    const verb = opts.city === 'ignore' ? 'INSERT OR IGNORE' : 'INSERT OR REPLACE';
+    stmts.push(upsert('cities', CITY_COLS as string[], payload.city as unknown as Record<string, unknown>, verb));
   }
   for (const c of payload.contacts ?? []) {
     stmts.push(upsert('contacts', CONTACT_COLS as string[], c as unknown as Record<string, unknown>));

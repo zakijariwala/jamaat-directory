@@ -49,6 +49,7 @@ export const cities: CityRow[] = [
     nearest_rail: 'Pune Junction (PUNE)',
     nearest_air: 'Pune (PNQ)',
     notes: null,
+    office_phone: '+919000000901', // exercises the "Jamaat office" reveal
     status: 'live',
     updated_at: '2026-07-20T09:00:00Z',
   },
@@ -185,6 +186,7 @@ export const contacts: ContactRow[] = [
     languages: 'Gujarati, Hindi, Marathi',
     self_added: 0,
     consent: 1,
+    is_representative: 1, // exercises the representative badge + ordering
     status: 'live',
     verified_at: '2026-06-12T00:00:00Z',
     created_at: '2026-05-01T00:00:00Z',

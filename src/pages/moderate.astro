@@ -82,9 +82,9 @@ const btnGhost =
 
     function render(data: any) {
       const parts: string[] = [];
-      for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}`));
-      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}${c.provenance ? ' · ' + c.provenance : ''}`));
-      for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}`, `${f.city_id} · ${f.kind}`));
+      for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}${c.office_phone ? ' · office ' + c.office_phone : ''}`));
+      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.is_representative === 1 ? 'REPRESENTATIVE · ' : ''}${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}${c.provenance ? ' · ' + c.provenance : ''}`));
+      for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}${f.phone ? '  ·  ' + f.phone : ''}`, `${f.city_id} · ${f.kind}${f.address ? ' · ' + f.address : ''}${f.source ? ' · source: ' + f.source : ''}`));
       const total = data.cities.length + data.contacts.length + data.facilities.length;
       listEl.innerHTML = parts.join('');
       emptyEl.classList.toggle('hidden', total > 0);

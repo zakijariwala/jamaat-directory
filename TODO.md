@@ -12,13 +12,15 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
 
 ## 1. Launch blockers 🔴
 
-- [ ] **Real data.** Replace the 12 sample cities / 14 contacts / 22 facilities
-      in `src/data/seed.ts` with real entries (or load them via `/contribute`
-      + moderation) and clear the samples from the live D1.
+- [ ] **Real data — 15-city pilot** (see §2). No hand-typed seed: data comes from
+      supplied lists (bulk import) and `/contribute`.
 - [ ] **Approvals must reach the city pages.** City pages are built from
       `seed.ts` at build time, so an approved D1 entry only shows on its city
-      page after a rebuild. Pick one: client-render city/home pages from
+      page after a rebuild — **imported listings won't appear on city pages
+      until this is fixed.** Pick one: client-render city/home pages from
       `/directory.json` (recommended), or trigger a Pages rebuild on approve.
+- [ ] **Remove sample data** from the live D1 once real data is approved:
+      `npm run db:purge-samples` (deletes only the `seed.ts` ids).
 - [ ] **Turnstile (bot protection).** Create the Turnstile site, set
       `TURNSTILE_SITE_KEY` in `src/lib/config.ts`, then
       `wrangler pages secret put TURNSTILE_SECRET`. Covers `/contribute`,
@@ -28,23 +30,47 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
 - [ ] **Move Report / Remove in-site.** City pages still link to the old Google
       Form (`FORM_URL`); point them at `/api/flag` with an in-site form.
 
-## 2. Jamaat representative / office number 🟠
+## 2. Seed data — 15-city pilot 🔴
 
-Today a jamaat (`cities` table) has **no phone number of its own** — no office
-number and no designated representative. The only numbers are individual
-contacts (with a role such as President or Secretary) and facility phones
-(masjid, musafir khana, etc.).
+Plan: **5 states (one per region) × 3 jamaat sizes** (metro / mid-size / small
+town) = 15 complete city pages, measured by jamaat size, not city population.
 
-- [ ] Decide the model: a jamaat **office number** on the city, a flagged
-      **official representative** among the contacts, or both.
-- [ ] Migration (e.g. `cities.office_phone` and/or `contacts.is_representative`).
-- [ ] Show it at the top of the city page ("Jamaat office" / "Jamaat
-      representative") behind the same one-at-a-time **Show number** reveal —
-      never in `directory.json`.
-- [ ] Add the field(s) to `/contribute`, the moderation dashboard, the Excel
-      round-trip, and the no-phone snapshot test.
+A city is *complete* when it has: jamaat name, state, nearest rail/air ·
+jamaat office number (if an office exists) **and** a named representative ·
+1–2 more consented contacts · masjid/imambargah · musafir khana or hotel ·
+restaurant optional.
 
-## 3. Admin dashboard (`/moderate`) 🟠
+- [x] Bulk import for supplied lists — `npm run import:listings` (see `data/README.md`)
+- [x] CSV template — `data/templates/listings-template.csv`
+- [x] Guard on `npm run db:seed` (it wipes the remote DB; now asks for confirmation)
+- [x] `npm run db:purge-samples` — removes only the fictional rows
+- [ ] **Pick the 15 cities** (owner: Zaki)
+- [ ] **Supply halal restaurant + hotel lists** (owner: Zaki) → import → approve
+- [ ] Masjid / musafir khana lists → same importer
+- [ ] Office numbers, representatives and contacts → via `/contribute` (needs
+      consent, so not bulk-imported); a contacts importer can follow if a
+      consented list exists
+- [ ] Approve each new city in `/moderate` and fill in its jamaat name
+
+## 3. Jamaat office number + representative 🟠
+
+Decision: **both** — an office number on the jamaat, and a named official
+representative among the contacts.
+
+- [x] Migration `0005`: `cities.office_phone`, `contacts.is_representative`
+      (+ private `facilities.source` for imports)
+- [x] City page: "Jamaat office" card with **Show number** (`/api/reveal?type=office`);
+      representative shown first with a badge. Office number never in `directory.json`.
+- [x] `/contribute`: office phone field + "official representative" tick box
+- [x] `/moderate` queue shows office phone, REPRESENTATIVE, listing source
+- [x] Public intake no longer overwrites an existing city (could knock a live
+      city back to pending)
+- [ ] Apply migration to the live D1: `npm run db:migrate`, then `npm run deploy`
+- [ ] Changing the office number of an **existing** city needs the dashboard's
+      edit (§4) — `/contribute` only sets it for new cities
+- [ ] Decide: one representative per jamaat (auto-unset others on approve) or allow several
+
+## 4. Admin dashboard (`/moderate`) 🟠
 
 Today: one shared passcode, a flat pending list with Approve / Reject, and
 Excel download/upload. Expand to a tabbed dashboard:
@@ -63,7 +89,7 @@ Excel download/upload. Expand to a tabbed dashboard:
 - [ ] **Per-moderator logins** instead of one shared passcode (needed for a
       meaningful activity log; ties to the "two named moderators" decision).
 
-## 4. Contribute form fixes 🟠
+## 5. Contribute form fixes 🟠
 
 - [ ] **Several contacts per submission** — currently one contact per form, so a
       President and a Secretary need two submissions.
@@ -71,7 +97,7 @@ Excel download/upload. Expand to a tabbed dashboard:
       no WhatsApp button appears. Store it as unknown or default to showing it.
 - [ ] Publish the how-to video and set `HOWTO_VIDEO_URL` in `src/lib/config.ts`.
 
-## 5. Infrastructure 🟢
+## 6. Infrastructure 🟢
 
 - [ ] **Nightly R2 backups** — enable R2, `npx wrangler r2 bucket create
       jamaat-directory-backups`, `cd workers/backup && npx wrangler deploy`.
@@ -81,7 +107,7 @@ Excel download/upload. Expand to a tabbed dashboard:
 - [ ] Retire the Google Form / Apps Script intake once in-site flows cover
       everything (`docs/apps-script.gs`).
 
-## 6. Decisions needed from the committee
+## 7. Decisions needed from the committee
 
 - [ ] Access posture: public, unlisted (current), or passcoded.
 - [ ] Keep hotels and restaurants in v1?
@@ -89,8 +115,9 @@ Excel download/upload. Expand to a tabbed dashboard:
 - [ ] Domain name.
 - [ ] Which jamaat body (if any) must endorse before launch, and does that
       change what may be published.
-- [ ] Jamaat office number vs. named representative (§2).
-- [ ] Shared passcode vs. per-moderator logins (§3).
+- [x] Jamaat office number vs. named representative → **both** (§3).
+- [ ] Restaurants in towns with no jamaat: attach to nearest jamaat city, or allow listing-only cities?
+- [ ] Shared passcode vs. per-moderator logins (§4).
 
 ---
 
@@ -105,4 +132,6 @@ Excel download/upload. Expand to a tabbed dashboard:
 - About page (goals + committee) and feedback form
 - Contribute guide, `/howitworks` briefing (+ PDF/Word)
 - Nightly backup Worker (code ready, not deployed)
+- Jamaat office number + representative (code; live DB migration pending)
+- Bulk listing importer, sample purge, remote-seed guard
 - Deployed to Cloudflare Pages with D1 + KV; `noindex` on by default

@@ -26,6 +26,7 @@ export interface CityRow {
   nearest_rail: string | null;
   nearest_air: string | null;
   notes: string | null;
+  office_phone?: string | null; // jamaat office number — NEVER published
   status: RowStatus; // cities are approvable as a unit; only 'live' publishes
   updated_at: string;
 }
@@ -43,6 +44,7 @@ export interface ContactRow {
   self_added: number; // 0/1
   consent: number; // 0/1
   provenance?: string | null; // private moderation note; NEVER published
+  is_representative?: number | null; // 1 = the jamaat's official representative
   status: RowStatus;
   verified_at: string | null;
   created_at: string;
@@ -60,6 +62,7 @@ export interface FacilityRow {
   charges_band: ChargesBand | null;
   booking_note: string | null;
   facilities: string | null; // JSON array string
+  source?: string | null; // where a bulk-imported listing came from; NEVER published
   status: RowStatus;
   verified_at: string | null;
   created_at: string;
@@ -86,6 +89,7 @@ export interface PublicContact {
   id: string;
   name: string;
   whatsapp: boolean;
+  representative: boolean; // the jamaat's official representative
   role: string | null;
   helps_with: string | null;
   best_time: string | null;
@@ -129,6 +133,8 @@ export interface PublicCity {
   nearest_rail: string | null;
   nearest_air: string | null;
   notes: string | null;
+  /** True when the jamaat has an office number (revealed via /api/reveal?type=office). */
+  office: boolean;
   contacts: PublicContact[];
   facilities: PublicFacility[];
   has: CityHas;

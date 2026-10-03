@@ -82,3 +82,23 @@ describe('buildPendingRows', () => {
     expect(buildPendingRows(sneaky, NOW).contacts[0].status).toBe('pending');
   });
 });
+
+describe('office number and representative', () => {
+  it('normalises and keeps the jamaat office number on the city', () => {
+    const { city } = buildPendingRows({ city: { name: 'Panvel', office_phone: '022 2745 1234' } }, NOW);
+    expect(city.office_phone).toBe('+912227451234');
+  });
+
+  it('carries the representative flag', () => {
+    const { contacts } = buildPendingRows({
+      city: { name: 'Panvel' },
+      contacts: [
+        { name: 'A', phone: '9820012345', consent: true, representative: true },
+        { name: 'B', phone: '9820012346', consent: true },
+      ],
+    }, NOW);
+    expect(contacts[0].is_representative).toBe(1);
+    expect(contacts[1].is_representative).toBe(0);
+    expect(contacts[0].phone).toBe('+919820012345');
+  });
+});

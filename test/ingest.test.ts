@@ -65,3 +65,16 @@ describe('buildIngestStatements', () => {
     expect(buildIngestStatements({ submission_id: 's3' })).toHaveLength(0);
   });
 });
+
+describe('city write mode', () => {
+  const city = {
+    id: 'pune', name: 'Pune', jamaat_name: 'J', state: null, aliases: '[]', region: null,
+    nearest_rail: null, nearest_air: null, notes: null, status: 'pending' as const, updated_at: 'x',
+  };
+  it('replaces by default (Sheet sends full moderated rows)', () => {
+    expect(buildIngestStatements({ submission_id: 's', city })[0].query).toMatch(/^INSERT OR REPLACE INTO cities/);
+  });
+  it("never overwrites an existing city in 'ignore' mode (public intake)", () => {
+    expect(buildIngestStatements({ submission_id: 's', city }, { city: 'ignore' })[0].query).toMatch(/^INSERT OR IGNORE INTO cities/);
+  });
+});
