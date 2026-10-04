@@ -10,21 +10,32 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 
 | Area | State |
 |---|---|
-| Live site | https://jamaat-directory.pages.dev, unlisted (`noindex`), running `main` |
+| Live site | https://jamaat-directory.pages.dev, unlisted (`noindex`), running `main` (PR #1 merged + deployed 4 Oct) |
 | Live data | Pilot imported 4 Oct as pending (15 cities, 70 places); nothing public yet. Branch preview: https://feat-seed-import-and-represe-te1a.jamaat-directory.pages.dev |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
-| Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet", in-site Report / Remove, no seed fallbacks |
-| Next | Go-live steps (below), then `npm run db:import-pilot` → approve → Publish |
+| Open PR | none (PR #1 merged 4 Oct) |
+| Next | Zaki's worklist (below): deploy hook, then approve the pilot → Publish |
 
-## Go-live steps for the open PR (in order)
+## Worklist for Zaki (pending)
+
+Things only Zaki can do (dashboard access or judgement). Tick and move to the
+session log when done.
+
+| # | Task | Why it waits on Zaki | Done |
+|---|---|---|---|
+| 1 | **Deploy hook**: Cloudflare → Pages → jamaat-directory → Settings → Builds → Deploy hooks (branch `main`), then `npx wrangler pages secret put DEPLOY_HOOK_URL` | Needs the Cloudflare dashboard. Until then **Publish to site** can't rebuild; run `npm run deploy` after approving instead | ☐ |
+| 2 | Approve the 15 pilot cities + 70 places in `/moderate` (fill in each jamaat name), then Publish | Moderation judgement | ☐ |
+| 3 | Turnstile site → `TURNSTILE_SITE_KEY` + `wrangler pages secret put TURNSTILE_SECRET` | Needs the Cloudflare dashboard | ☐ |
+
+## Go-live steps for PR #1 (in order)
 
 | # | Step | Who | Done |
 |---|---|---|---|
 | 1 | `npm run db:migrate` (migration 0005) **before** merging | Zaki | ✅ 4 Oct |
 | 2 | `npm run db:clear` (empty live DB; approved, no real data in it) | Zaki | ✅ 4 Oct (backup in `backups/`) |
-| 3 | Merge the PR into `main` | Zaki | ☐ |
-| 4 | Pages deploy hook → `npx wrangler pages secret put DEPLOY_HOOK_URL` | Zaki | ☐ |
-| 5 | `npm run deploy` (site rebuilds from the empty live DB) | Zaki | ☐ |
+| 3 | Merge the PR into `main` | Zaki | ✅ 4 Oct |
+| 4 | Pages deploy hook → `npx wrangler pages secret put DEPLOY_HOOK_URL` | Zaki | ☐ on the worklist above |
+| 5 | `npm run deploy` (site rebuilds from the empty live DB) | Zaki | ✅ 4 Oct |
 
 ## Pilot data (15 cities)
 
@@ -87,7 +98,7 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 
 | Date | What happened |
 |---|---|
-| 4 Oct 2026 | Launch blockers: seed fallbacks removed (503 without DB); Report / Remove moved in-site (dialog → `/api/flag`), place removals logged not applied; last Google Form links gone. Tested against local D1. Go-live: migration 0005 applied, live DB backed up and cleared, branch deployed as a preview and smoke-tested. |
+| 4 Oct 2026 | Launch blockers: seed fallbacks removed (503 without DB); Report / Remove moved in-site (dialog → `/api/flag`), place removals logged not applied; last Google Form links gone. Tested against local D1. Go-live: migration 0005 applied, live DB backed up and cleared, pilot imported as pending, PR #1 merged and deployed to production (0 live cities until approval). Deploy hook on Zaki's worklist. |
 | Jul 2026 | Stages 1–8 built and deployed; in-site intake + moderation added |
 | 3 Oct 2026 | Phase 4b: food + hotels for the 8 missing cities; halal screening removed 14 places + 1 in the wrong town. |
 | 3 Oct 2026 | Phases 2–4 collected, repaired (unquoted CSV) and verified; pilot data committed in `data/pilot/` with `npm run db:import-pilot`. |

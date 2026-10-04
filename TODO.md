@@ -3,14 +3,17 @@
 Up-to-date list of what's left before and after launch. Last updated: 4 October 2026.
 
 **Where things stand:** the site is live at https://jamaat-directory.pages.dev
-(unlisted, `noindex`) running `main`. The office/representative, importer and
-build-from-live-DB work is in PR `feat/seed-import-and-representative` (91
-tests pass). The live DB still holds sample data plus one test city (Mahuva).
+(unlisted, `noindex`) running `main`. PR #1 (office/representative, importer,
+build-from-live-DB, in-site Report / Remove) was merged and deployed 4 Oct. The
+live DB holds the 15-city pilot as pending; nothing is public until approved.
 
 See also: `docs/PROGRESS.md` (status + pilot table), `docs/DECISIONS.md`,
 `docs/DEPENDENCIES.md`, `docs/gemini-data-prompts.md`.
 
-**Go-live sequence for this round:**
+**Pending worklist (Zaki):** deploy hook, approve pilot → Publish, Turnstile.
+See the worklist table in `docs/PROGRESS.md`.
+
+**Go-live sequence for this round** (steps 1–3 and 5 done 4 Oct; 6 imported, awaiting approval):
 1. On the branch: `npm run db:migrate` (adds office / representative / source
    columns — do this **before** merging, or `/contribute` submissions fail)
 2. `npm run db:clear` (empties the live DB; type `jamaat_directory` to confirm)
