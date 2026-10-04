@@ -11,7 +11,7 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 | Area | State |
 |---|---|
 | Live site | https://jamaat-directory.pages.dev, unlisted (`noindex`), running `main` |
-| Live data | Empty (cleared 4 Oct). Branch preview: https://feat-seed-import-and-represe-te1a.jamaat-directory.pages.dev |
+| Live data | Pilot imported 4 Oct as pending (15 cities, 70 places); nothing public yet. Branch preview: https://feat-seed-import-and-represe-te1a.jamaat-directory.pages.dev |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
 | Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet", in-site Report / Remove, no seed fallbacks |
 | Next | Go-live steps (below), then `npm run db:import-pilot` → approve → Publish |
@@ -39,7 +39,7 @@ North and East come later as listing-only cities. Data is collected with
 | 2 | Jamaat rows (name, stations, office number) + size estimate | ✅ in `data/pilot/` · was ◐ CSV checked 3 Oct (15 rows import cleanly; no office numbers found; Una station to verify); sizes marked `?` are Gemini estimates for Zaki to confirm |
 | 3 | Masjids / imambargahs / musafir khanas (Google Maps) | ✅ verified by Zaki; `data/pilot/` · was ◐ CSV checked 3 Oct: 11 places in 7 cities (Gemini + Shia Portal + ksijbhavnagar.org); 8 cities have none yet. Map links are searches, not place pins; several addresses to verify |
 | 4 | Halal restaurants + hotels (Google Maps + supplied lists) | ✅ 32 restaurants, 26 hotels; every city has a hotel. 4b screened for halal (15 removed). `data/pilot/` |
-| 5 | Import, approve, Publish to site | ☐ ready: `npm run db:import-pilot` after go-live steps (tested on a fresh local DB: 15 cities, 70 places) |
+| 5 | Import, approve, Publish to site | ◐ imported 4 Oct to live D1 (15 cities, 70 places, all pending); approve in `/moderate`, then Publish |
 
 ### Pilot cities
 
