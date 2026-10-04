@@ -30,3 +30,6 @@ coverage/
 
 # supplied listing files (contain phone numbers) — keep local
 data/imports/
+
+# Local exports of the live D1 (contain phone numbers)
+backups/
