@@ -19,6 +19,7 @@ describe('no phone numbers in the snapshot (non-negotiable rule 1)', () => {
     const seedPhones = [
       ...contacts.map((c) => c.phone),
       ...facilities.map((f) => f.phone).filter((p): p is string => !!p),
+      ...cities.map((c) => c.office_phone).filter((p): p is string => !!p),
     ];
     expect(seedPhones.length).toBeGreaterThan(0);
     for (const phone of seedPhones) {
@@ -181,5 +182,40 @@ describe('counts and coverage', () => {
 
   it('exposes a most-recent updated_at for the coverage line', () => {
     expect(snap.updated_at).toBeTruthy();
+  });
+});
+
+describe('jamaat office number and representative', () => {
+  const pune = snap.cities.find((c) => c.id === 'pune')!;
+  const sangli = snap.cities.find((c) => c.id === 'sangli')!;
+
+  it('flags office presence without exposing the number', () => {
+    expect(pune.office).toBe(true);
+    expect(JSON.stringify(pune)).not.toContain('office_phone');
+    expect(sangli.office).toBe(false);
+  });
+
+  it('turns the contact chip on for a city with only an office number', () => {
+    const only = buildSnapshot(
+      [{ ...cities.find((c) => c.id === 'pune')!, id: 'officeonly' }],
+      [],
+      [],
+      NOW,
+    );
+    expect(only.cities[0].office).toBe(true);
+    expect(only.cities[0].has.contact).toBe(true);
+  });
+
+  it('marks the representative and lists them first', () => {
+    const rep = sangli.contacts.find((c) => c.id === 'c-sangli-1')!;
+    expect(rep.representative).toBe(true);
+    expect(sangli.contacts[0].id).toBe('c-sangli-1');
+    // Reversed input order still puts the representative first.
+    const reversed = buildSnapshot(cities, [...contacts].reverse(), facilities, NOW);
+    expect(reversed.cities.find((c) => c.id === 'sangli')!.contacts[0].id).toBe('c-sangli-1');
+  });
+
+  it('defaults representative to false when the column is absent', () => {
+    expect(snap.cities.find((c) => c.id === 'pune')!.contacts.every((c) => c.representative === false)).toBe(true);
   });
 });

@@ -9,37 +9,20 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { cities, contacts, facilities } from '../src/data/seed.ts';
 import type { CityRow, ContactRow, FacilityRow } from '../src/lib/types.ts';
-
-type Row = Record<string, string | number | null>;
-
-function sqlValue(v: string | number | null): string {
-  if (v === null || v === undefined) return 'NULL';
-  if (typeof v === 'number') return String(v);
-  return `'${v.replace(/'/g, "''")}'`;
-}
-
-function insert(table: string, columns: string[], rows: Row[]): string {
-  if (rows.length === 0) return '';
-  const cols = columns.join(', ');
-  const lines = rows.map((row) => {
-    const vals = columns.map((c) => sqlValue(row[c] ?? null)).join(', ');
-    return `INSERT INTO ${table} (${cols}) VALUES (${vals});`;
-  });
-  return lines.join('\n');
-}
+import { insert, type Row } from './sql.ts';
 
 const cityCols: Array<keyof CityRow> = [
   'id', 'name', 'jamaat_name', 'state', 'aliases', 'region',
-  'nearest_rail', 'nearest_air', 'notes', 'status', 'updated_at',
+  'nearest_rail', 'nearest_air', 'notes', 'office_phone', 'status', 'updated_at',
 ];
 const contactCols: Array<keyof ContactRow> = [
   'id', 'city_id', 'name', 'phone', 'whatsapp', 'role', 'helps_with',
-  'best_time', 'languages', 'self_added', 'consent', 'provenance', 'status',
-  'verified_at', 'created_at',
+  'best_time', 'languages', 'self_added', 'consent', 'provenance',
+  'is_representative', 'status', 'verified_at', 'created_at',
 ];
 const facilityCols: Array<keyof FacilityRow> = [
   'id', 'city_id', 'kind', 'name', 'address', 'maps_url', 'phone', 'timings',
-  'charges_band', 'booking_note', 'facilities', 'status', 'verified_at', 'created_at',
+  'charges_band', 'booking_note', 'facilities', 'source', 'status', 'verified_at', 'created_at',
 ];
 
 const sql = [

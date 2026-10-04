@@ -11,6 +11,10 @@ dist/
 # generated seed SQL (regenerated from scripts/gen-seed-sql.ts)
 seed.sql
 
+# generated listing import (scripts/import-listings.ts) — contains phone numbers
+import.sql
+purge-samples.sql
+
 # generated public snapshot (regenerated from scripts/gen-snapshot.ts)
 public/directory.json
 
@@ -23,3 +27,9 @@ public/directory.json
 *.log
 .DS_Store
 coverage/
+
+# supplied listing files (contain phone numbers) — keep local
+data/imports/
+
+# Local exports of the live D1 (contain phone numbers)
+backups/

@@ -6,6 +6,7 @@
 // the same row (idempotent upsert), mirroring the retired Apps Script.
 
 import type { CityRow, ContactRow, FacilityRow, FacilityKind } from './types';
+import { normalizePhone } from './phone';
 
 export interface SubmittedContact {
   name: string;
@@ -19,6 +20,7 @@ export interface SubmittedContact {
   consent?: boolean; // has the person's consent to publish
   how_known?: string; // how the submitter knows this person (trust signal)
   knows?: string; // does the person know they're being submitted
+  representative?: boolean; // the jamaat's official representative
 }
 
 export interface SubmittedFacility {
@@ -41,6 +43,7 @@ export interface SubmitPayload {
     nearest_rail?: string;
     nearest_air?: string;
     notes?: string;
+    office_phone?: string; // the jamaat's office number
   };
   contacts?: SubmittedContact[];
   facilities?: SubmittedFacility[];
@@ -88,6 +91,7 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
     nearest_rail: clean(payload.city.nearest_rail),
     nearest_air: clean(payload.city.nearest_air),
     notes: clean(payload.city.notes),
+    office_phone: normalizePhone(payload.city.office_phone),
     status: 'pending',
     updated_at: now,
   };
@@ -95,7 +99,7 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
   const contacts: ContactRow[] = [];
   for (const c of payload.contacts ?? []) {
     const name = (c.name ?? '').trim();
-    const phone = (c.phone ?? '').trim();
+    const phone = normalizePhone(c.phone);
     if (!name || !phone) continue;
     const provenance = [
       clean(c.how_known) ? `Known: ${clean(c.how_known)}` : '',
@@ -114,6 +118,7 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
       self_added: c.self ? 1 : 0,
       consent: c.consent ? 1 : 0,
       provenance,
+      is_representative: c.representative ? 1 : 0,
       status: 'pending',
       verified_at: null, // set on approval
       created_at: now,
@@ -131,7 +136,7 @@ export function buildPendingRows(payload: SubmitPayload, now: string = new Date(
       name,
       address: clean(f.address),
       maps_url: clean(f.maps_url),
-      phone: clean(f.phone),
+      phone: normalizePhone(f.phone),
       timings: clean(f.timings),
       charges_band: (clean(f.charges_band) as FacilityRow['charges_band']) ?? null,
       booking_note: clean(f.booking_note),

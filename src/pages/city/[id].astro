@@ -1,14 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
-import { buildSnapshot } from '../../lib/snapshot';
+import { loadDirectory } from '../../lib/directory-source';
 import { formatVerified } from '../../lib/format';
-import { FORM_URL } from '../../lib/config';
-import { cities, contacts, facilities } from '../../data/seed';
+import { TURNSTILE_SITE_KEY, addContactUrl } from '../../lib/config';
 import type { PublicCity, PublicFacility } from '../../lib/types';
 
-export function getStaticPaths() {
-  const snap = buildSnapshot(cities, contacts, facilities);
+export async function getStaticPaths() {
+  const snap = await loadDirectory();
   return snap.cities.map((city) => ({ params: { id: city.id }, props: { city } }));
 }
 
@@ -39,6 +38,14 @@ function facilityChipIcon(chip: string): string {
   return 'check';
 }
 
+// What this city is still missing. Incomplete cities are normal (the pilot
+// deliberately publishes them) — say so plainly and invite a contribution.
+const missing: string[] = [
+  !city.has.contact && 'a local contact',
+  !city.has.masjid && 'a masjid or imambargah',
+  !city.has.stay && !city.has.hotel && 'somewhere to stay',
+].filter((m): m is string => !!m);
+
 const chargesLabel: Record<string, string> = {
   free: 'FREE',
   donation: 'DONATION',
@@ -54,6 +61,13 @@ const revealBtn =
   'reveal-btn w-full bg-primary text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 hover:bg-primary-container transition-colors';
 const secondaryBtn =
   'w-full bg-surface-container text-on-background text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors';
+
+// Entries a visitor can report from the footer (contacts first, then places).
+const flagTargets = [
+  ...city.contacts.map((c) => ({ value: `contact:${c.id}`, label: `${c.name} (contact)` })),
+  ...city.facilities.map((f) => ({ value: `facility:${f.id}`, label: f.name })),
+];
+const flagLink = 'flag-open hover:text-primary underline uppercase';
 
 const revealActionBtn =
   'w-full text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background flex items-center justify-center gap-2 transition-colors';
@@ -138,13 +152,44 @@ const revealActionBtn =
       <!-- Left column: contacts, masjid, musafir khana -->
       <div class="lg:col-span-8 flex flex-col">
         {
-          city.contacts.length > 0 && (
+          (city.office || city.contacts.length > 0) && (
             <>
               <h2 class={sectionHeader}>Section 1: Contacts</h2>
+              {city.office && (
+                <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
+                  <div class="md:col-span-8 flex flex-col">
+                    <h3 class="text-headline-md font-headline-md text-primary">Jamaat office</h3>
+                    <span class="font-data-mono text-data-mono text-on-surface-variant mt-1 uppercase">
+                      {city.jamaat_name || city.name}
+                    </span>
+                  </div>
+                  <div class="md:col-span-4 flex flex-col gap-2">
+                    <div class="reveal flex flex-col gap-2" data-id={city.id} data-type="office" data-wa="0">
+                      <button type="button" class={revealBtn}>
+                        <Icon name="call" size={18} />
+                        Show number
+                      </button>
+                      <div class="reveal-actions hidden flex-col gap-2">
+                        <div class="reveal-number font-data-mono text-data-mono text-center py-2 border-[1px] border-outline-variant bg-surface-container select-all" />
+                        <a class="reveal-call bg-primary hover:bg-primary-container" class:list={[revealActionBtn]} href="#">
+                          <Icon name="call" size={18} />
+                          Call
+                        </a>
+                      </div>
+                      <p class="reveal-error hidden text-error font-data-mono text-data-mono" role="alert" />
+                    </div>
+                  </div>
+                </article>
+              )}
               {city.contacts.map((c) => (
                 <article class={`grid grid-cols-1 md:grid-cols-12 gap-4 py-4 ${cardBorder}`}>
                   <div class="md:col-span-4 flex flex-col">
                     <h3 class="text-headline-md font-headline-md text-primary">{c.name}</h3>
+                    {c.representative && (
+                      <span class="self-start mt-1 px-2 py-1 bg-primary text-on-primary text-label-caps font-label-caps uppercase border-[1px] border-on-background">
+                        Jamaat representative
+                      </span>
+                    )}
                     {c.role && (
                       <span class="font-data-mono text-data-mono text-on-surface-variant mt-1 uppercase">
                         Role: {c.role}
@@ -217,10 +262,13 @@ const revealActionBtn =
                         Best time: {c.best_time}
                       </p>
                     )}
-                    <p class="font-data-mono text-data-mono text-outline uppercase">
-                      <a href={FORM_URL} target="_blank" rel="noopener" class="hover:text-primary underline">
+                    <p class="font-data-mono text-data-mono text-outline flex flex-wrap gap-x-4">
+                      <button type="button" class={flagLink} data-target={`contact:${c.id}`} data-kind="problem">
                         Report a problem
-                      </a>
+                      </button>
+                      <button type="button" class={flagLink} data-target={`contact:${c.id}`} data-kind="removal_request">
+                        Remove my details
+                      </button>
                     </p>
                   </div>
                 </article>
@@ -254,6 +302,11 @@ const revealActionBtn =
                         Reported — verify first
                       </p>
                     )}
+                    <p class="font-data-mono text-data-mono text-outline">
+                      <button type="button" class={flagLink} data-target={`facility:${f.id}`} data-kind="problem">
+                        Report a problem
+                      </button>
+                    </p>
                   </div>
                   <div class="md:col-span-4 flex flex-col gap-2">
                     {f.facilities.length > 0 && (
@@ -321,6 +374,11 @@ const revealActionBtn =
                         Reported — verify first
                       </p>
                     )}
+                    <p class="font-data-mono text-data-mono text-outline">
+                      <button type="button" class={flagLink} data-target={`facility:${f.id}`} data-kind="problem">
+                        Report a problem
+                      </button>
+                    </p>
                   </div>
                   <div class="md:col-span-4 flex flex-col justify-end gap-2">
                     {f.maps_url && (
@@ -415,20 +473,91 @@ const revealActionBtn =
       </div>
     </div>
 
+    {
+      missing.length > 0 && (
+        <section class="mt-10 p-4 border-[2px] border-dashed border-outline-variant bg-surface-container flex flex-col gap-2" aria-label="Not listed yet">
+          <p class="text-label-caps font-label-caps uppercase text-on-surface-variant">Not listed yet</p>
+          <p class="text-body-lg font-body-lg">
+            We don't have {missing.join(', ').replace(/, ([^,]*)$/, ' or $1')} for {city.name} yet.
+          </p>
+          <a href={addContactUrl(city.name)} class="self-start text-primary hover:text-primary-container underline font-data-mono text-data-mono flex items-center gap-1">
+            <Icon name="add" size={16} /> Know one? Add it
+          </a>
+        </section>
+      )
+    }
+
     <!-- Page footer: report / remove -->
     <footer class="mt-12 pt-6 border-t-[2px] border-on-background flex flex-col gap-2">
       <p class="text-label-caps font-label-caps uppercase text-on-surface-variant">
         Something wrong or missing?
       </p>
       <div class="flex flex-wrap gap-4 font-data-mono text-data-mono">
-        <a href={FORM_URL} target="_blank" rel="noopener" class="text-primary hover:text-primary-container underline flex items-center gap-1">
-          <Icon name="flag" size={16} /> Report a problem
-        </a>
-        <a href={FORM_URL} target="_blank" rel="noopener" class="text-primary hover:text-primary-container underline flex items-center gap-1">
-          <Icon name="close" size={16} /> Remove my details
+        {flagTargets.length > 0 && (
+          <button type="button" class="flag-open text-primary hover:text-primary-container underline flex items-center gap-1" data-kind="problem">
+            <Icon name="flag" size={16} /> Report a problem
+          </button>
+        )}
+        {city.contacts.length > 0 && (
+          <button type="button" class="flag-open text-primary hover:text-primary-container underline flex items-center gap-1" data-kind="removal_request">
+            <Icon name="close" size={16} /> Remove my details
+          </button>
+        )}
+        <a href={addContactUrl(city.name)} class="text-primary hover:text-primary-container underline flex items-center gap-1">
+          <Icon name="add" size={16} /> Add something missing
         </a>
       </div>
     </footer>
+
+    {
+      flagTargets.length > 0 && (
+        <dialog
+          id="flag-dialog"
+          class="w-[calc(100%-32px)] max-w-lg bg-background text-on-background border-[2px] border-on-background p-0 backdrop:bg-on-background/50"
+        >
+          <form id="flag-form" class="flex flex-col gap-4 p-5">
+            <h2 class="text-label-caps font-label-caps uppercase">Report or remove</h2>
+            <label class="flex flex-col gap-1">
+              <span class="text-label-caps font-label-caps uppercase text-on-surface-variant">Which entry</span>
+              <select name="target" required class="border-[2px] border-on-background bg-background p-2 font-data-mono text-data-mono">
+                {flagTargets.map((t) => <option value={t.value}>{t.label}</option>)}
+              </select>
+            </label>
+            <fieldset class="flex flex-col gap-2">
+              <legend class="text-label-caps font-label-caps uppercase text-on-surface-variant mb-1">What do you want to do</legend>
+              <label class="flex items-start gap-2 text-body-sm font-body-sm">
+                <input type="radio" name="kind" value="problem" checked class="mt-1" />
+                Report a problem (wrong number, closed, moved, other)
+              </label>
+              <label class="flag-removal flex items-start gap-2 text-body-sm font-body-sm">
+                <input type="radio" name="kind" value="removal_request" class="mt-1" />
+                Remove my details: this is me and I want my entry taken down
+              </label>
+            </fieldset>
+            <p class="flag-removal-note hidden text-body-sm font-body-sm bg-surface-container border-[1px] border-outline-variant p-2">
+              Your number stops being shown straight away and your name leaves this page within a few minutes.
+            </p>
+            <label class="flex flex-col gap-1">
+              <span class="text-label-caps font-label-caps uppercase text-on-surface-variant">Details (optional)</span>
+              <textarea name="reason" rows="3" maxlength="500" class="border-[2px] border-on-background bg-background p-2 text-body-sm font-body-sm" />
+            </label>
+            {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} />}
+            <p class="flag-status hidden font-data-mono text-data-mono" role="status" />
+            <div class="flex gap-2 justify-end">
+              <button type="button" class="flag-cancel bg-surface-container text-on-background text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background hover:bg-surface-variant">
+                Close
+              </button>
+              <button type="submit" class="flag-send bg-primary text-on-primary text-label-caps font-label-caps uppercase py-2 px-4 border-[2px] border-on-background hover:bg-primary-container">
+                Send
+              </button>
+            </div>
+          </form>
+        </dialog>
+      )
+    }
+    {TURNSTILE_SITE_KEY && (
+      <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    )}
   </main>
 </Base>
 
@@ -503,4 +632,93 @@ const revealActionBtn =
       }
     });
   });
+  // Report a problem / remove my details: one shared dialog posting to /api/flag.
+  const flagDialog = document.querySelector<HTMLDialogElement>('#flag-dialog');
+  const flagForm = document.querySelector<HTMLFormElement>('#flag-form');
+  if (flagDialog && flagForm) {
+    const targetSel = flagForm.querySelector<HTMLSelectElement>('[name="target"]')!;
+    const removalRow = flagForm.querySelector<HTMLElement>('.flag-removal')!;
+    const removalRadio = removalRow.querySelector<HTMLInputElement>('input')!;
+    const problemRadio = flagForm.querySelector<HTMLInputElement>('[name="kind"][value="problem"]')!;
+    const removalNote = flagForm.querySelector<HTMLElement>('.flag-removal-note')!;
+    const statusEl = flagForm.querySelector<HTMLElement>('.flag-status')!;
+    const sendBtn = flagForm.querySelector<HTMLButtonElement>('.flag-send')!;
+
+    // Only a contact can remove itself; places go through a report.
+    const sync = () => {
+      const isContact = targetSel.value.startsWith('contact:');
+      removalRow.classList.toggle('hidden', !isContact);
+      if (!isContact) problemRadio.checked = true;
+      removalNote.classList.toggle('hidden', !removalRadio.checked);
+    };
+    targetSel.addEventListener('change', sync);
+    flagForm.querySelectorAll('[name="kind"]').forEach((r) => r.addEventListener('change', sync));
+
+    document.querySelectorAll<HTMLButtonElement>('.flag-open').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        flagForm.reset();
+        statusEl.classList.add('hidden');
+        sendBtn.disabled = false;
+        const target = btn.dataset.target;
+        if (target) {
+          targetSel.value = target;
+        } else if (btn.dataset.kind === 'removal_request') {
+          const firstContact = Array.from(targetSel.options).find((o) => o.value.startsWith('contact:'));
+          if (firstContact) targetSel.value = firstContact.value;
+        }
+        (btn.dataset.kind === 'removal_request' ? removalRadio : problemRadio).checked = true;
+        sync();
+        flagDialog.showModal();
+      });
+    });
+    flagForm.querySelector('.flag-cancel')?.addEventListener('click', () => flagDialog.close());
+
+    flagForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const [targetType, targetId] = targetSel.value.split(':');
+      const kind = removalRadio.checked ? 'removal_request' : 'problem';
+      const reason = (flagForm.querySelector<HTMLTextAreaElement>('[name="reason"]')?.value ?? '').trim();
+      const token = flagForm.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
+      const show = (msg: string, error: boolean) => {
+        statusEl.textContent = msg;
+        statusEl.classList.toggle('text-error', error);
+        statusEl.classList.remove('hidden');
+      };
+      sendBtn.disabled = true;
+      try {
+        const res = await fetch('/api/flag', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            target_type: targetType,
+            target_id: targetId,
+            kind,
+            reason: reason || undefined,
+            cf_token: token,
+          }),
+        });
+        if (res.status === 403) {
+          show('Please complete the check above and try again.', true);
+          sendBtn.disabled = false;
+          return;
+        }
+        if (!res.ok) {
+          show('Could not send. Please try again.', true);
+          sendBtn.disabled = false;
+          return;
+        }
+        show(
+          kind === 'removal_request'
+            ? 'Done. Your details are being removed.'
+            : 'Thank you. A moderator will check this entry.',
+          false,
+        );
+      } catch {
+        show('Network error. Please try again.', true);
+        sendBtn.disabled = false;
+      } finally {
+        (window as { turnstile?: { reset: () => void } }).turnstile?.reset();
+      }
+    });
+  }
 </script>

@@ -8,11 +8,11 @@ city, and gets a local contact, the masjid, and somewhere to stay.
 Built entirely on Cloudflare (Pages + Workers + D1 + R2 + Turnstile), with a
 Google Form / Sheet as the non-technical intake and moderation surface.
 
-> **Status:** working prototype (build order steps 1–3). Backend snapshot +
-> phone-safe `directory.json`, and the full frontend (home, search, city pages,
-> all states) built from the design deliverable, with a one-number-at-a-time
-> reveal endpoint. Later steps harden the reveal API and wire the ingest
-> pipeline, flags, backups, and deploy. See **Build status** below.
+> **Status:** deployed prototype (unlisted) with all core features built.
+> Intake is in-site (`/contribute` → `/moderate` → **Publish to site**); real
+> data is bulk-imported from supplied lists. Current state: `docs/PROGRESS.md` ·
+> checklist: `TODO.md` · decisions: `docs/DECISIONS.md` · dependencies:
+> `docs/DEPENDENCIES.md` · handover: `handover.md`.
 >
 > **Architecture explainer:** open `docs/how-it-works.html` in a browser for
 > rendered diagrams of the data flow, the page-building model, adding full vs.
@@ -23,16 +23,19 @@ Google Form / Sheet as the non-technical intake and moderation surface.
 ## Architecture
 
 ```
-Google Form → Google Sheet → Apps Script (onFormSubmit, onEdit)
-   → POST /api/ingest (HMAC-signed) → Pages Function → D1
-   → regenerates directory.json (no phone numbers) → cached at edge
-   → Cloudflare Pages (Astro static) fetches that one file, searches client-side
-   → GET /api/reveal?id=… returns a single phone number, rate limited
+/contribute (in-site form) ─┐
+supplied lists ─ npm run import:listings ─┤→ D1 (status = pending)
+                                          │
+/moderate: approve → status = live ───────┘
+   → /directory.json (no phone numbers, from D1)
+   → Publish to site → Pages deploy hook → astro build reads /directory.json
+     → static home + city pages
+   → GET /api/reveal?type=contact|facility|office&id=… returns ONE number, rate limited
 ```
 
 - **D1** is the source of truth. **R2** is used only for nightly JSON backups.
-- The Google Sheet stays as the moderation UI so a non-technical moderator can
-  fix a typo without a developer.
+- Moderation is in-site (`/moderate`, passcode), with an Excel round-trip for
+  bulk status changes. The Google Form / Sheet / Apps Script path is legacy.
 - **One JSON snapshot, client-side search** — shipped once, searched in memory,
   survives a bad connection. Phone numbers are excluded from it entirely and
   served one-at-a-time from `/api/reveal`.
@@ -48,20 +51,29 @@ Turnstile · Cloudflare Web Analytics · Google Apps Script · Wrangler · Vites
 ## Project structure
 
 ```
-migrations/            D1 schema migrations (0001_init.sql)
-functions/             Cloudflare Pages Functions (API + /directory.json)
+migrations/            D1 schema migrations (0001–0005)
+functions/             Cloudflare Pages Functions (same origin as the site)
   directory.json.ts    GET /directory.json — public snapshot from D1
+  api/                 reveal, submit, flag, feedback, login, pending(.xlsx),
+                       approve, import, publish, ingest (legacy)
 src/
   lib/
     types.ts           Row shapes (may hold phones) + Public* shapes (never do)
     snapshot.ts        buildSnapshot(): the only D1→snapshot bridge, phone-safe
+    directory-source.ts Build-time data: live /directory.json (prod) or seed (dev)
+    intake.ts          /contribute payload → pending rows
+    listings.ts        supplied list rows → pending rows (bulk import)
+    phone.ts           phone normalisation (+91…)
+    publish.ts         Pages deploy-hook trigger (Publish to site)
     search.ts          normalize + alias-aware client search (pure)
-  data/seed.ts         Seed dataset — single source of truth for DB + tests
-  pages/index.astro    Home screen (placeholder until Stage 3)
-scripts/
-  gen-seed-sql.ts      Generates seed.sql from src/data/seed.ts
-test/                  Vitest: no-phone-in-snapshot, consent, alias search, …
-wrangler.toml          Pages project config + D1/R2 bindings
+  data/seed.ts         Fictional sample data — dev + tests only
+  pages/               index, city/[id], contribute, moderate, about, …
+scripts/               seed/import/purge SQL generators, provision.sh
+data/                  import guide + CSV template (imports/ is gitignored)
+docs/                  PROGRESS, DECISIONS, DEPENDENCIES, gemini prompts,
+                       DEPLOYMENT runbook, how-it-works explainer
+test/                  Vitest: no-phone-in-snapshot, consent, import, …
+wrangler.toml          Pages project config + D1/KV bindings
 ```
 
 ## Local development
@@ -101,6 +113,20 @@ npm run db:migrate                          # apply schema to remote D1
 npm run db:seed                             # load seed data
 ```
 
+## Importing real data
+
+Real listings come from supplied lists, never hand-typed seed. See
+[`data/README.md`](data/README.md):
+
+```bash
+npm run import:listings -- data/imports/list.csv --kind restaurant
+npx wrangler d1 execute jamaat_directory --remote --file=import.sql   # lands as pending
+npm run db:purge-samples      # once real data is approved: remove the fictional rows
+```
+
+`src/data/seed.ts` is test/demo data only. `npm run db:seed` wipes the remote
+database and now asks for confirmation.
+
 ## Secrets
 
 Never committed. Local values go in `.dev.vars` (gitignored — copy from
@@ -118,6 +144,17 @@ wrangler pages secret put TURNSTILE_SECRET  # Cloudflare Turnstile server key
 - `NOINDEX` — `"true"` (default) ships the site with `noindex` so it is not
   found on Google. Flip to `"false"` only if the committee chooses the fully
   public posture. This is the single flag for the open access-posture decision.
+
+### How pages get their data
+
+Production builds (`npm run build` / `deploy`, Cloudflare Git builds) render
+the home and city pages from the **live** `/directory.json` (D1). The build
+fails rather than fall back to sample data. `npm run dev` uses `seed.ts`.
+
+- `DIRECTORY_SOURCE=seed` forces sample data (offline builds).
+- `DIRECTORY_SOURCE_URL` overrides the snapshot URL (default: the production site).
+- `DEPLOY_HOOK_URL` (Pages secret) lets **Publish to site** in `/moderate`
+  rebuild the site after approvals.
 
 ## Privacy guarantees (enforced in code)
 
@@ -163,10 +200,11 @@ Full step-by-step is in `handover.md`.
 - [x] **5 — `/api/ingest`** (HMAC) + Apps Script trigger (`docs/apps-script.gs`)
 - [x] **6 — `/api/flag`** + self-service removal + 48h caution
 - [x] **7 — Nightly R2 backup** (`workers/backup`, scheduled)
-- [~] **8 — Deploy** — code done (analytics beacon, `noindex`/`robots.txt`); **provisioning + custom domain is on the Cloudflare account** (see below)
-
-All **code** for steps 1–8 is in place; what remains is provisioning the
-Cloudflare/Google resources and deploying (see **Deploy** and `handover.md`).
+- [x] **8 — Deploy** — live on Cloudflare Pages (D1 + KV); custom domain pending
+- [x] **9 — In-site intake + moderation** (`/contribute`, `/moderate`, Excel round-trip)
+- [x] **10 — Jamaat office number + official representative**
+- [x] **11 — Bulk import of supplied lists**; pages built from the live DB + Publish to site
+- [ ] **12 — Pilot data (15 cities)**, Turnstile, admin dashboard — see `TODO.md`
 
 ## Environment variables
 
@@ -174,7 +212,7 @@ Cloudflare/Google resources and deploying (see **Deploy** and `handover.md`).
   - `NOINDEX` — `"true"` (default) ships `noindex` + a disallow `robots.txt`.
   - `CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token; unset = no beacon.
 - **Runtime secrets** (`wrangler pages secret put …`, or `.dev.vars` locally):
-  - `INGEST_SECRET`, `TURNSTILE_SECRET`.
+  - `INGEST_SECRET`, `TURNSTILE_SECRET`, `ADMIN_PASSCODE`, `DEPLOY_HOOK_URL`.
 
 ## Performance / accessibility targets (acceptance criteria)
 

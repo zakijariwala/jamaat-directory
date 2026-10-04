@@ -40,7 +40,13 @@ const btnGhost =
           <input id="import-file" type="file" accept=".xlsx" class="hidden" />
         </label>
         <span id="import-status" class="font-data-mono text-data-mono text-on-surface-variant"></span>
+        <button id="publish-btn" type="button" class={btnPrimary + ' ml-auto'}>Publish to site</button>
       </div>
+      <p class="font-data-mono text-data-mono text-on-surface-variant mb-4">
+        Approved entries appear on the site after <strong>Publish to site</strong>
+        (the site rebuilds in about 2 minutes). Approve a batch, then publish once.
+        <span id="publish-status" role="status"></span>
+      </p>
       <div id="list"></div>
       <p id="empty" class="hidden font-data-mono text-data-mono text-on-surface-variant uppercase py-8">No pending submissions.</p>
     </section>
@@ -82,9 +88,9 @@ const btnGhost =
 
     function render(data: any) {
       const parts: string[] = [];
-      for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}`));
-      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}${c.provenance ? ' · ' + c.provenance : ''}`));
-      for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}`, `${f.city_id} · ${f.kind}`));
+      for (const c of data.cities) parts.push(sectionHead('City') + row('city', c.id, `${c.name} — ${c.jamaat_name || ''}`, `${c.state || ''}${c.office_phone ? ' · office ' + c.office_phone : ''}`));
+      for (const c of data.contacts) parts.push(sectionHead('Contact') + row('contact', c.id, `${c.name}  ·  ${c.phone}`, `${c.city_id} · ${c.is_representative === 1 ? 'REPRESENTATIVE · ' : ''}${c.role || ''} · ${c.self_added ? 'self' : c.consent ? 'consented' : 'NO CONSENT'}${c.provenance ? ' · ' + c.provenance : ''}`));
+      for (const f of data.facilities) parts.push(sectionHead('Facility') + row('facility', f.id, `${f.name}${f.phone ? '  ·  ' + f.phone : ''}`, `${f.city_id} · ${f.kind}${f.address ? ' · ' + f.address : ''}${f.source ? ' · source: ' + f.source : ''}`));
       const total = data.cities.length + data.contacts.length + data.facilities.length;
       listEl.innerHTML = parts.join('');
       emptyEl.classList.toggle('hidden', total > 0);
@@ -122,6 +128,21 @@ const btnGhost =
       statusEl.textContent = res.ok ? `Applied ${data.applied} update(s).` : `Error: ${data.error || res.status}`;
       input.value = '';
       if (res.ok) load();
+    });
+
+    document.getElementById('publish-btn')!.addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      const statusEl = document.getElementById('publish-status')!;
+      btn.disabled = true;
+      statusEl.textContent = ' Publishing…';
+      const res = await fetch('/api/publish', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      statusEl.textContent =
+        res.ok ? ' Rebuild started — pages update in about 2 minutes.'
+        : data.error === 'throttled' ? ` A rebuild just started — try again in ${data.retry_after}s.`
+        : data.error === 'not_configured' ? ' Publishing is not set up yet (DEPLOY_HOOK_URL secret missing).'
+        : ` Error: ${data.error || res.status}`;
+      btn.disabled = false;
     });
 
     async function doLogin() {

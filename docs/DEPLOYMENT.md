@@ -64,9 +64,14 @@ The first two commands each print an **`id`** — copy them.
 ## Phase 3 — Schema + data (remote D1)
 
 ```bash
-npm run db:migrate     # applies migrations/0001_init.sql to the remote D1
-npm run db:seed        # loads the sample cities (swap for real data at launch)
+npm run db:migrate     # applies every migration in migrations/ to the remote D1
 ```
+
+Real data is **imported, never hand-seeded**: see [`data/README.md`](../data/README.md)
+(`npm run import:listings`, then approve in `/moderate`). `npm run db:seed` loads
+the fictional samples and **wipes the remote DB first**, so it asks for
+confirmation. `npm run db:clear` empties the remote DB (also confirmed);
+`npm run db:purge-samples` removes only the sample rows.
 
 ## Phase 4 — Deploy the frontend
 
@@ -78,19 +83,33 @@ The first run **creates the Pages project** `jamaat-directory` and gives you a U
 like `https://jamaat-directory.pages.dev`. The D1/KV/R2 bindings are read from
 `wrangler.toml`.
 
+> **Pages are built from the live database.** `npm run build` fetches the live,
+> phone-free `https://jamaat-directory.pages.dev/directory.json` and renders the
+> home + city pages from it; if it can't, the build fails (it never falls back
+> to samples). Override with `DIRECTORY_SOURCE=seed` or `DIRECTORY_SOURCE_URL`.
+>
 > **Build-time vars** (read by Astro during `npm run build`): `NOINDEX` (defaults
 > `"true"` = unlisted) and `CF_ANALYTICS_TOKEN`. Set them in your shell for a
 > local deploy, or in **Pages → Settings → Environment variables** for
 > dashboard/Git builds.
 
-## Phase 5 — The ingest secret
+## Phase 5 — Secrets
 
 ```bash
-openssl rand -hex 32                        # copy the output
-npx wrangler pages secret put INGEST_SECRET # paste it when prompted
+npx wrangler pages secret put ADMIN_PASSCODE   # the /moderate passcode
+openssl rand -hex 32                           # copy the output
+npx wrangler pages secret put INGEST_SECRET    # paste it (legacy Apps Script only)
 ```
 
-Keep this value — the Apps Script uses the **same** one in Phase 10.
+**Publish to site** (rebuild after approvals): Pages project → **Settings →
+Builds → Deploy hooks** → add one for branch `main` (needs the Git-connected
+setup below), copy the URL, then:
+
+```bash
+npx wrangler pages secret put DEPLOY_HOOK_URL
+```
+
+Without it, run `npm run deploy` after approving.
 *(Don't set `TURNSTILE_SECRET` yet — see Phase 8.)*
 
 ## Phase 6 — Nightly backup Worker
@@ -131,9 +150,11 @@ Pages project → **Custom domains** → **Set up a domain** → enter yours. If
 domain's DNS is already on Cloudflare it's automatic; otherwise add the CNAME it
 shows you.
 
-## Phase 10 — Google intake (connects the Form → Cloudflare)
+## Phase 10 — Google intake (legacy, optional)
 
-*(Google side — needed for live contributions.)*
+*Superseded by the in-site `/contribute` form + `/moderate`. Only needed if the
+old Google Form is kept running; the Report / Remove links still point at it
+until they move in-site (see `TODO.md`).*
 
 1. Build the **Google Form**; link responses to a **Sheet**.
 2. Sheet → **Extensions → Apps Script** → paste **`docs/apps-script.gs`**.
@@ -156,7 +177,8 @@ go **fully public**: set `NOINDEX=false` as a build var and redeploy.
 - [ ] `https://<domain>/` loads; typing `madras` finds Chennai
 - [ ] `https://<domain>/directory.json` has data and **no `phone` field**
 - [ ] A city page → **Show number** reveals via `/api/reveal`
-- [ ] Add a Sheet row, set **Status=live** + tick consent → appears within ~5 min
+- [ ] Submit via `/contribute` → approve in `/moderate` → **Publish to site** → appears in ~2 min
+- [ ] A city with an office number shows **Jamaat office → Show number**
 - [ ] Report / Remove → the entry drops out
 - [ ] Backup Worker → an object exists in R2
 - [ ] Lighthouse (mobile): Perf 90+, Accessibility 100
@@ -165,13 +187,14 @@ go **fully public**: set `NOINDEX=false` as a build var and redeploy.
 
 ## Git-connected alternative
 
-Instead of `npm run deploy`, connect the repo + `jamaat-directory` branch in the
-Pages dashboard (build command `npm run build`, output `dist`), and add the
-D1/KV/R2 bindings under **Settings → Functions**. Then every push auto-deploys.
+Instead of `npm run deploy`, connect the repo + `main` branch in the Pages
+dashboard (build command `npm run build`, output `dist`, Node from
+`.node-version`), and add the D1/KV bindings under **Settings → Functions**.
+Then every push to `main` auto-deploys, and deploy hooks (Publish to site) work.
 
 Once D1 is live, the seed **fallbacks** in `functions/directory.json.ts` and
 `functions/api/reveal.ts` stay dormant (they only run when D1 is unbound) —
-optional to remove.
+removing them is a launch item in `TODO.md`.
 
 ---
 

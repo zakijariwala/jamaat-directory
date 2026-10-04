@@ -52,7 +52,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   } catch (e) {
     return json({ error: 'invalid', detail: (e as Error).message }, 400);
   }
-  if (rows.contacts.length === 0 && rows.facilities.length === 0) {
+  if (rows.contacts.length === 0 && rows.facilities.length === 0 && !rows.city.office_phone) {
     return json({ error: 'nothing_to_add' }, 400);
   }
 
@@ -63,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     city: rows.city,
     contacts: rows.contacts,
     facilities: rows.facilities,
-  });
+  }, { city: 'ignore' });
   await env.DB.batch(statements.map((s) => env.DB!.prepare(s.query).bind(...s.params)));
 
   return json({ ok: true, pending: statements.length, city: rows.city.id });

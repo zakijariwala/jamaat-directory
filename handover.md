@@ -2,17 +2,24 @@
 
 Everything you need to pick this project up on your laptop and keep building.
 
-Last updated: 24 July 2026.
+Last updated: 3 October 2026.
 
 ---
 
 ## 1. Current state — read this first
 
 - **The prototype is DEPLOYED** on Cloudflare Pages → **https://jamaat-directory.pages.dev**
-  (seed data, unlisted / `noindex`).
-- **Repo:** its own home now → **https://github.com/zakijariwala/jamaat-directory** (`main`).
-- **All application code (build steps 1–8) is written, tested, and deployed.** 43 tests
-  pass. What remains is *content* and a few connect-the-dots tasks — see §9.
+  (unlisted / `noindex`). The live D1 still holds the fictional sample data
+  plus one test city (Mahuva); it is cleared at go-live (`npm run db:clear`).
+- **Repo:** **https://github.com/zakijariwala/jamaat-directory** (`main`).
+- **Intake is in-site:** `/contribute` → pending → `/moderate` approve →
+  **Publish to site**. The Google Form / Apps Script path is legacy.
+- **Real data** comes from supplied lists via `npm run import:listings`
+  (prompts for collecting it: `docs/gemini-data-prompts.md`), never hand-typed
+  seed. 15-city pilot, deliberately mixing complete and incomplete cities.
+- **For future sessions, read first:** `docs/PROGRESS.md` (where things are),
+  `docs/DECISIONS.md` (what was decided and why), `docs/DEPENDENCIES.md`
+  (what blocks what, who owns it), `TODO.md` (the checklist).
 
 **Provisioned on Cloudflare so far:**
 
@@ -21,7 +28,10 @@ Last updated: 24 July 2026.
 | **D1** database `jamaat_directory` | ✅ created; schema + seed loaded (remote) |
 | **KV** namespace `RATE_LIMIT` | ✅ created (reveal rate limiting) |
 | **Pages** project `jamaat-directory` | ✅ deployed via `wrangler pages deploy` |
-| **INGEST_SECRET** | ✅ set during deploy — *save the value; the Apps Script needs it* |
+| **INGEST_SECRET** | ✅ set during deploy (legacy Apps Script only) |
+| **ADMIN_PASSCODE** | ✅ set (`/moderate` login works) |
+| **DEPLOY_HOOK_URL** | ⏳ not set — needed for **Publish to site** |
+| **Migration 0005** (office / representative / source) | ⏳ not applied to remote yet |
 | **R2** bucket (backups) | ⏳ deferred until backups are needed |
 | **Turnstile / Web Analytics / custom domain** | ⏳ not set up yet |
 
@@ -100,7 +110,7 @@ npm run db:migrate:local
 npm run db:seed:local
 
 # Verify
-npm test                     # Vitest — 43 tests incl. the no-phone-numbers guard
+npm test                     # Vitest — incl. the no-phone-numbers guard
 npm run typecheck            # tsc --noEmit
 npm run build                # astro build → ./dist
 
@@ -124,7 +134,11 @@ npm run preview              # build + wrangler pages dev — Functions + local 
 | `npm run build` | Static build to `./dist`. |
 | `npm run deploy` | Build + `wrangler pages deploy ./dist` (redeploy the live site). |
 | `npm test` / `npm run typecheck` | Vitest / `tsc --noEmit`. |
-| `npm run db:migrate` / `db:seed` | Apply migrations / load seed into **remote** D1. |
+| `npm run db:migrate` | Apply migrations to the **remote** D1. |
+| `npm run import:listings -- <file>` | Supplied CSV/Excel list → `import.sql` (pending rows). See `data/README.md`. |
+| `npm run db:clear` | Empty the **remote** D1 (asks for confirmation). |
+| `npm run db:purge-samples` | Remove only the sample rows from the remote D1. |
+| `npm run db:seed` | Load the sample data into the remote D1 — **wipes it first**; asks for confirmation. |
 | `npm run db:migrate:local` / `db:seed:local` | Same, against the **local** D1. |
 | `bash scripts/provision.sh` | One-command Cloudflare setup (Git Bash). Idempotent. |
 
@@ -147,29 +161,17 @@ costs are in **`docs/DEPLOYMENT.md`**.
 
 ## 9. What's left — your next steps
 
-1. **Set the Google Form link.** `src/lib/config.ts` → `FORM_URL` drives every
-   Add / Report / Remove button. Optionally set `FORM_CITY_ENTRY` (the form's
-   city-field id, from Forms' "Get pre-filled link") to pre-fill the city. Then
-   `npm run deploy`.
-2. **Build the Google Form + Sheet + Apps Script** (turns on live contributions):
-   - One Form whose first question is *"What would you like to do?"*
-     (Add / Report / Remove) with section branching; responses → a Sheet.
-   - Sheet → Extensions → Apps Script → paste `docs/apps-script.gs`. Script
-     Properties: `INGEST_URL = https://jamaat-directory.pages.dev/api/ingest`,
-     `INGEST_SECRET =` the value from deploy. Add the `onFormSubmit` + `onEdit`
-     triggers, and match the `COLS` map to your sheet headers.
-   - The sample script maps **city + one contact**; extend its column map to also
-     populate `facilities[]` for masjid / musafir / hotel / restaurant.
-3. **Client-side Turnstile widget.** `/api/reveal` enforces Turnstile only when
-   `TURNSTILE_SECRET` is set. The client widget isn't wired yet, so **do not set
-   that secret** until it is, or reveals `403`. Rate limiting (KV) is already live.
-4. **R2 + nightly backups** (when wanted): enable R2 in the dashboard →
-   `npx wrangler r2 bucket create jamaat-directory-backups` →
-   `cd workers/backup && npx wrangler deploy`.
-5. **Custom domain + Web Analytics** — optional polish (`docs/DEPLOYMENT.md`
-   phases 7 & 9).
-6. **Real data.** Replace the sample cities in `src/data/seed.ts`, or (better)
-   let the Google Form populate D1 and stop relying on seed.
+The full, current list is **`TODO.md`**; status and the pilot table are in
+**`docs/PROGRESS.md`**. In short:
+
+1. **Go live with this round** (order matters): `npm run db:migrate` →
+   `npm run db:clear` → merge the PR → create the Pages deploy hook and
+   `npx wrangler pages secret put DEPLOY_HOOK_URL` → `npm run deploy`.
+2. **Collect the pilot data** with `docs/gemini-data-prompts.md`, phase by
+   phase → `npm run import:listings` → approve in `/moderate` → **Publish to site**.
+3. **Before launch:** Turnstile, remove the seed fallbacks, move Report/Remove
+   in-site, admin dashboard (`TODO.md` §4), committee decisions.
+4. **Optional:** R2 backups, custom domain, Web Analytics (`docs/DEPLOYMENT.md`).
 
 ---
 
@@ -189,13 +191,11 @@ Found during the first real Cloudflare deploy, fixed in the repo:
 
 ## 11. Page-building model (important architecture note)
 
-The **data** (`/directory.json`) is always live from D1; the **HTML pages** (home
-index + `/city/[id]`) are generated **at build time from `src/data/seed.ts`**. So
-a city added via the Form lands in D1 and appears in `/directory.json`
-immediately, but its rendered page waits for a rebuild. Before launch, decide
-between (A) trigger a Pages rebuild on ingest, or (B) client-render the list/city
-pages from `directory.json`. Full explanation with diagrams:
-`docs/how-it-works.html`.
+Production builds render the home index and `/city/[id]` pages from the
+**live** `/directory.json` (D1) — see `src/lib/directory-source.ts`. Approving
+an entry updates D1 immediately; the pages update after **Publish to site** in
+`/moderate` (Pages deploy hook, `DEPLOY_HOOK_URL` secret) or `npm run deploy`.
+`npm run dev` still uses `src/data/seed.ts`.
 
 ---
 
@@ -203,13 +203,16 @@ pages from `directory.json`. Full explanation with diagrams:
 
 1. **Access posture** — public / unlisted+`noindex` / passcoded. Shipping
    unlisted (`NOINDEX="true"`) by default.
-2. **Hotels + restaurants in v1?** Both are the weakest, hardest-to-keep-current
-   sections. Decide if both stay.
+2. **Hotels + restaurants in v1?** Being collected for the pilot (halal lists +
+   Google Maps); the committee can still drop them.
 3. **Named moderators** (min. two).
 4. **Domain name.**
 5. **Any jamaat body whose endorsement should precede launch**, and whether that
    changes what may be published.
-6. **Frontend page-building strategy** (§11) — rebuild-on-write vs client-render.
+6. ~~Frontend page-building strategy~~ — decided: build from live D1 + publish button (§11).
+7. **Shared moderator passcode vs. per-moderator logins.**
+
+Decided items, with reasons, are logged in `docs/DECISIONS.md`.
 
 ---
 
@@ -233,8 +236,11 @@ pages from `directory.json`. Full explanation with diagrams:
 - **Secrets** never get committed. Local dev → `.dev.vars` (gitignored). Prod →
   `wrangler pages secret put`. Resource **ids** (D1/KV) are not secrets and *are*
   committed in `wrangler.toml`.
-- **`seed.sql`** and **`public/directory.json`** are generated + gitignored. The
-  source of truth is `src/data/seed.ts` (`npm run gen:seed-sql`, `gen:snapshot`).
+- **`seed.sql`**, **`import.sql`**, **`purge-samples.sql`** and
+  **`public/directory.json`** are generated + gitignored. `src/data/seed.ts` is
+  test/demo data only; production pages are built from the live D1.
+- **`data/imports/`** (supplied lists with phone numbers) is gitignored — keep
+  those files local.
 - **No-phone-numbers guarantee is enforced in code** — `buildSnapshot()` builds
   public objects from an explicit allowlist, and a test fails the build if any
   phone-like pattern reaches the snapshot. Keep it that way.
@@ -247,12 +253,9 @@ pages from `directory.json`. Full explanation with diagrams:
 
 ## 15. Resuming the build
 
-Fastest path to a fully live directory:
-
-1. Set `FORM_URL` (§9.1) and `npm run deploy` — the Add/Report/Remove buttons go live.
-2. Build the Google Form + wire `docs/apps-script.gs` (§9.2) — real contributions flow into D1.
-3. Decide the page-building strategy (§11) so new cities appear without a manual redeploy.
-4. Add Turnstile widget, R2 backups, custom domain as you go (§9.3–9.5).
-
-The prototype is already up for the committee to react to — everything from here
-is turning that into the live, self-maintaining directory.
+1. Read `docs/PROGRESS.md`, then `TODO.md`.
+2. `npm install && npm test && npm run typecheck && npm run build`
+   (`npm run build` needs internet: it reads the live directory. Offline:
+   `DIRECTORY_SOURCE=seed npm run build`.)
+3. Pick up the next unchecked 🔴 item in `TODO.md`, and log any new decision
+   in `docs/DECISIONS.md`.

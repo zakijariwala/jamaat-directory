@@ -5,11 +5,10 @@
 // status = 'live' rows are queried; buildSnapshot additionally drops any
 // live-but-unconsented contact.
 //
-// PROTOTYPE FALLBACK: until D1 is provisioned, there is no DB binding, so this
-// serves the seed-derived snapshot instead. Remove the fallback once D1 is live.
+// No seed fallback: without a DB binding this returns 503, so a broken binding
+// never silently publishes sample data (and the production build refuses it).
 
 import { buildSnapshot } from '../src/lib/snapshot';
-import { cities as seedCities, contacts as seedContacts, facilities as seedFacilities } from '../src/data/seed';
 import type { CityRow, ContactRow, FacilityRow, FlagRow } from '../src/lib/types';
 
 interface Env {
@@ -19,25 +18,26 @@ interface Env {
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const db = context.env.DB;
 
-  let snapshot;
-  if (db) {
-    const [cities, contacts, facilities, flags] = await Promise.all([
-      db.prepare("SELECT * FROM cities WHERE status = 'live'").all<CityRow>(),
-      db.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
-      db.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
-      db.prepare('SELECT * FROM flags WHERE resolved = 0').all<FlagRow>(),
-    ]);
-    snapshot = buildSnapshot(
-      cities.results,
-      contacts.results,
-      facilities.results,
-      Date.now(),
-      flags.results,
-    );
-  } else {
-    // No D1 bound yet (prototype): derive from seed (no flags).
-    snapshot = buildSnapshot(seedCities, seedContacts, seedFacilities);
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'db_unavailable' }), {
+      status: 503,
+      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    });
   }
+
+  const [cities, contacts, facilities, flags] = await Promise.all([
+    db.prepare("SELECT * FROM cities WHERE status = 'live'").all<CityRow>(),
+    db.prepare("SELECT * FROM contacts WHERE status = 'live'").all<ContactRow>(),
+    db.prepare("SELECT * FROM facilities WHERE status = 'live'").all<FacilityRow>(),
+    db.prepare('SELECT * FROM flags WHERE resolved = 0').all<FlagRow>(),
+  ]);
+  const snapshot = buildSnapshot(
+    cities.results,
+    contacts.results,
+    facilities.results,
+    Date.now(),
+    flags.results,
+  );
 
   return new Response(JSON.stringify(snapshot), {
     headers: {

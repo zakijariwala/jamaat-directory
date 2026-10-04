@@ -1,4 +1,6 @@
-// Cloudflare Pages Function: GET /api/reveal?type=contact|facility&id=…
+// Cloudflare Pages Function: GET /api/reveal?type=contact|facility|office&id=…
+//
+// type=office takes a city id and returns that jamaat's office number.
 //
 // Returns exactly ONE phone number. Phones never appear in directory.json —
 // they are served only here, one request at a time, and only for rows that are
@@ -10,13 +12,9 @@
 //     skips it) — enforced only when TURNSTILE_SECRET is configured
 //   - a reveal counter (aggregate only, never the IP)
 //
-// Everything degrades gracefully so the prototype works before D1/KV/Turnstile
-// are provisioned: missing bindings simply skip that protection.
+// Missing KV/Turnstile config skips that protection. A missing DB binding
+// returns 503: there is no seed fallback, so sample numbers are never served.
 
-import {
-  contacts as seedContacts,
-  facilities as seedFacilities,
-} from '../../src/data/seed';
 import { checkAndIncrement } from '../../src/lib/ratelimit';
 import { verifyTurnstile } from '../../src/lib/turnstile';
 
@@ -47,8 +45,10 @@ function hasSessionCookie(request: Request): boolean {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  const type = url.searchParams.get('type') === 'facility' ? 'facility' : 'contact';
+  const rawType = url.searchParams.get('type');
+  const type = rawType === 'facility' || rawType === 'office' ? rawType : 'contact';
   if (!id) return json({ error: 'missing_id' }, 400);
+  if (!env.DB) return json({ error: 'db_unavailable' }, 503);
 
   const ip = request.headers.get('CF-Connecting-IP') ?? '0.0.0.0';
   let setCookie: string | undefined;
@@ -84,31 +84,26 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   // --- Look up the single number ---
   let phone: string | null = null;
-  if (env.DB) {
-    if (type === 'facility') {
-      const row = await env.DB
-        .prepare("SELECT phone FROM facilities WHERE id = ? AND status = 'live'")
-        .bind(id)
-        .first<{ phone: string | null }>();
-      phone = row?.phone ?? null;
-    } else {
-      const row = await env.DB
-        .prepare(
-          "SELECT phone FROM contacts WHERE id = ? AND status = 'live' AND (self_added = 1 OR consent = 1)",
-        )
-        .bind(id)
-        .first<{ phone: string | null }>();
-      phone = row?.phone ?? null;
-    }
+  if (type === 'office') {
+    const row = await env.DB
+      .prepare("SELECT office_phone AS phone FROM cities WHERE id = ? AND status = 'live'")
+      .bind(id)
+      .first<{ phone: string | null }>();
+    phone = row?.phone ?? null;
+  } else if (type === 'facility') {
+    const row = await env.DB
+      .prepare("SELECT phone FROM facilities WHERE id = ? AND status = 'live'")
+      .bind(id)
+      .first<{ phone: string | null }>();
+    phone = row?.phone ?? null;
   } else {
-    if (type === 'facility') {
-      phone = seedFacilities.find((f) => f.id === id && f.status === 'live')?.phone ?? null;
-    } else {
-      const c = seedContacts.find(
-        (c) => c.id === id && c.status === 'live' && (c.self_added === 1 || c.consent === 1),
-      );
-      phone = c?.phone ?? null;
-    }
+    const row = await env.DB
+      .prepare(
+        "SELECT phone FROM contacts WHERE id = ? AND status = 'live' AND (self_added = 1 OR consent = 1)",
+      )
+      .bind(id)
+      .first<{ phone: string | null }>();
+    phone = row?.phone ?? null;
   }
 
   if (!phone) return json({ error: 'not_found' }, 404);
