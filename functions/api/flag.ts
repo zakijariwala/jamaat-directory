@@ -5,9 +5,12 @@
 //
 //  - problem          → logged; the snapshot shows a caution on that entry after
 //                       48h if a moderator hasn't resolved it.
-//  - removal_request  → logged AND the target is set status='removed' immediately
-//                       (self-service removal, no questions asked). It drops out
-//                       of the snapshot on the next rebuild (≤5 min edge cache).
+//  - removal_request  → logged AND, for a contact, the target is set
+//                       status='removed' immediately (self-service removal, no
+//                       questions asked). It drops out of the snapshot on the
+//                       next rebuild (≤5 min edge cache). A place (facility) is
+//                       not one person's details, so its removal request is
+//                       only logged for a moderator.
 //
 // Turnstile is enforced when TURNSTILE_SECRET is configured.
 
@@ -35,7 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ error: 'bad_json' }, 400);
   }
 
-  const targetType = body.target_type === 'facility' ? 'facility' : 'contact';
+  const targetType: FlagTarget = body.target_type === 'facility' ? 'facility' : 'contact';
   const kind: FlagKind = body.kind === 'removal_request' ? 'removal_request' : 'problem';
   const targetId = (body.target_id ?? '').trim();
   if (!targetId) return json({ error: 'missing_target' }, 400);
@@ -53,24 +56,24 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
 
   const now = new Date().toISOString();
   const flagId = crypto.randomUUID();
-  const table = (targetType satisfies FlagTarget) === 'facility' ? 'facilities' : 'contacts';
 
   const statements = [
     env.DB
       .prepare(
         'INSERT INTO flags (id, target_type, target_id, reason, kind, resolved, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)',
       )
-      .bind(flagId, targetType, targetId, body.reason ?? null, kind, now),
+      .bind(flagId, targetType, targetId, body.reason?.trim().slice(0, 500) || null, kind, now),
   ];
 
-  if (kind === 'removal_request') {
+  const removeNow = kind === 'removal_request' && targetType === 'contact';
+  if (removeNow) {
     statements.push(
-      env.DB.prepare(`UPDATE ${table} SET status = 'removed' WHERE id = ?`).bind(targetId),
+      env.DB.prepare("UPDATE contacts SET status = 'removed' WHERE id = ?").bind(targetId),
     );
   }
 
   await env.DB.batch(statements);
-  if (kind === 'removal_request') {
+  if (removeNow) {
     // Take the name off the static city page too (the number is already
     // unrevealable). Throttled: public endpoint, so at most one build / 10 min.
     waitUntil(triggerRebuild(env, 600).catch(() => undefined));

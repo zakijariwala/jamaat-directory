@@ -1,6 +1,6 @@
 # TODO — Jamaat Directory
 
-Up-to-date list of what's left before and after launch. Last updated: 3 October 2026.
+Up-to-date list of what's left before and after launch. Last updated: 4 October 2026.
 
 **Where things stand:** the site is live at https://jamaat-directory.pages.dev
 (unlisted, `noindex`) running `main`. The office/representative, importer and
@@ -42,10 +42,13 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
       `TURNSTILE_SITE_KEY` in `src/lib/config.ts`, then
       `wrangler pages secret put TURNSTILE_SECRET`. Covers `/contribute`,
       feedback, flag, reveal.
-- [ ] **Remove seed fallbacks** in `functions/directory.json.ts` and
-      `functions/api/reveal.ts` so a D1 failure never silently serves sample data.
-- [ ] **Move Report / Remove in-site.** City pages still link to the old Google
-      Form (`FORM_URL`); point them at `/api/flag` with an in-site form.
+- [x] **Remove seed fallbacks** in `functions/directory.json.ts` and
+      `functions/api/reveal.ts`: no DB binding now returns 503 (decision 27).
+- [x] **Move Report / Remove in-site.** City pages open a dialog that posts to
+      `/api/flag` (per contact, per masjid/stay, and from the footer); the
+      home "add" link goes to `/contribute`. `FORM_URL` removed. Removal is
+      self-service for contacts only (decision 26). Needs a click-through on
+      the deployed site.
 
 ## 2. Seed data — 15-city pilot 🔴
 

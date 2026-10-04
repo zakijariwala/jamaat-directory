@@ -8,6 +8,8 @@ questions are at the bottom (and in `TODO.md` §7).
 
 | # | Date | Decision | Why | Alternatives considered |
 |---|---|---|---|---|
+| 27 | 4 Oct 2026 | `/directory.json` and `/api/reveal` return **503 without a DB binding**; no seed fallback | A broken binding must never publish fictional sample data or numbers | Keep the prototype fallback |
+| 26 | 4 Oct 2026 | Report / Remove is **in-site** (dialog posting to `/api/flag`). Self-service removal applies to **contacts only**; a removal request for a place (masjid, hotel) is logged for a moderator | A place isn't one person's details, and anyone could otherwise take down a masjid instantly | Keep the Google Form; let anyone remove any entry |
 | 25 | 3 Oct 2026 | Restaurants are **screened for halal** before import: no pure-veg, dhaba, bar-style or unnamed places; `halal` stays "Not sure" unless confirmed | A halal directory listing a non-halal place breaks trust | List everything Gemini returns |
 | 24 | 3 Oct 2026 | Pilot data files are **committed** in `data/pilot/` (not the gitignored `data/imports/`) | They hold only businesses' public numbers (no personal ones), and the import has to run from Zaki's laptop | Keep them local only |
 | 23 | 3 Oct 2026 | Several jamaats in one area: **village jamaats are listed under their own village name**; jamaats sharing one city get a combined name (e.g. "Kalupur Jamaat & Sarkhej Jamaat") | It's what travellers search for; no code change | Multi-jamaat support per city |

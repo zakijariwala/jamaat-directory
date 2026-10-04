@@ -4,7 +4,7 @@ Where the project stands. Update this at the end of every working session.
 Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 `DEPENDENCIES.md`.
 
-**Last updated:** 3 October 2026
+**Last updated:** 4 October 2026
 
 ## Snapshot
 
@@ -13,7 +13,7 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 | Live site | https://jamaat-directory.pages.dev, unlisted (`noindex`), running `main` |
 | Live data | Fictional samples + 1 test city (Mahuva). To be cleared at go-live. |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
-| Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet" |
+| Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet", in-site Report / Remove, no seed fallbacks |
 | Next | Go-live steps (below), then `npm run db:import-pilot` → approve → Publish |
 
 ## Go-live steps for the open PR (in order)
@@ -76,7 +76,7 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 | Bulk import of supplied lists (incl. `jamaat` rows) | ✅ in PR |
 | Pages built from live DB + Publish to site | ✅ in PR |
 | "Not listed yet" box on incomplete cities | ✅ in PR |
-| Report / removal API, 48h caution | ✅ (links still point at old Google Form) |
+| Report / removal API, 48h caution | ✅ in-site dialog (in PR); contacts self-remove, places go to a moderator |
 | About page + feedback form | ✅ |
 | Turnstile bot protection | ☐ |
 | Admin dashboard (edit, reports, re-verify, live, feedback, log) | ☐ |
@@ -87,6 +87,7 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 
 | Date | What happened |
 |---|---|
+| 4 Oct 2026 | Launch blockers: seed fallbacks removed (503 without DB); Report / Remove moved in-site (dialog → `/api/flag`), place removals logged not applied; last Google Form links gone. Tested against local D1. |
 | Jul 2026 | Stages 1–8 built and deployed; in-site intake + moderation added |
 | 3 Oct 2026 | Phase 4b: food + hotels for the 8 missing cities; halal screening removed 14 places + 1 in the wrong town. |
 | 3 Oct 2026 | Phases 2–4 collected, repaired (unquoted CSV) and verified; pilot data committed in `data/pilot/` with `npm run db:import-pilot`. |
