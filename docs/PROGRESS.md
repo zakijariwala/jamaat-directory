@@ -11,7 +11,7 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 | Area | State |
 |---|---|
 | Live site | https://jamaat-directory.pages.dev, unlisted (`noindex`), running `main` |
-| Live data | Fictional samples + 1 test city (Mahuva). To be cleared at go-live. |
+| Live data | Empty (cleared 4 Oct). Branch preview: https://feat-seed-import-and-represe-te1a.jamaat-directory.pages.dev |
 | Code | Core features done. 91 tests pass, typecheck and build clean. |
 | Open PR | `feat/seed-import-and-representative`: office number + representative, bulk importer, pages from live DB, Publish to site, "Not listed yet", in-site Report / Remove, no seed fallbacks |
 | Next | Go-live steps (below), then `npm run db:import-pilot` → approve → Publish |
@@ -20,8 +20,8 @@ Checklist detail lives in `TODO.md`; reasons in `DECISIONS.md`; blockers in
 
 | # | Step | Who | Done |
 |---|---|---|---|
-| 1 | `npm run db:migrate` (migration 0005) **before** merging | Zaki | ☐ |
-| 2 | `npm run db:clear` (empty live DB; approved, no real data in it) | Zaki | ☐ |
+| 1 | `npm run db:migrate` (migration 0005) **before** merging | Zaki | ✅ 4 Oct |
+| 2 | `npm run db:clear` (empty live DB; approved, no real data in it) | Zaki | ✅ 4 Oct (backup in `backups/`) |
 | 3 | Merge the PR into `main` | Zaki | ☐ |
 | 4 | Pages deploy hook → `npx wrangler pages secret put DEPLOY_HOOK_URL` | Zaki | ☐ |
 | 5 | `npm run deploy` (site rebuilds from the empty live DB) | Zaki | ☐ |
@@ -87,7 +87,7 @@ Proposed 3 Oct 2026; swap any city before Phase 2. Size and target
 
 | Date | What happened |
 |---|---|
-| 4 Oct 2026 | Launch blockers: seed fallbacks removed (503 without DB); Report / Remove moved in-site (dialog → `/api/flag`), place removals logged not applied; last Google Form links gone. Tested against local D1. |
+| 4 Oct 2026 | Launch blockers: seed fallbacks removed (503 without DB); Report / Remove moved in-site (dialog → `/api/flag`), place removals logged not applied; last Google Form links gone. Tested against local D1. Go-live: migration 0005 applied, live DB backed up and cleared, branch deployed as a preview and smoke-tested. |
 | Jul 2026 | Stages 1–8 built and deployed; in-site intake + moderation added |
 | 3 Oct 2026 | Phase 4b: food + hotels for the 8 missing cities; halal screening removed 14 places + 1 in the wrong town. |
 | 3 Oct 2026 | Phases 2–4 collected, repaired (unquoted CSV) and verified; pilot data committed in `data/pilot/` with `npm run db:import-pilot`. |

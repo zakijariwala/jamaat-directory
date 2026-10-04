@@ -35,7 +35,7 @@ Legend: 🔴 launch blocker · 🟠 should do before launch · 🟢 after launch
       Settings → Builds → Deploy hooks, branch `main`) and save it:
       `npx wrangler pages secret put DEPLOY_HOOK_URL`. Without it, run
       `npm run deploy` after approving instead.
-- [ ] **Clear the live D1** (approved — no real submissions; the 12th live
+- [x] **Clear the live D1** (done 4 Oct; approved — no real submissions; the 12th live
       city, Mahuva, was a test): `npm run db:clear`, then `npm run deploy`.
       (`npm run db:purge-samples` remains for removing only the sample rows.)
 - [ ] **Turnstile (bot protection).** Create the Turnstile site, set
@@ -109,7 +109,7 @@ representative among the contacts.
 - [x] `/moderate` queue shows office phone, REPRESENTATIVE, listing source
 - [x] Public intake no longer overwrites an existing city (could knock a live
       city back to pending)
-- [ ] Apply migration to the live D1: `npm run db:migrate`, then `npm run deploy`
+- [x] Apply migration to the live D1 (4 Oct); `npm run deploy` after merge
 - [ ] Changing the office number of an **existing** city needs the dashboard's
       edit (§4) — `/contribute` only sets it for new cities
 - [ ] Decide: one representative per jamaat (auto-unset others on approve) or allow several
