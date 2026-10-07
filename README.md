@@ -11,7 +11,7 @@ Google Form / Sheet as the non-technical intake and moderation surface.
 > **Status:** deployed prototype (unlisted) with all core features built.
 > Intake is in-site (`/contribute` → `/moderate` → **Publish to site**); real
 > data is bulk-imported from supplied lists. Current state: `docs/PROGRESS.md` ·
-> checklist: `TODO.md` · decisions: `docs/DECISIONS.md` · dependencies:
+> checklist: `TODO.md` · dev-team handoff: `docs/HANDOFF.md` · decisions: `docs/DECISIONS.md` · dependencies:
 > `docs/DEPENDENCIES.md` · handover: `handover.md`.
 >
 > **Architecture explainer:** open `docs/how-it-works.html` in a browser for
