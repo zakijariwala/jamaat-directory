@@ -5,6 +5,7 @@ Read these first, in this order:
 2. `TODO.md`: the checklist (🔴 launch blockers first)
 3. `docs/DECISIONS.md`: settled decisions and why; don't reopen them without the user
 4. `docs/DEPENDENCIES.md`: what blocks what, services, secrets
+5. `docs/HANDOFF.md`: stack, infra, auth, env vars, known gaps (one page)
 
 Rules that must hold:
 - No phone number ever reaches `directory.json` or the static pages. Public
